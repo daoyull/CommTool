@@ -1,0 +1,41 @@
+﻿<commonWpf:UserComponent
+    x:TypeArguments="viewModels:TcpClientViewModel"
+    x:Class="NetTool.WPF.Views.TcpClientView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:components="clr-namespace:NetTool.WPF.Components"
+    xmlns:viewModels="clr-namespace:NetTool.WPF.ViewModels"
+    xmlns:commonWpf="clr-namespace:CommonWpf;assembly=Common.WPF"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    mc:Ignorable="d"
+    d:DataContext="{d:DesignData viewModels:TcpClientViewModel}"
+    d:DesignHeight="300" d:DesignWidth="300">
+    <commonWpf:UserComponent.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="DeepPurple" SecondaryColor="Lime" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml" /> 
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </commonWpf:UserComponent.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <Label Content="Ip" />
+            <TextBox Text="{Binding Config.Ip}" />
+            <Label Content="Port" />
+            <TextBox Text="{Binding Config.Port}" />
+            <Button Command="{Binding ConnectionCommand}">连接</Button>
+        </StackPanel>
+        <StackPanel Grid.Row="1">
+            <components:NetLogger x:Name="NetLogger" BorderBrush="Chocolate" BorderThickness="1" />
+        </StackPanel>
+    </Grid>
+</commonWpf:UserComponent>

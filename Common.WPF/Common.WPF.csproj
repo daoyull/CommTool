@@ -8,14 +8,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Common.WPF\Common.WPF.csproj" />
+      <ProjectReference Include="..\Common\src\Common.Lib\Common.Lib.csproj" />
       <ProjectReference Include="..\Common\src\Common.Mvvm\Common.Mvvm.csproj" />
-      <ProjectReference Include="..\NetTool.Lib\NetTool.Lib.csproj" />
-      <ProjectReference Include="..\NetTool.Module\NetTool.Module.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="MaterialDesignThemes" Version="5.1.0" />
     </ItemGroup>
 
 </Project>

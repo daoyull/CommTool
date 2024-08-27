@@ -8,4 +8,8 @@
         <UseWPF>true</UseWPF>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\NetTool.WPF\NetTool.WPF.csproj" />
+    </ItemGroup>
+
 </Project>

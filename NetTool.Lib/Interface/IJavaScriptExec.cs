@@ -1,12 +1,13 @@
-﻿using TouchSocket.Core;
+﻿using NetTool.Lib.Entity;
 
 namespace NetTool.Lib.Interface;
 
 public interface IJavaScriptExec
 {
-    public string? Script { get; set; }
-    
-    public object DoSend(byte[] buffer);
+    public void Reload(string script);
 
-    public object Received(ByteBlock byteBlock);
+    public SendOption DoSend(byte[] buffer);
+
+    public ReceiveOption OnReceived(byte[] buffer);
+    
 }
