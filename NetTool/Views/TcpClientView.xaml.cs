@@ -1,7 +1,5 @@
 ﻿
-using NetTool.WPF.ViewModels;
-
-namespace NetTool.WPF.Views;
+namespace NetTool.Views;
 
 public partial class TcpClientView
 {

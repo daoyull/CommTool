@@ -2,8 +2,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetTool.Lib", "NetTool.Lib\NetTool.Lib.csproj", "{E05751F1-BF1B-4F6B-A93A-7D1721D6A844}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetTool.WPF", "NetTool.WPF\NetTool.WPF.csproj", "{A71ECDFA-EB8D-49F0-A3A0-C3D7E55F421E}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetTool.Module", "NetTool.Module\NetTool.Module.csproj", "{12BA4F63-1277-4F14-ACC0-8D547995B00C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetTool", "NetTool\NetTool.csproj", "{13907143-A6FD-4329-859E-6755B29A24A9}"
@@ -26,10 +24,6 @@ Global
 		{E05751F1-BF1B-4F6B-A93A-7D1721D6A844}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E05751F1-BF1B-4F6B-A93A-7D1721D6A844}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E05751F1-BF1B-4F6B-A93A-7D1721D6A844}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A71ECDFA-EB8D-49F0-A3A0-C3D7E55F421E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A71ECDFA-EB8D-49F0-A3A0-C3D7E55F421E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A71ECDFA-EB8D-49F0-A3A0-C3D7E55F421E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A71ECDFA-EB8D-49F0-A3A0-C3D7E55F421E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{12BA4F63-1277-4F14-ACC0-8D547995B00C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{12BA4F63-1277-4F14-ACC0-8D547995B00C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12BA4F63-1277-4F14-ACC0-8D547995B00C}.Release|Any CPU.ActiveCfg = Release|Any CPU

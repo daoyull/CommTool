@@ -8,12 +8,17 @@
 
     <ItemGroup>
       <PackageReference Include="Microsoft.ClearScript" Version="7.4.5" />
-      <PackageReference Include="TouchSocket" Version="2.0.16" />
-      <PackageReference Include="TouchSocket.Core" Version="2.0.16" />
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Common\src\Common.Lib\Common.Lib.csproj" />
       <ProjectReference Include="..\NetTool.Lib\NetTool.Lib.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="JavaScripts\DefaultScript.js">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

@@ -1,11 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace NetTool.WPF.Models;
+namespace NetTool.Models;
 
 public partial class TcpConfig : ObservableObject
 {
     [ObservableProperty] private string? _ip = "127.0.0.1";
-    [ObservableProperty] private uint _port = 7789;
+    [ObservableProperty] private int _port = 7789;
 
     public bool Verify(out string errMsg)
     {

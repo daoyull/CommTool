@@ -1,10 +1,10 @@
 ﻿using System.Windows.Media;
 
-namespace NetTool.WPF.Common;
+namespace NetTool.Common;
 
 public static class BrushHelper
 {
-    public static Brush Parse(string hexColor)
+    public static SolidColorBrush Parse(string hexColor)
     {
         // 验证格式是否正确
         if (hexColor == null || hexColor.Length != 9 && hexColor.Length != 7)

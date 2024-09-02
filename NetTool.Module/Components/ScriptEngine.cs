@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace NetTool.Module.Components;
 
-public class ScriptEngine : IJavaScriptExec, IDisposable
+public class ScriptEngine : IJavaScriptExec
 {
     private V8ScriptEngine _engine = new();
     private string? _script;

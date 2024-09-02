@@ -1,6 +1,6 @@
-﻿using NetTool.WPF.Components;
+﻿using NetTool.Components;
 
-namespace NetTool.WPF.Extensions;
+namespace NetTool.Extensions;
 
 public static class UiLoggerExtension
 {

@@ -9,7 +9,27 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\NetTool.WPF\NetTool.WPF.csproj" />
+      <PackageReference Include="MaterialDesignThemes" Version="5.1.0" />
+      <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Page Update="Views\TcpClientView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </Page>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Common.WPF\Common.WPF.csproj" />
+      <ProjectReference Include="..\Common\src\Common.Mvvm\Common.Mvvm.csproj" />
+      <ProjectReference Include="..\NetTool.Lib\NetTool.Lib.csproj" />
+      <ProjectReference Include="..\NetTool.Module\NetTool.Module.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="MaterialDesignThemes.Wpf">
+        <HintPath>C:\Users\DaoYu\.nuget\packages\materialdesignthemes\5.1.0\lib\net8.0\MaterialDesignThemes.Wpf.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
 </Project>

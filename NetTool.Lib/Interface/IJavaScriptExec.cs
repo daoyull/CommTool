@@ -2,7 +2,7 @@
 
 namespace NetTool.Lib.Interface;
 
-public interface IJavaScriptExec
+public interface IJavaScriptExec :  IDisposable
 {
     public void Reload(string script);
 
