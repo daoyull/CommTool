@@ -1,0 +1,27 @@
+﻿<UserControl x:Class="NetTool.Components.Notify"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:NetTool.Components"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <StackPanel x:Name="MainStackPanel">
+        <Border Visibility="Collapsed" CornerRadius="8" Background="#323232" Height="40" Width="200">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="TextBlock" VerticalAlignment="Center" FontSize="15" Foreground="White" Margin="10"/>
+            </StackPanel>
+        </Border>
+        <Border  CornerRadius="8" Background="#323232" Height="40" Width="200">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="TextBlock" VerticalAlignment="Center" FontSize="15" Foreground="White" Margin="10"/>
+            </StackPanel>
+        </Border>
+        <Border CornerRadius="8" Background="#323232" Height="40" Width="200">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="TextBlock" VerticalAlignment="Center" FontSize="15" Foreground="White" Margin="10"/>
+            </StackPanel>
+        </Border>
+       
+    </StackPanel>
+</UserControl>

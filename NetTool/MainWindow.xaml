@@ -4,9 +4,15 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:NetTool.Views"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="600" Width="800"
+        WindowStartupLocation="CenterScreen">
     <Grid>
-        <views:TcpClientView/>
+        <Grid HorizontalAlignment="Right" ZIndex="10" VerticalAlignment="Top" Height="30" Width="40">
+            <Button Click="ButtonBase_OnClick">点击</Button>
+        </Grid>
+
+        <views:TcpClientView />
     </Grid>
 </Window>

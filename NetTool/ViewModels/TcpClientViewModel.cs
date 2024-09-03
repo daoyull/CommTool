@@ -17,6 +17,13 @@ public partial class TcpClientViewModel : BaseViewModel, IDisposable
     public TcpClientViewModel(TcpClientService tcpClientService)
     {
         _client = tcpClientService;
+        _client.Closed += HandleClosed;
+    }
+
+    private void HandleClosed(object? sender, ClosedArgs e)
+    {
+        IsConnect = false;
+        _client.Received -= HandleReceive;
     }
 
     private Channel<ReceiveArgs> _receiveChannel = Channel.CreateUnbounded<ReceiveArgs>(new UnboundedChannelOptions
@@ -25,6 +32,9 @@ public partial class TcpClientViewModel : BaseViewModel, IDisposable
         SingleReader = true,
         SingleWriter = true
     });
+
+    [ObservableProperty] private string? _sendString;
+    [ObservableProperty] private bool _isConnect;
     
 
     [ObservableProperty] private TcpConfig _config = new();
@@ -56,8 +66,9 @@ public partial class TcpClientViewModel : BaseViewModel, IDisposable
 
         //载入配置
         _client.Ip = Config.Ip;
-        _client.Port = Config.Port;
+        _client.Port = Config.Port!.Value;
         await _client.ConnectAsync();
+        IsConnect = true;
     }
 
     private async Task? StartHandleReceive()
@@ -65,7 +76,8 @@ public partial class TcpClientViewModel : BaseViewModel, IDisposable
         await foreach (var args in _receiveChannel.Reader.ReadAllAsync())
         {
             var mes = Encoding.UTF8.GetString(args.Buffer);
-            UiLogger?.Info(mes + Environment.NewLine);
+            UiLogger?.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Receive]{Environment.NewLine}");
+            UiLogger?.Success($"{mes}{Environment.NewLine}{Environment.NewLine}");
             _scriptExec.OnReceived(args.Buffer);
         }
     }
@@ -73,6 +85,18 @@ public partial class TcpClientViewModel : BaseViewModel, IDisposable
     private async void HandleReceive(object? sender, ReceiveArgs e)
     {
         await _receiveChannel.Writer.WriteAsync(e);
+    }
+
+    [RelayCommand]
+    private async Task Send()
+    {
+        if (!_client.IsConnect || string.IsNullOrEmpty(SendString))
+        {
+            return;
+        }
+        await _client.SendAsync(Encoding.UTF8.GetBytes(SendString));
+        UiLogger?.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send]{Environment.NewLine}");
+        UiLogger?.Message($"{SendString}{Environment.NewLine}{Environment.NewLine}","#1E6FFF");
     }
 
 
