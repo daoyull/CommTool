@@ -7,21 +7,6 @@
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
     <StackPanel x:Name="MainStackPanel">
-        <Border Visibility="Collapsed" CornerRadius="8" Background="#323232" Height="40" Width="200">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="TextBlock" VerticalAlignment="Center" FontSize="15" Foreground="White" Margin="10"/>
-            </StackPanel>
-        </Border>
-        <Border  CornerRadius="8" Background="#323232" Height="40" Width="200">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="TextBlock" VerticalAlignment="Center" FontSize="15" Foreground="White" Margin="10"/>
-            </StackPanel>
-        </Border>
-        <Border CornerRadius="8" Background="#323232" Height="40" Width="200">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="TextBlock" VerticalAlignment="Center" FontSize="15" Foreground="White" Margin="10"/>
-            </StackPanel>
-        </Border>
        
     </StackPanel>
 </UserControl>

@@ -55,7 +55,7 @@ public partial class TcpClientViewModel : BaseViewModel, IDisposable
         {
             return;
         }
-
+        await _client.ConnectAsync();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "JavaScripts", "DefaultScript.js");
 
         _scriptExec.Reload(await File.ReadAllTextAsync(path));
@@ -67,7 +67,7 @@ public partial class TcpClientViewModel : BaseViewModel, IDisposable
         //载入配置
         _client.Ip = Config.Ip;
         _client.Port = Config.Port!.Value;
-        await _client.ConnectAsync();
+        
         IsConnect = true;
     }
 

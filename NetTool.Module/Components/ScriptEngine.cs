@@ -10,39 +10,24 @@ public class ScriptEngine : IJavaScriptExec
 {
     private V8ScriptEngine _engine = new();
     private string? _script;
-    
+
     public ScriptEngine()
     {
         _engine.AddHostType("Console", typeof(Console));
         _engine.AddHostType("ByteHelper", typeof(ByteHelper));
     }
 
-    public string? Script
-    {
-        get => _script;
-        set
-        {
-            _script = value;
-            if (!string.IsNullOrEmpty(value))
-            {
-                _engine.Execute(value);
-            }
-        }
-    }
-
 
     public void Reload(string script)
     {
-        Script = script;
+        _script = script;
+        _engine.Dispose();
+        _engine = new();
+        _engine.Execute(script);
     }
 
     public SendOption DoSend(byte[] buffer)
     {
-        if (string.IsNullOrEmpty(Script))
-        {
-            return SendOption.Default;
-        }
-
         try
         {
             var result = _engine.Script.doSend(buffer);
@@ -56,11 +41,6 @@ public class ScriptEngine : IJavaScriptExec
 
     public ReceiveOption OnReceived(byte[] buffer)
     {
-        if (string.IsNullOrEmpty(Script))
-        {
-            return ReceiveOption.Default;
-        }
-
         try
         {
             var result = _engine.Script.onReceive(buffer);

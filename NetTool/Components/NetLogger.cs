@@ -30,23 +30,16 @@ public class NetLogger : RichTextBox, IUiLogger
         Document.LineHeight = 1;
         Document.Blocks.Add(_paragraph);
     }
-
-    private Dictionary<string, SolidColorBrush> _colorDict = new();
+    
 
     public void Message(string message, string color)
     {
         Dispatcher.Invoke(() =>
         {
-            if (!_colorDict.TryGetValue(color, out var brush))
-            {
-                _colorDict[color] = BrushHelper.Parse(color);
-                brush = _colorDict[color];
-            }
-
             var run = new Run()
             {
                 Text = message,
-                Foreground = brush
+                Foreground = BrushHelper.Parse(color)
             };
             _paragraph.Inlines.Add(run);
             if (AutoScrollEnd)

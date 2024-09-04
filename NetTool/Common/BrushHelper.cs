@@ -4,8 +4,15 @@ namespace NetTool.Common;
 
 public static class BrushHelper
 {
+    private static Dictionary<string, SolidColorBrush> _brushDict = new();
+
     public static SolidColorBrush Parse(string hexColor)
     {
+        if (_brushDict.TryGetValue(hexColor, out var value))
+        {
+            return value;
+        }
+
         // 验证格式是否正确
         if (hexColor == null || hexColor.Length != 9 && hexColor.Length != 7)
             throw new ArgumentException("Invalid hexadecimal color format", nameof(hexColor));
@@ -22,6 +29,8 @@ public static class BrushHelper
         }
 
         Color color = Color.FromArgb(a, r, g, b);
-        return new SolidColorBrush(color);
+        var brush = new SolidColorBrush(color);
+        _brushDict[hexColor] = brush;
+        return brush;
     }
 }
