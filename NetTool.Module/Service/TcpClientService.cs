@@ -60,50 +60,61 @@ public class TcpClientService : ITcpClientService
 
     private void ReceiveTask()
     {
-        Span<byte> buffer = new byte[ReceiveBufferSize];
-        while (_cts?.IsCancellationRequested == false)
+        try
         {
-            if (_stopwatch.IsRunning && _stopwatch.ElapsedMilliseconds > AutoBreakTime)
+            Span<byte> buffer = new byte[ReceiveBufferSize];
+            while (_cts?.IsCancellationRequested == false)
             {
-                var array = _list.ToArray();
-                _stopwatch.Reset();
-                _stopwatch.Stop();
-                OnReceive(array);
-            }
-
-            
-            if (buffer.Length != ReceiveBufferSize)
-            {
-                buffer = new byte[ReceiveBufferSize];
-            }
-
-            var count = _networkStream!.Read(buffer);
-            if (!AutoBreak)
-            {
-                OnReceive(buffer.Slice(0, count).ToArray(), false);
-                continue;
-            }
-
-            if (!_networkStream.DataAvailable)
-            {
-                if (_stopwatch.IsRunning)
+                Console.WriteLine(_stopwatch.ElapsedMilliseconds + "ms");
+                Console.WriteLine(_list.Count + "Count");
+                if (_stopwatch.IsRunning && (_stopwatch.ElapsedMilliseconds > AutoBreakTime || !_networkStream!.DataAvailable))
                 {
-                    _list.AddRange(buffer.Slice(0, count));
+                    var array = _list.ToArray();
+                    Console.WriteLine(array.Length);
+                    _list.Clear();
+                    _stopwatch.Reset();
+                    _stopwatch.Stop();
+                    OnReceive(array);
+                }
+
+
+                if (buffer.Length != ReceiveBufferSize)
+                {
+                    buffer = new byte[ReceiveBufferSize];
+                }
+
+                var count = _networkStream!.Read(buffer);
+                if (!AutoBreak)
+                {
+                    OnReceive(buffer.Slice(0, count).ToArray(), false);
+                    continue;
+                }
+
+                if (!_networkStream.DataAvailable)
+                {
+                    if (_stopwatch.IsRunning)
+                    {
+                        _list.AddRange(buffer.Slice(0, count));
+                    }
+                    else
+                    {
+                        OnReceive(buffer.Slice(0, count).ToArray());
+                    }
                 }
                 else
                 {
-                    OnReceive(buffer.Slice(0, count).ToArray());
-                }
-            }
-            else
-            {
-                if (!_stopwatch.IsRunning)
-                {
-                    _stopwatch.Start();
-                }
+                    if (!_stopwatch.IsRunning)
+                    {
+                        _stopwatch.Start();
+                    }
 
-                _list.AddRange(buffer.Slice(0, count));
+                    _list.AddRange(buffer.Slice(0, count));
+                }
             }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
         }
     }
 

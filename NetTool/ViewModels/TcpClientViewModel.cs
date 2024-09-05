@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.ComponentModel;
+using System.IO;
 using System.Text;
 using System.Threading.Channels;
 using Common.Mvvm.Abstracts;
@@ -7,17 +8,65 @@ using CommunityToolkit.Mvvm.Input;
 using NetTool.Lib.Args;
 using NetTool.Lib.Interface;
 using NetTool.Models;
+using NetTool.Module.Common;
 using NetTool.Module.Components;
 using NetTool.Module.Service;
+using NetTool.Service;
 
 namespace NetTool.ViewModels;
 
 public partial class TcpClientViewModel : BaseViewModel, IDisposable
 {
-    public TcpClientViewModel(TcpClientService tcpClientService)
+    public TcpClientViewModel(TcpClientService tcpClientService, SettingService settingService)
     {
         _client = tcpClientService;
+        _settingService = settingService;
         _client.Closed += HandleClosed;
+        ReceiveOption.PropertyChanged += HandleReceiveOptionChanged;
+        SendOption.PropertyChanged += HandleSendOptionChanged;
+    }
+
+    private void HandleSendOptionChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        switch (e.PropertyName)
+        {
+            case nameof(Models.SendOption.HexSend):
+                if (SendOption.HexSend)
+                {
+                    SendString = _settingService.ToHexStr(SendString ?? "");
+                }
+                else
+                {
+                    SendString = _settingService.HexToStr(SendString ?? "");
+                }
+
+                break;
+            case nameof(Models.SendOption.ScheduleSend):
+                Task.Run(StartScheduleSend);
+                break;
+        }
+    }
+
+    private async Task StartScheduleSend()
+    {
+        while (SendOption.ScheduleSend)
+        {
+            await SendAsync();
+            await Task.Delay(SendOption.ScheduleSendTime);
+        }
+    }
+
+    private void HandleReceiveOptionChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        switch (e.PropertyName)
+        {
+            case nameof(Models.ReceiveOption.AutoBreak):
+                _client.AutoBreak = ReceiveOption.AutoBreak;
+                break;
+            case nameof(Models.ReceiveOption.AutoBreakTime):
+                _client.AutoBreakTime = ReceiveOption.AutoBreakTime;
+                break;
+        }
     }
 
     private void HandleClosed(object? sender, ClosedArgs e)
@@ -35,11 +84,15 @@ public partial class TcpClientViewModel : BaseViewModel, IDisposable
 
     [ObservableProperty] private string? _sendString;
     [ObservableProperty] private bool _isConnect;
-    
+
+    [ObservableProperty] private ReceiveOption _receiveOption = new();
+    [ObservableProperty] private SendOption _sendOption = new();
+
 
     [ObservableProperty] private TcpConfig _config = new();
     private IJavaScriptExec _scriptExec = new ScriptEngine();
     private readonly TcpClientService _client;
+    private readonly SettingService _settingService;
     public IUiLogger? UiLogger { get; set; }
 
     public bool CanConnect()
@@ -55,29 +108,41 @@ public partial class TcpClientViewModel : BaseViewModel, IDisposable
         {
             return;
         }
-        await _client.ConnectAsync();
-        var path = Path.Combine(Directory.GetCurrentDirectory(), "JavaScripts", "DefaultScript.js");
-
-        _scriptExec.Reload(await File.ReadAllTextAsync(path));
-        _client.Received += HandleReceive;
-#pragma warning disable CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
-        Task.Run(StartHandleReceive);
-#pragma warning restore CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
 
         //载入配置
         _client.Ip = Config.Ip;
         _client.Port = Config.Port!.Value;
-        
+        _client.Received += HandleReceive;
+        await _client.ConnectAsync();
         IsConnect = true;
+#pragma warning disable CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
+        Task.Run(StartHandleReceive);
+#pragma warning restore CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "JavaScripts", "DefaultScript.js");
+        _scriptExec.Reload(await File.ReadAllTextAsync(path));
     }
 
     private async Task? StartHandleReceive()
     {
         await foreach (var args in _receiveChannel.Reader.ReadAllAsync())
         {
-            var mes = Encoding.UTF8.GetString(args.Buffer);
+            string outMessage;
+            if (ReceiveOption.HexDisplay)
+            {
+                outMessage = args.Buffer.ToHexString();
+            }
+            else
+            {
+                outMessage = Encoding.UTF8.GetString(args.Buffer);
+            }
+
+            if (ReceiveOption.AutoNewLine)
+            {
+                outMessage += Environment.NewLine;
+            }
+
             UiLogger?.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Receive]{Environment.NewLine}");
-            UiLogger?.Success($"{mes}{Environment.NewLine}{Environment.NewLine}");
+            UiLogger?.Success($"{outMessage}{Environment.NewLine}");
             _scriptExec.OnReceived(args.Buffer);
         }
     }
@@ -90,13 +155,56 @@ public partial class TcpClientViewModel : BaseViewModel, IDisposable
     [RelayCommand]
     private async Task Send()
     {
-        if (!_client.IsConnect || string.IsNullOrEmpty(SendString))
+        await SendAsync();
+    }
+
+    private async Task SendAsync()
+    {
+        try
         {
-            return;
+            if (!_client.IsConnect || string.IsNullOrEmpty(SendString))
+            {
+                return;
+            }
+
+            byte[] sendBuffer;
+            if (SendOption.HexSend)
+            {
+                sendBuffer = SendString.HexStringToArray();
+            }
+            else
+            {
+                sendBuffer = Encoding.UTF8.GetBytes(SendString);
+            }
+
+            await _client.SendAsync(sendBuffer);
+
+            string outMessage;
+            if (SendOption.HexSend)
+            {
+                outMessage = sendBuffer.ToHexString();
+            }
+            else
+            {
+                outMessage = Encoding.UTF8.GetString(sendBuffer);
+            }
+
+            if (ReceiveOption.AutoNewLine)
+            {
+                outMessage += Environment.NewLine;
+            }
+
+            UiLogger?.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send]{Environment.NewLine}");
+            UiLogger?.Message($"{outMessage}{Environment.NewLine}", "#1E6FFF");
+            if (SendOption.ScheduleSend)
+            {
+                await Task.Delay(SendOption.ScheduleSendTime);
+            }
         }
-        await _client.SendAsync(Encoding.UTF8.GetBytes(SendString));
-        UiLogger?.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send]{Environment.NewLine}");
-        UiLogger?.Message($"{SendString}{Environment.NewLine}{Environment.NewLine}","#1E6FFF");
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
 
 

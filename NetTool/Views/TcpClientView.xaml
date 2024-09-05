@@ -17,7 +17,7 @@
     mc:Ignorable="d">
     <commonWpf:UserComponent.Resources>
         <ResourceDictionary>
-            <converts:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+            <converts:InverseBooleanConverter x:Key="InverseBooleanConverter" />
             <Style x:Key="ReceiveRichTextBox" TargetType="components:NetLogger">
                 <Setter Property="BorderBrush" Value="Gray" />
                 <Setter Property="BorderThickness" Value="0" />
@@ -57,55 +57,48 @@
                 <Border Height="2" Margin="2 5 2 5" Background="Gainsboro"></Border>
                 <StackPanel Orientation="Horizontal" Margin="5">
                     <ToggleButton
-                        IsChecked="True"
+                        IsChecked="{Binding ReceiveOption.HexDisplay}"
                         Style="{StaticResource MaterialDesignSwitchToggleButton}"
                         ToolTip="MaterialDesignSwitchToggleButton" />
                     <Label>16进制显示</Label>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="5">
                     <ToggleButton
-                        IsChecked="True"
+                        IsChecked="{Binding ReceiveOption.SavaToFile}"
                         Style="{StaticResource MaterialDesignSwitchToggleButton}"
                         ToolTip="MaterialDesignSwitchToggleButton" />
                     <Label>接收数据保存到文件</Label>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="5">
                     <ToggleButton
-                        IsChecked="True"
+                        IsChecked="{Binding ReceiveOption.AutoNewLine}"
                         Style="{StaticResource MaterialDesignSwitchToggleButton}"
                         ToolTip="MaterialDesignSwitchToggleButton" />
                     <Label>接收数据自动换行</Label>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="5">
                     <ToggleButton
-                        IsChecked="True"
+                        IsChecked="{Binding ReceiveOption.AutoBreak}"
                         Style="{StaticResource MaterialDesignSwitchToggleButton}"
                         ToolTip="MaterialDesignSwitchToggleButton" />
                     <Label VerticalAlignment="Center" Content="自动断帧"></Label>
                     <TextBox
                         Width="40"
                         Style="{StaticResource NetTextBox}"
-                        Text="20" />
+                        Text="{Binding ReceiveOption.AutoBreakTime}" />
                     <Label VerticalAlignment="Center" Content="毫秒"></Label>
                 </StackPanel>
                 <Border Height="2" Margin="2 5 2 5" Background="Gainsboro"></Border>
                 <StackPanel Orientation="Horizontal" Margin="5">
                     <ToggleButton
-                        IsChecked="True"
+                        IsChecked="{Binding SendOption.HexSend}"
                         Style="{StaticResource MaterialDesignSwitchToggleButton}"
                         ToolTip="MaterialDesignSwitchToggleButton" />
                     <Label>16进制发送</Label>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="5">
                     <ToggleButton
-                        IsChecked="True"
-                        Style="{StaticResource MaterialDesignSwitchToggleButton}"
-                        ToolTip="MaterialDesignSwitchToggleButton" />
-                    <Label>发送文件</Label>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="5">
-                    <ToggleButton
-                        IsChecked="True"
+                        IsChecked="{Binding SendOption.UseScript}"
                         Style="{StaticResource MaterialDesignSwitchToggleButton}"
                         ToolTip="MaterialDesignSwitchToggleButton" />
                     <Label>脚本</Label>
@@ -116,15 +109,19 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="5">
                     <ToggleButton
-                        IsChecked="True"
+                        IsChecked="{Binding SendOption.ScheduleSend}"
                         Style="{StaticResource MaterialDesignSwitchToggleButton}"
                         ToolTip="MaterialDesignSwitchToggleButton" />
                     <Label VerticalAlignment="Center">定时发送</Label>
                     <TextBox
                         Width="40"
+                        IsEnabled="{Binding SendOption.ScheduleSend,Converter={StaticResource InverseBooleanConverter}}"
                         Style="{StaticResource NetTextBox}"
-                        Text="20" />
+                        Text="{Binding SendOption.ScheduleSendTime}" />
                     <Label VerticalAlignment="Center" Content="毫秒"></Label>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="5">
+                    <Button>发送文件</Button>
                 </StackPanel>
             </StackPanel>
         </Border>
@@ -160,10 +157,12 @@
                         materialDesign:HintAssist.Hint="发送区域..."
                         VerticalContentAlignment="Top"
                         PreviewKeyDown="OnSendTextKeyDown"
+                        PreviewTextInput="OnSendTextPreviewTextInput"
                         HorizontalContentAlignment="Left"
                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
                         HorizontalScrollBarVisibility="Hidden"
                         TextWrapping="Wrap"
+                        AcceptsReturn="True"
                         Text="{Binding SendString, UpdateSourceTrigger=PropertyChanged}"
                         VerticalScrollBarVisibility="Auto" />
                     <Button Grid.Column="1"

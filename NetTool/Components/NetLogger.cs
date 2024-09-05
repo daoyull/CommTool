@@ -24,6 +24,7 @@ public class NetLogger : RichTextBox, IUiLogger
     {
         VerticalScrollBarVisibility = ScrollBarVisibility.Visible;
         HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
+        Foreground = Brushes.Black;
         Document = new FlowDocument();
         _paragraph = new Paragraph();
         _paragraph.Typography.Kerning = true;
@@ -39,7 +40,7 @@ public class NetLogger : RichTextBox, IUiLogger
             var run = new Run()
             {
                 Text = message,
-                Foreground = BrushHelper.Parse(color)
+                // Foreground = BrushHelper.Parse(color)
             };
             _paragraph.Inlines.Add(run);
             if (AutoScrollEnd)
