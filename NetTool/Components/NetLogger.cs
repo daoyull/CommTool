@@ -1,52 +1,41 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Media;
+using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.Document;
+using ICSharpCode.AvalonEdit.Rendering;
 using NetTool.Common;
 using NetTool.Lib.Interface;
 
 namespace NetTool.Components;
 
-public class NetLogger : RichTextBox, IUiLogger
+public class NetLogger : TextEditor, IUiLogger
 {
-    public static readonly DependencyProperty AutoScrollEndProperty = DependencyProperty.Register(
-        nameof(AutoScrollEnd), typeof(bool), typeof(NetLogger), new PropertyMetadata(true));
-
-    public bool AutoScrollEnd
-    {
-        get => (bool)GetValue(AutoScrollEndProperty);
-        set => SetValue(AutoScrollEndProperty, value);
-    }
-
-    private Paragraph _paragraph;
-
     public NetLogger()
     {
-        VerticalScrollBarVisibility = ScrollBarVisibility.Visible;
         HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
-        Foreground = Brushes.Black;
-        Document = new FlowDocument();
-        _paragraph = new Paragraph();
-        _paragraph.Typography.Kerning = true;
-        Document.LineHeight = 1;
-        Document.Blocks.Add(_paragraph);
+        VerticalScrollBarVisibility = ScrollBarVisibility.Visible;
+        TextArea.TextView.LineTransformers.Add(_lineColorTransformer);
     }
-    
+
+    readonly LineColorTransformer _lineColorTransformer = new LineColorTransformer();
+
+    private void AppendLine(string message, string color)
+    {
+        AppendText(message + Environment.NewLine);
+        _lineColorTransformer.AddLineColor(Document.LineCount - 1, color);
+    }
 
     public void Message(string message, string color)
     {
+        var lineList = message.Split(Environment.NewLine).ToList();
         Dispatcher.Invoke(() =>
         {
-            var run = new Run()
+            foreach (var item in lineList)
             {
-                Text = message,
-                // Foreground = BrushHelper.Parse(color)
-            };
-            _paragraph.Inlines.Add(run);
-            if (AutoScrollEnd)
-            {
-                ScrollToEnd();
+                AppendLine(item, color);
             }
+
+            ScrollToEnd();
         });
     }
 
@@ -68,5 +57,24 @@ public class NetLogger : RichTextBox, IUiLogger
     public void Error(string message)
     {
         Message(message, "#E30519");
+    }
+}
+
+public class LineColorTransformer : DocumentColorizingTransformer
+{
+    private Dictionary<int, string> _lineColorDict = new();
+
+    public void AddLineColor(int line, string color)
+    {
+        _lineColorDict[line] = color;
+    }
+
+    protected override void ColorizeLine(DocumentLine line)
+    {
+        if (_lineColorDict.TryGetValue(line.LineNumber, out var color) && !string.IsNullOrEmpty(color))
+        {
+            ChangeLinePart(line.Offset, line.EndOffset,
+                sp => { sp.TextRunProperties.SetForegroundBrush(BrushHelper.Parse(color)); });
+        }
     }
 }

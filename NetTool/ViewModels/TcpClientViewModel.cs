@@ -136,13 +136,14 @@ public partial class TcpClientViewModel : BaseViewModel, IDisposable
                 outMessage = Encoding.UTF8.GetString(args.Buffer);
             }
 
+
+            UiLogger?.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Receive]");
+            UiLogger?.Success($"{outMessage}");
             if (ReceiveOption.AutoNewLine)
             {
-                outMessage += Environment.NewLine;
+                UiLogger?.Message(string.Empty,string.Empty);
             }
 
-            UiLogger?.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Receive]{Environment.NewLine}");
-            UiLogger?.Success($"{outMessage}{Environment.NewLine}");
             _scriptExec.OnReceived(args.Buffer);
         }
     }
@@ -188,14 +189,13 @@ public partial class TcpClientViewModel : BaseViewModel, IDisposable
             {
                 outMessage = Encoding.UTF8.GetString(sendBuffer);
             }
-
+            
+            UiLogger?.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send]");
+            UiLogger?.Message($"{outMessage}", "#1E6FFF");
             if (ReceiveOption.AutoNewLine)
             {
-                outMessage += Environment.NewLine;
+                UiLogger?.Message(string.Empty, string.Empty);
             }
-
-            UiLogger?.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send]{Environment.NewLine}");
-            UiLogger?.Message($"{outMessage}{Environment.NewLine}", "#1E6FFF");
             if (SendOption.ScheduleSend)
             {
                 await Task.Delay(SendOption.ScheduleSendTime);

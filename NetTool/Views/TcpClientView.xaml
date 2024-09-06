@@ -154,7 +154,6 @@
                     </Grid.ColumnDefinitions>
                     <TextBox
                         Grid.Column="0"
-                        materialDesign:HintAssist.Hint="发送区域..."
                         VerticalContentAlignment="Top"
                         PreviewKeyDown="OnSendTextKeyDown"
                         PreviewTextInput="OnSendTextPreviewTextInput"

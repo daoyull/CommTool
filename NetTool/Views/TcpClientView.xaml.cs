@@ -25,6 +25,7 @@ public partial class TcpClientView
     {
         if (e.Key == Key.Enter)
         {
+            e.Handled = true;
             if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
             {
                 InsertNewLineAtCaret((TextBox)sender);

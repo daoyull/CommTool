@@ -9,6 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="AvalonEdit" Version="6.3.0.90" />
       <PackageReference Include="MaterialDesignThemes" Version="5.1.0" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     </ItemGroup>
