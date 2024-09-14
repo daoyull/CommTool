@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using MaterialDesignThemes.Wpf;
 
 namespace NetTool;
 
@@ -18,5 +19,7 @@ public partial class MainWindow : Window
         Notify.Success(("成功消息"));
         Notify.Warning("警告消息");
         Notify.Error("错误消息");
+        // DialogHost.Close("RootDialog");
+        GC.Collect();
     }
 }

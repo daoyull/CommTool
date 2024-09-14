@@ -1,12 +1,13 @@
-﻿using NetTool.Lib.Args;
+﻿using System.Threading.Channels;
+using NetTool.Lib.Args;
+using NetTool.Lib.Messages;
 
 namespace NetTool.Lib.Interface;
 
 public interface INetService : IDisposable
 {
     #region 事件
-
-    event EventHandler<ReceiveArgs> Received;
+    
 
     event EventHandler<ClosedArgs> Closed;
 
@@ -14,5 +15,7 @@ public interface INetService : IDisposable
 
     #endregion
 
-    public bool IsConnect { get;  }
+    public Action<ReceiveMessage> ReceiveMessageAction { get; set; }
+
+    public bool IsConnect { get; }
 }

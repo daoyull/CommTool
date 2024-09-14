@@ -10,7 +10,7 @@ public class NetToolWpfModule : BaseModule
 {
     public override void LoadService(ContainerBuilder builder)
     {
-        builder.RegisterType<TcpClientService>();
+        builder.RegisterType<TcpClientNet>();
         builder.RegisterType<TcpClientViewModel>();
         builder.RegisterType<SettingService>().SingleInstance();
     }

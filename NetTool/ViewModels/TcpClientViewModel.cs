@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NetTool.Lib.Args;
 using NetTool.Lib.Interface;
+using NetTool.Lib.Messages;
 using NetTool.Models;
 using NetTool.Module.Common;
 using NetTool.Module.Components;
@@ -17,9 +18,9 @@ namespace NetTool.ViewModels;
 
 public partial class TcpClientViewModel : BaseViewModel, IDisposable
 {
-    public TcpClientViewModel(TcpClientService tcpClientService, SettingService settingService)
+    public TcpClientViewModel(TcpClientNet tcpClientNet, SettingService settingService)
     {
-        _client = tcpClientService;
+        _client = tcpClientNet;
         _settingService = settingService;
         _client.Closed += HandleClosed;
         ReceiveOption.PropertyChanged += HandleReceiveOptionChanged;
@@ -72,7 +73,7 @@ public partial class TcpClientViewModel : BaseViewModel, IDisposable
     private void HandleClosed(object? sender, ClosedArgs e)
     {
         IsConnect = false;
-        _client.Received -= HandleReceive;
+        _client.ReceiveMessageAction -= HandleReceive;
     }
 
     private Channel<ReceiveArgs> _receiveChannel = Channel.CreateUnbounded<ReceiveArgs>(new UnboundedChannelOptions
@@ -91,7 +92,7 @@ public partial class TcpClientViewModel : BaseViewModel, IDisposable
 
     [ObservableProperty] private TcpConfig _config = new();
     private IJavaScriptExec _scriptExec = new ScriptEngine();
-    private readonly TcpClientService _client;
+    private readonly TcpClientNet _client;
     private readonly SettingService _settingService;
     public IUiLogger? UiLogger { get; set; }
 
@@ -112,7 +113,7 @@ public partial class TcpClientViewModel : BaseViewModel, IDisposable
         //载入配置
         _client.Ip = Config.Ip;
         _client.Port = Config.Port!.Value;
-        _client.Received += HandleReceive;
+        _client.ReceiveMessageAction += HandleReceive;
         await _client.ConnectAsync();
         IsConnect = true;
 #pragma warning disable CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
@@ -141,16 +142,23 @@ public partial class TcpClientViewModel : BaseViewModel, IDisposable
             UiLogger?.Success($"{outMessage}");
             if (ReceiveOption.AutoNewLine)
             {
-                UiLogger?.Message(string.Empty,string.Empty);
+                UiLogger?.Message(string.Empty, string.Empty);
             }
 
             _scriptExec.OnReceived(args.Buffer);
         }
     }
 
-    private async void HandleReceive(object? sender, ReceiveArgs e)
+    private async void HandleReceive(ReceiveMessage message)
     {
-        await _receiveChannel.Writer.WriteAsync(e);
+        // await _receiveChannel.Writer.WriteAsync(e);
+        var s = Encoding.UTF8.GetString(message.Data!);
+        // Console.WriteLine(s);
+        // Thread.Sleep(100);
+        
+        UiLogger?.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Receive]");
+        UiLogger?.Success($"{s}");
+       
     }
 
     [RelayCommand]
@@ -189,13 +197,14 @@ public partial class TcpClientViewModel : BaseViewModel, IDisposable
             {
                 outMessage = Encoding.UTF8.GetString(sendBuffer);
             }
-            
+
             UiLogger?.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send]");
             UiLogger?.Message($"{outMessage}", "#1E6FFF");
             if (ReceiveOption.AutoNewLine)
             {
                 UiLogger?.Message(string.Empty, string.Empty);
             }
+
             if (SendOption.ScheduleSend)
             {
                 await Task.Delay(SendOption.ScheduleSendTime);
