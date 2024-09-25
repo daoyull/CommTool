@@ -8,12 +8,13 @@ public interface INetService : IDisposable
 {
     #region 事件
     
-
     event EventHandler<ClosedArgs> Closed;
 
     event EventHandler<ConnectedArgs> Connected;
 
     #endregion
+    
+    public void Write(byte[] buffer,int offset,int count);
 
     public Action<ReceiveMessage> ReceiveMessageAction { get; set; }
 

@@ -36,6 +36,11 @@ public class TcpClientNet : ITcpClientService
 
     public event EventHandler<ClosedArgs>? Closed;
     public event EventHandler<ConnectedArgs>? Connected;
+    public void Write(byte[] buffer, int offset, int count)
+    {
+        throw new NotImplementedException();
+    }
+
     public Action<ReceiveMessage> ReceiveMessageAction { get; set; }
     public bool IsConnect => _client.Connected;
 
