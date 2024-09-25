@@ -6,10 +6,14 @@ namespace NetTool.Lib.Abstracts;
 
 public abstract class AbstractCommunication<T> : ICommunication<T> where T : IMessage
 {
-    public AbstractCommunication()
+    protected INotify Notify { get; }
+    public IUiLogger UiLogger { get; set; }
+
+    public AbstractCommunication(INotify notify)
     {
-        
+        Notify = notify;
     }
+
 
     private readonly Channel<T> _channel = Channel.CreateUnbounded<T>(new UnboundedChannelOptions
     {
@@ -18,11 +22,11 @@ public abstract class AbstractCommunication<T> : ICommunication<T> where T : IMe
         SingleWriter = false
     });
 
+    public bool IsConnect { get; protected set; }
     public event EventHandler<ClosedArgs>? Closed;
 
     public event EventHandler<ConnectedArgs>? Connected;
 
-  
 
     public IAsyncEnumerable<T> MessageReadAsync() => _channel.Reader.ReadAllAsync();
 
@@ -49,7 +53,6 @@ public abstract class AbstractCommunication<T> : ICommunication<T> where T : IMe
     {
         if (isDispose)
         {
-            
         }
     }
 }

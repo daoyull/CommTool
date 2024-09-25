@@ -4,6 +4,8 @@ namespace NetTool.Lib.Interface;
 
 public interface ICommunication<T> : IDisposable where T : IMessage
 {
+
+    public bool IsConnect { get; }
     #region 事件
 
     event EventHandler<ClosedArgs> Closed;

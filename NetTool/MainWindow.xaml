@@ -12,18 +12,18 @@
     <materialDesign:DialogHost DialogTheme="Inherit"
                                Identifier="RootDialog">
         <Grid>
-            <Grid HorizontalAlignment="Left" ZIndex="10" VerticalAlignment="Top" Height="30" Width="40">
+            <Grid HorizontalAlignment="Right" ZIndex="10" VerticalAlignment="Top" Height="10" Width="10">
                 <Button Click="ButtonBase_OnClick" Content="T">
                     <Button.CommandParameter>
                        <TextBlock></TextBlock>
                     </Button.CommandParameter>
                 </Button>
             </Grid>
-            <Grid HorizontalAlignment="Right" VerticalAlignment="Top" ZIndex="11" Margin="40">
-                <components:Notify x:Name="Notify" />
+            <Grid HorizontalAlignment="Right" x:Name="NotifyGrid" VerticalAlignment="Top" ZIndex="11" Margin="40">
+                
             </Grid>
 
-            <views:TcpClientView />
+            <views:SerialPortView />
         </Grid>
     </materialDesign:DialogHost>
 </Window>

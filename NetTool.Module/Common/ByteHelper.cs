@@ -4,7 +4,7 @@ namespace NetTool.Module.Common;
 
 public static class ByteHelper
 {
-    public static string ToUtf8Str(byte[] bytes)
+    public static string ToUtf8Str(this byte[] bytes)
     {
         return Encoding.UTF8.GetString(bytes);
     }

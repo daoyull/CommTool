@@ -21,7 +21,7 @@ internal class ViewModelPlugin<T> : ILifePlugin where T : BaseViewModel
         catch (Exception e)
         {
             // Ignore
-            Console.WriteLine(e.Message);
+            Console.WriteLine(e.StackTrace);
         }
     }
 

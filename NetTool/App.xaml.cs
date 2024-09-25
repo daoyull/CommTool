@@ -8,6 +8,7 @@ using Common.Lib.Ioc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NetTool.Module;
 
 namespace NetTool;
 
@@ -39,6 +40,7 @@ public partial class App : Application
         Ioc.Register(builder =>
         {
             builder.RegisterModule<NetToolWpfModule>();
+            builder.RegisterModule<NetToolModule>();
             builder.Populate(service);
         });
         Ioc.Builder();
