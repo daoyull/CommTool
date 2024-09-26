@@ -7,17 +7,15 @@ namespace NetTool.Module.IO;
 
 public class SerialPortAdapter : AbstractCommunication<SerialPortMessage>, ISerialPort
 {
-    public SerialPortAdapter(INotify notify) : base(notify)
+    public SerialPortAdapter(INotify notify, ISerialOption serialOption) : base(notify)
     {
+        SerialOption = serialOption;
     }
 
     private SerialPort? _serialPort;
 
-    public string? PortName { get; set; }
-    public int BaudRate { get; set; }
-    public int DataBits { get; set; }
-    public StopBits StopBits { get; set; }
-    public Parity Parity { get; set; }
+
+    public ISerialOption SerialOption { get; }
 
     public void Connect()
     {
@@ -27,11 +25,11 @@ public class SerialPortAdapter : AbstractCommunication<SerialPortMessage>, ISeri
         }
 
         _serialPort = new SerialPort();
-        _serialPort.PortName = PortName;
-        _serialPort.BaudRate = BaudRate;
-        _serialPort.Parity = Parity;
-        _serialPort.DataBits = DataBits;
-        _serialPort.StopBits = StopBits;
+        _serialPort.PortName = SerialOption.SerialPortName;
+        _serialPort.BaudRate = SerialOption.BaudRate;
+        _serialPort.Parity = SerialOption.Parity!.Value;
+        _serialPort.DataBits = SerialOption.DataBits;
+        _serialPort.StopBits = SerialOption.StopBits!.Value;
         _serialPort.DataReceived += OnDataReceived;
         _serialPort.Open();
         IsConnect = true;
@@ -45,12 +43,13 @@ public class SerialPortAdapter : AbstractCommunication<SerialPortMessage>, ISeri
         {
             return;
         }
-
+        
         int length = serialPort.BytesToRead;
         if (length == 0)
         {
             return;
         }
+
         byte[] buffer = new byte[length];
         serialPort.Read(buffer, 0, length);
         WriteMessage(new SerialPortMessage(buffer));

@@ -50,4 +50,8 @@
       <_ContentIncludedByDefault Remove="wwwroot\monaco\netMonaco.js" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Thems\" />
+    </ItemGroup>
+
 </Project>

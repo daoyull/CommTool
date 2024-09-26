@@ -106,7 +106,7 @@ public class TcpClientNet : ITcpClientService
                 {
                     buffer = new byte[ReceiveBufferSize];
                 }
-
+                
                 var count = _networkStream!.Read(buffer);
                 if (count == 0)
                 {
