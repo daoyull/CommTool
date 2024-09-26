@@ -42,17 +42,17 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Grid Grid.Column="0"  Margin="3">
+        <Grid Grid.Column="0" Margin="3">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-               
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+
             </Grid.RowDefinitions>
             <GroupBox Grid.Row="0"
-                Header="串口设置"
-                Style="{StaticResource MaterialDesignCardGroupBox}">
+                      Header="串口设置"
+                      Style="{StaticResource MaterialDesignCardGroupBox}">
                 <StackPanel>
                     <ComboBox IsEditable="True" ItemsSource="{Binding ComPortList}"
                               Style="{DynamicResource ConfigComboBox}"
@@ -174,7 +174,10 @@
                 </StackPanel>
             </GroupBox>
         </Grid>
-        <components:CommunicationDataComponent Margin="3" Grid.Column="1" />
+
+        <components:CommunicationDataComponent
+            SendCommand="{Binding SendCommand}"
+            x:Name="CommunicationDataComponent" Margin="3" Grid.Column="1" />
 
     </Grid>
 </commonWpf:UserComponent>

@@ -58,10 +58,21 @@ public class NetLogger : TextEditor, IUiLogger
     {
         Message(message, "#E30519");
     }
+
+    public void ClearAllMessage()
+    {
+        _lineColorTransformer.Clear();
+        Text = "";
+    }
 }
 
 public class LineColorTransformer : DocumentColorizingTransformer
 {
+    public void Clear()
+    {
+        _lineColorDict.Clear();
+    }
+
     private Dictionary<int, string> _lineColorDict = new();
 
     public void AddLineColor(int line, string color)

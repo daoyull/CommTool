@@ -17,7 +17,7 @@ public partial class SerialPortViewModel : BaseViewModel
     private readonly SerialPortAdapter _serialService;
     private readonly SettingService _settingService;
 
-    public SerialPortViewModel(SerialPortAdapter serialPortAdapter, SettingService settingService,INotify notify)
+    public SerialPortViewModel(SerialPortAdapter serialPortAdapter, SettingService settingService, INotify notify)
     {
         _serialService = serialPortAdapter;
         _settingService = settingService;
@@ -51,18 +51,17 @@ public partial class SerialPortViewModel : BaseViewModel
 
     // 数据位
     public List<int> DataBits { get; } = new() { 5, 6, 7, 8 };
-    public IUiLogger UiLogger { get; set; }
+    public ICommunicationUi Ui { get; set; }
     public INotify Notify { get; set; }
 
-    [ObservableProperty] private int _dataBit = 5;
+    [ObservableProperty] private int _dataBit = 8;
 
     [ObservableProperty] private bool _isConnected;
     [ObservableProperty] private bool _receiveIsHex = true;
     [ObservableProperty] private bool _sendIsHex = true;
-    [ObservableProperty] private string _sendString;
 
     #endregion
-    
+
 
     private CancellationTokenSource? _cts;
 
@@ -107,18 +106,20 @@ public partial class SerialPortViewModel : BaseViewModel
         await foreach (var message in _serialService.MessageReadAsync())
         {
             var buffer = message.Data;
-            UiLogger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] Receive");
-            UiLogger.Message($" {(ReceiveIsHex ? buffer.ToHexString() : buffer.ToUtf8Str())}", "#2B2BFF");
+            Ui.AddReceiveBytes((uint)buffer.Length);
+            Ui.AddReceiveFrame(1);
+            Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] Receive");
+            Ui.Logger.Message($" {(ReceiveIsHex ? buffer.ToHexString() : buffer.ToUtf8Str())}", "#2B2BFF");
         }
     }
 
 
     [RelayCommand]
-    private async Task Send()
+    private async Task Send(string sendStr)
     {
         try
         {
-            if (!IsConnected || string.IsNullOrEmpty(SendString))
+            if (!IsConnected || string.IsNullOrEmpty(sendStr))
             {
                 Notify.Warning("串口未连接或发送内容为空");
                 return;
@@ -127,16 +128,18 @@ public partial class SerialPortViewModel : BaseViewModel
             byte[] sendBuffer;
             if (SendIsHex)
             {
-                sendBuffer = SendString.HexStringToArray();
+                sendBuffer = sendStr.HexStringToArray();
             }
             else
             {
-                sendBuffer = Encoding.UTF8.GetBytes(SendString);
+                sendBuffer = Encoding.UTF8.GetBytes(sendStr);
             }
 
             await _serialService.WriteAsync(sendBuffer, 0, sendBuffer.Length);
-            UiLogger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] Send");
-            UiLogger.Success($"{(SendIsHex ? sendBuffer.ToHexString() : sendBuffer.ToUtf8Str())}");
+            Ui.AddSendFrame(1);
+            Ui.AddSendBytes((uint)sendBuffer.Length);
+            Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] Send");
+            Ui.Logger.Success($"{(SendIsHex ? sendBuffer.ToHexString() : sendBuffer.ToUtf8Str())}");
         }
         catch (Exception e)
         {

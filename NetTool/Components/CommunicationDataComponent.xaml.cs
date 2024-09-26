@@ -1,15 +1,19 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using NetTool.Lib.Interface;
 
 namespace NetTool.Components;
 
-public partial class CommunicationDataComponent : UserControl
+public partial class CommunicationDataComponent : ICommunicationUi
 {
     public CommunicationDataComponent()
     {
         InitializeComponent();
+        Logger = NetLogger;
     }
-    
+
+
     private async void OnSendTextKeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter)
@@ -21,8 +25,18 @@ public partial class CommunicationDataComponent : UserControl
             }
             else
             {
-              
+                RaiseCommand();
             }
+        }
+    }
+
+    public Func<string, bool>? CanInput { get; set; }
+
+    private void RaiseCommand()
+    {
+        if (!string.IsNullOrEmpty(SendTextBox.Text) && SendCommand.CanExecute(SendTextBox.Text))
+        {
+            SendCommand.Execute(SendTextBox.Text);
         }
     }
 
@@ -37,14 +51,125 @@ public partial class CommunicationDataComponent : UserControl
 
     private void OnSendTextPreviewTextInput(object sender, TextCompositionEventArgs e)
     {
-        if (sender is not TextBox box)
+        var invoke = CanInput?.Invoke(e.Text);
+        if (invoke == false)
         {
-            return;
+            e.Handled = true;
         }
-        // if (ViewModel!.SendOption.HexSend && !"0123456789ABCDEFabcdef".Contains(e.Text))
-        // {
-        //     e.Handled = true;
-        //     // todo 提示
-        // }
+    }
+
+    #region Command
+
+    public static readonly DependencyProperty SendCommandProperty = DependencyProperty.Register(
+        nameof(SendCommand), typeof(ICommand), typeof(CommunicationDataComponent),
+        new PropertyMetadata(default(ICommand)));
+
+    public ICommand SendCommand
+    {
+        get => (ICommand)GetValue(SendCommandProperty);
+        set => SetValue(SendCommandProperty, value);
+    }
+
+    #endregion
+
+    #region 依赖属性
+
+    public static readonly DependencyProperty SendFrameProperty = DependencyProperty.Register(
+        nameof(SendFrame), typeof(uint), typeof(CommunicationDataComponent),
+        new PropertyMetadata(default(uint)));
+
+
+    public uint SendFrame
+    {
+        get => (uint)GetValue(SendFrameProperty);
+        set => SetValue(SendFrameProperty, value);
+    }
+
+    public static readonly DependencyProperty ReceiveFrameProperty = DependencyProperty.Register(
+        nameof(ReceiveFrame), typeof(uint), typeof(CommunicationDataComponent), new PropertyMetadata(default(uint)));
+
+    public uint ReceiveFrame
+    {
+        get => (uint)GetValue(ReceiveFrameProperty);
+        set => SetValue(ReceiveFrameProperty, value);
+    }
+
+    public static readonly DependencyProperty SendBytesProperty = DependencyProperty.Register(
+        nameof(SendBytes), typeof(uint), typeof(CommunicationDataComponent), new PropertyMetadata(default(uint)));
+
+    public uint SendBytes
+    {
+        get => (uint)GetValue(SendBytesProperty);
+        set => SetValue(SendBytesProperty, value);
+    }
+
+    public static readonly DependencyProperty ReceiveBytesProperty = DependencyProperty.Register(
+        nameof(ReceiveBytes), typeof(uint), typeof(CommunicationDataComponent), new PropertyMetadata(default(uint)));
+
+    public uint ReceiveBytes
+    {
+        get => (uint)GetValue(ReceiveBytesProperty);
+        set => SetValue(ReceiveBytesProperty, value);
+    }
+
+    public void AddSendFrame(uint add)
+    {
+        Dispatcher.Invoke(() =>
+        {
+            SendFrame += add;
+        });
+    }
+
+    public void AddReceiveFrame(uint add)
+    {
+        Dispatcher.Invoke(() =>
+        {
+            ReceiveFrame += add;
+        });
+    }
+
+    public void AddSendBytes(uint add)
+    {
+        Dispatcher.Invoke(() =>
+        {
+            SendBytes += add;
+        });
+    }
+
+    public void AddReceiveBytes(uint add)
+    {
+        Dispatcher.Invoke(() =>
+        {
+            ReceiveBytes += add;
+        });
+    }
+
+    #endregion
+
+    public IUiLogger Logger { get; }
+
+    public void ResetNumber()
+    {
+        SendFrame = ReceiveFrame = SendBytes = ReceiveBytes = 0;
+    }
+
+    private void ResetNumberClick(object sender, RoutedEventArgs e)
+    {
+        ResetNumber();
+    }
+
+    private void ClearReceiveClick(object sender, RoutedEventArgs e)
+    {
+        Logger.ClearAllMessage();
+    }
+
+    private void ClearSendClick(object sender, RoutedEventArgs e)
+    {
+        SendTextBox.Text = "";
+    }
+
+    private void SendClick(object sender, RoutedEventArgs e)
+    {
+        RaiseCommand();
     }
 }

@@ -8,7 +8,7 @@ public partial class SerialPortView
     public SerialPortView()
     {
         InitializeComponent();
-        // ViewModel!.UiLogger = NetLogger;
+        ViewModel!.Ui = CommunicationDataComponent;
     }
     
     private async void OnSendTextKeyDown(object sender, KeyEventArgs e)
