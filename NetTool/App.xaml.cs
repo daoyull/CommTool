@@ -37,6 +37,9 @@ public partial class App : Application
 
     private void CreateDefaultServices(HostBuilderContext context, IServiceCollection service)
     {
+        service.AddWpfBlazorWebView();
+        service.AddBlazorWebViewDeveloperTools();
+
         Ioc.Register(builder =>
         {
             builder.RegisterModule<NetToolWpfModule>();

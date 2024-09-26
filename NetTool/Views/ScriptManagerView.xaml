@@ -3,9 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:local="clr-namespace:NetTool.Views"
-        xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
-        xmlns:system="clr-namespace:System;assembly=System.Runtime"
+        xmlns:blazor="clr-namespace:Microsoft.AspNetCore.Components.WebView.Wpf;assembly=Microsoft.AspNetCore.Components.WebView.Wpf"
+        xmlns:blazorCom="clr-namespace:NetTool.Blazor"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         d:DesignHeight="500" d:DesignWidth="600">
@@ -30,21 +29,13 @@
             <StackPanel Orientation="Horizontal">
                 <TextBlock>工具栏</TextBlock>
             </StackPanel>
-            <avalonedit:TextEditor
-                Grid.Row="1"
-                x:Name="TextEditor"
-                ShowLineNumbers="True"
-                FontFamily="Consolas"
-                SyntaxHighlighting="JavaScript"
-                Text="var a = 1;">
-                <avalonedit:TextEditor.Options>
-                    <avalonedit:TextEditorOptions ShowSpaces="True">
-                        <avalonedit:TextEditorOptions.ColumnRulerPosition>
-                            <system:Int32>10</system:Int32>
-                        </avalonedit:TextEditorOptions.ColumnRulerPosition>
-                    </avalonedit:TextEditorOptions>
-                </avalonedit:TextEditor.Options>
-            </avalonedit:TextEditor>
+            <Border Grid.Row="1" >
+                <blazor:BlazorWebView HostPage="wwwroot\index.html" x:Name="BlazorWebView" BorderThickness="0">
+                    <blazor:BlazorWebView.RootComponents>
+                        <blazor:RootComponent Selector="#app" ComponentType="{x:Type blazorCom:ScriptEdit}" />
+                    </blazor:BlazorWebView.RootComponents>
+                </blazor:BlazorWebView>
+            </Border>
         </Grid>
     </Grid>
 </Window>

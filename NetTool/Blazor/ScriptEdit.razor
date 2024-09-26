@@ -1,0 +1,42 @@
+﻿@using Microsoft.JSInterop
+@inject IJSRuntime JS
+<body>
+    <StandaloneCodeEditor ConstructionOptions="EditorConstructionOptions" Id="my-editor-instance-id"/>
+</body>
+
+<style>
+       
+    #my-editor-instance-id { /* for a specific editor instance */
+    	height: 95vh;
+    }
+   
+</style>
+
+
+@code {
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("registerTip");
+        }
+    }
+
+
+    private StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor)
+    {
+        return new StandaloneEditorConstructionOptions
+        {
+            AutomaticLayout = true,
+            Theme = "vs-dark",
+            Language = "javascript",
+            Value = "function receive() {\n" +
+                    "    \n" +
+                    "}",
+        };
+    }
+
+
+}

@@ -6,6 +6,8 @@
         xmlns:views="clr-namespace:NetTool.Views"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:components="clr-namespace:NetTool.Components"
+        xmlns:blazor="clr-namespace:Microsoft.AspNetCore.Components.WebView.Wpf;assembly=Microsoft.AspNetCore.Components.WebView.Wpf"
+        xmlns:blazorCom="clr-namespace:NetTool.Blazor"
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="800"
         WindowStartupLocation="CenterScreen">
@@ -20,10 +22,11 @@
                 </Button>
             </Grid>
             <Grid HorizontalAlignment="Right" x:Name="NotifyGrid" VerticalAlignment="Top" ZIndex="11" Margin="40">
-                
+        
             </Grid>
-
+        
             <views:SerialPortView />
         </Grid>
+        
     </materialDesign:DialogHost>
 </Window>
