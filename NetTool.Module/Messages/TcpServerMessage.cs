@@ -3,7 +3,7 @@ using System.Net.Sockets;
 
 namespace NetTool.Module.Messages;
 
-public class TcpServerMessage : IMessage
+public readonly struct TcpServerMessage : IMessage
 {
     public DateTime Time { get; } = DateTime.Now;
 
@@ -15,4 +15,13 @@ public class TcpServerMessage : IMessage
 
     WeakReference<Socket> Client { get; }
     public byte[] Data { get; }
+    public void ReceiveDisplay(INetUi ui)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void SendDisplay(INetUi ui)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -8,10 +8,10 @@ using CommunityToolkit.Mvvm.Input;
 using NetTool.Lib.Args;
 using NetTool.Lib.Interface;
 using NetTool.Models;
-using NetTool.Module.Common;
 using NetTool.Module.Components;
 using NetTool.Module.IO;
 using NetTool.Module.Service;
+using NetTool.Module.Share;
 using NetTool.Service;
 
 namespace NetTool.ViewModels;

@@ -1,4 +1,5 @@
 ﻿using System.IO.Ports;
+using System.Text;
 
 namespace NetTool.Lib.Interface;
 
@@ -16,6 +17,8 @@ public interface IGlobalOption
     /// 脚本根目录
     /// </summary>
     public string ScriptPath { get; set; }
+
+    public Encoding Encoding { get; set; }
 }
 
 public interface IReceiveOption

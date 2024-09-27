@@ -2,13 +2,18 @@ using NetTool.Lib.Interface;
 
 namespace NetTool.Module.Messages;
 
-public class TcpClientMessage: IMessage
+public readonly struct TcpClientMessage(byte[] data) : IMessage
 {
-    public TcpClientMessage(byte[] data)
+    public DateTime Time { get; } = DateTime.Now;
+    public byte[] Data { get; } = data;
+
+    public void ReceiveDisplay(INetUi ui)
     {
-        Data = data;
+        throw new NotImplementedException();
     }
 
-    public DateTime Time { get; } = DateTime.Now;
-    public byte[] Data { get; }
+    public void SendDisplay(INetUi ui)
+    {
+        throw new NotImplementedException();
+    }
 }

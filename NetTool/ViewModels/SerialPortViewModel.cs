@@ -6,8 +6,9 @@ using Common.Mvvm.Abstracts;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NetTool.Lib.Interface;
-using NetTool.Module.Common;
 using NetTool.Module.IO;
+using NetTool.Module.Messages;
+using NetTool.Module.Share;
 using NetTool.Service;
 
 namespace NetTool.ViewModels;
@@ -16,13 +17,13 @@ public partial class SerialPortViewModel : BaseViewModel
 {
     private readonly SettingService _settingService;
     public SerialPortAdapter Serial { get; }
-    public ICommunicationUi Ui { get; set; } = null!;
+    public INetUi Ui { get; set; } = null!;
     private INotify Notify { get; }
     public ISerialReceiveOption ReceiveOption { get; }
     public ISerialSendOption SendOption { get; }
 
     [ObservableProperty] private bool _isConnected;
-    
+
     #region 数据源
 
     /// <summary>
@@ -150,13 +151,7 @@ public partial class SerialPortViewModel : BaseViewModel
             }
 
             await Serial.WriteAsync(sendBuffer, 0, sendBuffer.Length);
-            Ui.AddSendFrame(1);
-            Ui.AddSendBytes((uint)sendBuffer.Length);
-            if (SendOption.DefaultWriteUi)
-            {
-                Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] Send");
-                Ui.Logger.Success($"{(SendOption.IsHex ? sendBuffer.ToHexString() : sendBuffer.ToUtf8Str())}");
-            }
+            Ui.WriteSend(new SerialPortMessage(sendBuffer));
         }
         catch (Exception e)
         {

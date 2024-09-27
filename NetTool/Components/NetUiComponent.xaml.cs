@@ -1,14 +1,15 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Common.Lib.Ioc;
 using NetTool.Lib.Interface;
 
 namespace NetTool.Components;
 
-public partial class CommunicationDataComponent : ICommunicationUi
+public partial class NetDataComponent : INetUi
 {
-    public CommunicationDataComponent()
+    public NetDataComponent()
     {
         InitializeComponent();
         Logger = NetLogger;
@@ -62,7 +63,7 @@ public partial class CommunicationDataComponent : ICommunicationUi
     #region Command
 
     public static readonly DependencyProperty SendCommandProperty = DependencyProperty.Register(
-        nameof(SendCommand), typeof(ICommand), typeof(CommunicationDataComponent),
+        nameof(SendCommand), typeof(ICommand), typeof(NetDataComponent),
         new PropertyMetadata(default(ICommand)));
 
     public ICommand SendCommand
@@ -75,8 +76,28 @@ public partial class CommunicationDataComponent : ICommunicationUi
 
     #region 依赖属性
 
+    public static readonly DependencyProperty ReceiveOptionProperty = DependencyProperty.Register(
+        nameof(ReceiveOption), typeof(IReceiveOption), typeof(NetDataComponent),
+        new PropertyMetadata(default(IReceiveOption)));
+
+    public IReceiveOption ReceiveOption
+    {
+        get => (IReceiveOption)GetValue(ReceiveOptionProperty);
+        set => SetValue(ReceiveOptionProperty, value);
+    }
+
+
+    public static readonly DependencyProperty SendOptionProperty = DependencyProperty.Register(
+        nameof(SendOption), typeof(ISendOption), typeof(NetDataComponent), new PropertyMetadata(default(ISendOption)));
+
+    public ISendOption SendOption
+    {
+        get => (ISendOption)GetValue(SendOptionProperty);
+        set => SetValue(SendOptionProperty, value);
+    }
+
     public static readonly DependencyProperty SendFrameProperty = DependencyProperty.Register(
-        nameof(SendFrame), typeof(uint), typeof(CommunicationDataComponent),
+        nameof(SendFrame), typeof(uint), typeof(NetDataComponent),
         new PropertyMetadata(default(uint)));
 
 
@@ -87,7 +108,7 @@ public partial class CommunicationDataComponent : ICommunicationUi
     }
 
     public static readonly DependencyProperty ReceiveFrameProperty = DependencyProperty.Register(
-        nameof(ReceiveFrame), typeof(uint), typeof(CommunicationDataComponent), new PropertyMetadata(default(uint)));
+        nameof(ReceiveFrame), typeof(uint), typeof(NetDataComponent), new PropertyMetadata(default(uint)));
 
     public uint ReceiveFrame
     {
@@ -96,7 +117,7 @@ public partial class CommunicationDataComponent : ICommunicationUi
     }
 
     public static readonly DependencyProperty SendBytesProperty = DependencyProperty.Register(
-        nameof(SendBytes), typeof(uint), typeof(CommunicationDataComponent), new PropertyMetadata(default(uint)));
+        nameof(SendBytes), typeof(uint), typeof(NetDataComponent), new PropertyMetadata(default(uint)));
 
     public uint SendBytes
     {
@@ -105,7 +126,7 @@ public partial class CommunicationDataComponent : ICommunicationUi
     }
 
     public static readonly DependencyProperty ReceiveBytesProperty = DependencyProperty.Register(
-        nameof(ReceiveBytes), typeof(uint), typeof(CommunicationDataComponent), new PropertyMetadata(default(uint)));
+        nameof(ReceiveBytes), typeof(uint), typeof(NetDataComponent), new PropertyMetadata(default(uint)));
 
     public uint ReceiveBytes
     {
@@ -114,6 +135,7 @@ public partial class CommunicationDataComponent : ICommunicationUi
     }
 
     public INotify Notify { get; } = Ioc.Resolve<INotify>();
+
 
     public void AddSendFrame(uint add)
     {
@@ -137,11 +159,22 @@ public partial class CommunicationDataComponent : ICommunicationUi
 
     #endregion
 
+    public IGlobalOption GlobalOption => Ioc.Resolve<IGlobalOption>();
     public IUiLogger Logger { get; }
 
     public void ResetNumber()
     {
         SendFrame = ReceiveFrame = SendBytes = ReceiveBytes = 0;
+    }
+
+    public void WriteReceive(IMessage message)
+    {
+        Dispatcher.Invoke(() => { message.ReceiveDisplay(this); });
+    }
+
+    public void WriteSend(IMessage message)
+    {
+        Dispatcher.Invoke(() => { message.SendDisplay(this); });
     }
 
     private void ResetNumberClick(object sender, RoutedEventArgs e)

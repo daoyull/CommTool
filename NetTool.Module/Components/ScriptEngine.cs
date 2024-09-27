@@ -1,7 +1,7 @@
 ﻿using Microsoft.ClearScript.V8;
 using NetTool.Lib.Entity;
 using NetTool.Lib.Interface;
-using NetTool.Module.Common;
+using NetTool.Module.Share;
 using Newtonsoft.Json;
 
 namespace NetTool.Module.Components;

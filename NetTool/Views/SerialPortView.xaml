@@ -153,7 +153,7 @@
 
         </Grid>
 
-        <components:CommunicationDataComponent
+        <components:NetDataComponent
             x:Name="CommunicationDataComponent"
             Grid.Column="1"
             Margin="3"

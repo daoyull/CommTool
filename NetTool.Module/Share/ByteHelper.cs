@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace NetTool.Module.Common;
+namespace NetTool.Module.Share;
 
 public static class ByteHelper
 {

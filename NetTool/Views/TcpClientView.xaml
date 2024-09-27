@@ -133,6 +133,6 @@
 
         </Grid>
 
-        <components:CommunicationDataComponent x:Name="ComCompenent" Grid.Column="1" Margin="5" />
+        <components:NetDataComponent x:Name="ComCompenent" Grid.Column="1" Margin="5" />
     </Grid>
 </commonWpf:UserComponent>

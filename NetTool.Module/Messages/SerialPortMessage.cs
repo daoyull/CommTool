@@ -2,13 +2,18 @@
 
 namespace NetTool.Module.Messages;
 
-public class SerialPortMessage : IMessage
+public readonly struct SerialPortMessage(byte[] data) : IMessage
 {
-    public SerialPortMessage(byte[] data)
+    public DateTime Time { get; } = DateTime.Now;
+    public byte[] Data { get; } = data;
+
+    public void ReceiveDisplay(INetUi ui)
     {
-        Data = data;
+        throw new NotImplementedException();
     }
 
-    public DateTime Time { get; } = DateTime.Now;
-    public byte[] Data { get; }
+    public void SendDisplay(INetUi ui)
+    {
+        throw new NotImplementedException();
+    }
 }

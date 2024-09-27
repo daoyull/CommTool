@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using NetTool.Module.Common;
+using NetTool.Module.Share;
 
 namespace NetTool.Service;
 
