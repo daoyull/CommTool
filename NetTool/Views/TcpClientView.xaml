@@ -1,179 +1,138 @@
 ﻿<commonWpf:UserComponent
-    x:TypeArguments="viewModels:TcpClientViewModel"
     x:Class="NetTool.Views.TcpClientView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:commonWpf="clr-namespace:CommonWpf;assembly=Common.WPF"
     xmlns:components="clr-namespace:NetTool.Components"
+    xmlns:converts="clr-namespace:NetTool.Converts"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:NetTool.ViewModels"
-    xmlns:converts="clr-namespace:NetTool.Converts"
-    d:DataContext="{d:DesignInstance viewModels:TcpClientViewModel }"
+    d:DataContext="{d:DesignInstance viewModels:TcpClientViewModel}"
     d:DesignHeight="600"
     d:DesignWidth="1000"
+    x:TypeArguments="viewModels:TcpClientViewModel"
     Background="White"
     mc:Ignorable="d">
     <commonWpf:UserComponent.Resources>
         <ResourceDictionary>
             <converts:InverseBooleanConverter x:Key="InverseBooleanConverter" />
-            <Style x:Key="ReceiveRichTextBox" TargetType="components:NetLogger">
-                <Setter Property="BorderBrush" Value="Gray" />
-                <Setter Property="BorderThickness" Value="0" />
-                <Setter Property="IsReadOnly" Value="True" />
-            </Style>
-            <Style x:Key="NetTextBox" TargetType="TextBox" BasedOn="{StaticResource MaterialDesignOutlinedTextBox}">
-                <Setter Property="Padding" Value="8" />
-                <Setter Property="Margin" Value="5" />
-            </Style>
         </ResourceDictionary>
-
-
     </commonWpf:UserComponent.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="200" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Row="0" Grid.Column="0"
-                Padding="5" BorderBrush="Gainsboro" BorderThickness="1" CornerRadius="6" Margin="3">
-            <StackPanel>
-                <TextBox
-                    materialDesign:HintAssist.Hint="IP"
-                    IsEnabled="{Binding IsConnect,Converter={StaticResource InverseBooleanConverter}}"
-                    Style="{StaticResource NetTextBox}"
-                    Text="{Binding Config.Ip}" />
-                <TextBox
-                    materialDesign:HintAssist.Hint="端口"
-                    IsEnabled="{Binding IsConnect,Converter={StaticResource InverseBooleanConverter}}"
-                    Style="{StaticResource NetTextBox}"
-                    Text="{Binding Config.Port}" />
-                <Button Margin="5"
-                        Command="{Binding ConnectionCommand}">
-                    连接
-                </Button>
-                <Border Height="2" Margin="2 5 2 5" Background="Gainsboro"></Border>
-                <StackPanel Orientation="Horizontal" Margin="5">
-                    <ToggleButton
-                        IsChecked="{Binding ReceiveOption.HexDisplay}"
-                        Style="{StaticResource MaterialDesignSwitchToggleButton}"
-                        ToolTip="MaterialDesignSwitchToggleButton" />
-                    <Label>16进制显示</Label>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="5">
-                    <ToggleButton
-                        IsChecked="{Binding ReceiveOption.SavaToFile}"
-                        Style="{StaticResource MaterialDesignSwitchToggleButton}"
-                        ToolTip="MaterialDesignSwitchToggleButton" />
-                    <Label>接收数据保存到文件</Label>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="5">
-                    <ToggleButton
-                        IsChecked="{Binding ReceiveOption.AutoNewLine}"
-                        Style="{StaticResource MaterialDesignSwitchToggleButton}"
-                        ToolTip="MaterialDesignSwitchToggleButton" />
-                    <Label>接收数据自动换行</Label>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="5">
-                    <ToggleButton
-                        IsChecked="{Binding ReceiveOption.AutoBreak}"
-                        Style="{StaticResource MaterialDesignSwitchToggleButton}"
-                        ToolTip="MaterialDesignSwitchToggleButton" />
-                    <Label VerticalAlignment="Center" Content="自动断帧"></Label>
-                    <TextBox
-                        Width="40"
-                        Style="{StaticResource NetTextBox}"
-                        Text="{Binding ReceiveOption.AutoBreakTime}" />
-                    <Label VerticalAlignment="Center" Content="毫秒"></Label>
-                </StackPanel>
-                <Border Height="2" Margin="2 5 2 5" Background="Gainsboro"></Border>
-                <StackPanel Orientation="Horizontal" Margin="5">
-                    <ToggleButton
-                        IsChecked="{Binding SendOption.HexSend}"
-                        Style="{StaticResource MaterialDesignSwitchToggleButton}"
-                        ToolTip="MaterialDesignSwitchToggleButton" />
-                    <Label>16进制发送</Label>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="5">
-                    <ToggleButton
-                        IsChecked="{Binding SendOption.UseScript}"
-                        Style="{StaticResource MaterialDesignSwitchToggleButton}"
-                        ToolTip="MaterialDesignSwitchToggleButton" />
-                    <Label>脚本</Label>
-                    <ComboBox></ComboBox>
-                    <Button>
-                        <materialDesign:PackIcon Kind="NoteEditOutline" />
-                    </Button>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="5">
-                    <ToggleButton
-                        IsChecked="{Binding SendOption.ScheduleSend}"
-                        Style="{StaticResource MaterialDesignSwitchToggleButton}"
-                        ToolTip="MaterialDesignSwitchToggleButton" />
-                    <Label VerticalAlignment="Center">定时发送</Label>
-                    <TextBox
-                        Width="40"
-                        IsEnabled="{Binding SendOption.ScheduleSend,Converter={StaticResource InverseBooleanConverter}}"
-                        Style="{StaticResource NetTextBox}"
-                        Text="{Binding SendOption.ScheduleSendTime}" />
-                    <Label VerticalAlignment="Center" Content="毫秒"></Label>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="5">
-                    <Button>发送文件</Button>
-                </StackPanel>
-            </StackPanel>
-        </Border>
-
-        <Grid Grid.Column="1">
+        <Grid Grid.Column="0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="9*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
-                <RowDefinition Height="3*" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-
-            <Border Grid.Row="0"
-                    Margin="10"
-                    Padding="5"
-                    BorderBrush="Gray"
-                    BorderThickness="1"
-                    CornerRadius="5">
-                <components:NetLogger
-                    x:Name="NetLogger" Style="{DynamicResource ReceiveRichTextBox}" />
-            </Border>
-
-            <StackPanel Grid.Row="1">
-                <Border Height="2" Margin="0 10 0 10" Background="Black" />
-            </StackPanel>
-            <Border Grid.Row="2" Margin="10">
-                <Grid x:Name="SendGrid">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="15*" />
-                        <ColumnDefinition Width="2*" />
-                    </Grid.ColumnDefinitions>
+            <Border Grid.Row="0" Padding="5">
+                <StackPanel>
                     <TextBox
-                        Grid.Column="0"
-                        VerticalContentAlignment="Top"
-                        PreviewKeyDown="OnSendTextKeyDown"
-                        PreviewTextInput="OnSendTextPreviewTextInput"
-                        HorizontalContentAlignment="Left"
-                        Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                        HorizontalScrollBarVisibility="Hidden"
-                        TextWrapping="Wrap"
-                        AcceptsReturn="True"
-                        Text="{Binding SendString, UpdateSourceTrigger=PropertyChanged}"
-                        VerticalScrollBarVisibility="Auto" />
-                    <Button Grid.Column="1"
-                            Margin="3 0 3 0"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch"
-                            Height="{Binding}"
-                            Command="{Binding SendCommand}">
-                        发送
-                    </Button>
-                </Grid>
+                        Margin="0 5 0 5"
+                        materialDesign:HintAssist.Hint="IP"
+                        IsEnabled="{Binding IsConnect, Converter={StaticResource InverseBooleanConverter}}"
+                        Text="{Binding Client.TcpClientOption.Ip}" />
+                    <TextBox
+                        Margin="0 5 0 5"
+                        materialDesign:HintAssist.Hint="端口"
+                        IsEnabled="{Binding IsConnect, Converter={StaticResource InverseBooleanConverter}}"
+                        Text="{Binding Client.TcpClientOption.Port}" />
+
+                    <ToggleButton
+                        Command="{Binding ConnectionCommand}"
+                        IsChecked="{Binding IsConnect}"
+                        Style="{DynamicResource ConnectButton}" />
+                    <Border Height="1" BorderBrush="Gainsboro" BorderThickness="1" />
+                </StackPanel>
             </Border>
+            <Border Grid.Row="1" Padding="5">
+                <StackPanel>
+                    <TextBlock FontSize="15" Text="接收设置:" />
+                    <StackPanel Style="{DynamicResource ConfigStackPanel}">
+                        <CheckBox
+                            IsChecked="{Binding Client.ReceiveOption.IsHex}"
+                            ToolTip="MaterialDesignSwitchToggleButton" />
+                        <Label>16进制显示</Label>
+                    </StackPanel>
+                    <StackPanel Style="{DynamicResource ConfigStackPanel}">
+                        <CheckBox
+                            IsChecked="{Binding Client.ReceiveOption.SaveToFile}"
+                            ToolTip="MaterialDesignSwitchToggleButton" />
+                        <Label>接收数据保存到文件</Label>
+                    </StackPanel>
+                    <StackPanel Style="{DynamicResource ConfigStackPanel}">
+                        <CheckBox
+                            IsChecked="{Binding Client.TcpClientReceiveOption.IsHex}"
+                            ToolTip="MaterialDesignSwitchToggleButton" />
+                        <Label>接收数据自动换行</Label>
+                    </StackPanel>
+                    <StackPanel Style="{DynamicResource ConfigStackPanel}">
+                        <CheckBox
+                            IsChecked="{Binding Client.TcpClientReceiveOption.AutoBreakFrame}"
+                            ToolTip="MaterialDesignSwitchToggleButton" />
+                        <Label VerticalAlignment="Center" Content="自动断帧" />
+                        <TextBox
+                            Width="40"
+                            Height="25"
+                            Padding="0"
+                            Style="{StaticResource NetTextBox}"
+                            Text="{Binding Client.TcpClientReceiveOption.AutoBreakFrameTime}" />
+                        <Label VerticalAlignment="Center" Content="毫秒" />
+                    </StackPanel>
+                    <Border
+                        Height="1"
+                        Margin="0,5,0,0"
+                        Background="Gainsboro" />
+                </StackPanel>
+            </Border>
+            <Border Grid.Row="2" Padding="5">
+                <StackPanel>
+                    <TextBlock FontSize="15" Text="扩展设置:" />
+                </StackPanel>
+            </Border>
+            <Border Grid.Row="3" Padding="5">
+                <StackPanel>
+                    <Border
+                        Height="1"
+                        Margin="0,5,0,0"
+                        Background="Gainsboro" />
+                    <TextBlock FontSize="15" Text="发送设置:" />
+                    <StackPanel Style="{DynamicResource ConfigStackPanel}">
+                        <CheckBox
+                            IsChecked="{Binding Client.SendOption.IsHex}"
+                            ToolTip="MaterialDesignSwitchToggleButton" />
+                        <Label>16进制发送</Label>
+                    </StackPanel>
+
+                    <StackPanel Style="{DynamicResource ConfigStackPanel}">
+                        <CheckBox
+                            IsChecked="{Binding Client.SendOption.AutoSend}"
+                            ToolTip="MaterialDesignSwitchToggleButton" />
+                        <Label VerticalAlignment="Center">定时发送</Label>
+                        <TextBox
+                            Width="40"
+                            Height="20"
+                            IsEnabled="{Binding Client.SendOption.AutoSend, Converter={StaticResource InverseBooleanConverter}}"
+                            Style="{StaticResource NetTextBox}"
+                            Text="{Binding Client.SendOption.AutoSendTime}" />
+                        <Label VerticalAlignment="Center" Content="毫秒" />
+                    </StackPanel>
+                    <StackPanel Style="{DynamicResource ConfigStackPanel}">
+                        <Button>发送文件</Button>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
         </Grid>
+
+        <components:CommunicationDataComponent x:Name="ComCompenent" Grid.Column="1" Margin="5" />
     </Grid>
 </commonWpf:UserComponent>

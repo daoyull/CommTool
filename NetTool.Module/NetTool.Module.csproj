@@ -16,10 +16,4 @@
       <ProjectReference Include="..\NetTool.Lib\NetTool.Lib.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <None Update="JavaScripts\DefaultScript.js">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-    </ItemGroup>
-
 </Project>

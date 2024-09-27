@@ -9,5 +9,6 @@ public class NetToolModule : BaseModule
     public override void LoadService(ContainerBuilder builder)
     {
         builder.RegisterType<SerialPortAdapter>();
+        builder.RegisterType<TcpClientAdapter>();
     }
 }

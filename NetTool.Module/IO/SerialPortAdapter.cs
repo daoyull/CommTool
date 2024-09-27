@@ -1,5 +1,7 @@
-﻿using System.IO.Ports;
+﻿using System.Diagnostics;
+using System.IO.Ports;
 using NetTool.Lib.Abstracts;
+using NetTool.Lib.Args;
 using NetTool.Lib.Interface;
 using NetTool.Module.Messages;
 
@@ -7,15 +9,24 @@ namespace NetTool.Module.IO;
 
 public class SerialPortAdapter : AbstractCommunication<SerialPortMessage>, ISerialPort
 {
-    public SerialPortAdapter(INotify notify, ISerialOption serialOption) : base(notify)
+    public SerialPortAdapter(
+        INotify notify,
+        IGlobalOption globalOption,
+        ISerialOption serialOption,
+        ISerialReceiveOption receiveOption,
+        ISerialSendOption sendOption) : base(notify, globalOption)
     {
         SerialOption = serialOption;
+        SerialReceiveOption = receiveOption;
+        SerialSendOption = sendOption;
     }
 
     private SerialPort? _serialPort;
 
 
     public ISerialOption SerialOption { get; }
+    public ISerialReceiveOption SerialReceiveOption { get; }
+    public ISerialSendOption SerialSendOption { get; }
 
     public void Connect()
     {
@@ -32,6 +43,7 @@ public class SerialPortAdapter : AbstractCommunication<SerialPortMessage>, ISeri
         _serialPort.StopBits = SerialOption.StopBits!.Value;
         _serialPort.DataReceived += OnDataReceived;
         _serialPort.Open();
+        OnConnected(new ConnectedArgs());
         IsConnect = true;
     }
 
@@ -43,7 +55,7 @@ public class SerialPortAdapter : AbstractCommunication<SerialPortMessage>, ISeri
         {
             return;
         }
-        
+
         int length = serialPort.BytesToRead;
         if (length == 0)
         {
@@ -63,6 +75,7 @@ public class SerialPortAdapter : AbstractCommunication<SerialPortMessage>, ISeri
             _serialPort?.Close();
             _serialPort?.Dispose();
             _serialPort = null;
+            OnClosed(new ClosedArgs());
         }
 
         IsConnect = false;
@@ -78,6 +91,10 @@ public class SerialPortAdapter : AbstractCommunication<SerialPortMessage>, ISeri
 
         base.Dispose(isDispose);
     }
+
+
+    public override IReceiveOption ReceiveOption => SerialReceiveOption;
+    public override ISendOption SendOption => SerialSendOption;
 
 
     public override void Write(byte[] buffer, int offset, int count)

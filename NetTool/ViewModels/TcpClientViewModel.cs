@@ -7,10 +7,10 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NetTool.Lib.Args;
 using NetTool.Lib.Interface;
-using NetTool.Lib.Messages;
 using NetTool.Models;
 using NetTool.Module.Common;
 using NetTool.Module.Components;
+using NetTool.Module.IO;
 using NetTool.Module.Service;
 using NetTool.Service;
 
@@ -18,178 +18,107 @@ namespace NetTool.ViewModels;
 
 public partial class TcpClientViewModel : BaseViewModel, IDisposable
 {
-    public TcpClientViewModel(TcpClientNet tcpClientNet, SettingService settingService)
+    private CancellationTokenSource? _showCts;
+
+    public TcpClientViewModel(TcpClientAdapter tcpClient, SettingService settingService)
     {
-        _client = tcpClientNet;
+        Client = tcpClient;
         _settingService = settingService;
-        _client.Closed += HandleClosed;
-        ReceiveOption.PropertyChanged += HandleReceiveOptionChanged;
-        SendOption.PropertyChanged += HandleSendOptionChanged;
-    }
-
-    private void HandleSendOptionChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        switch (e.PropertyName)
+        tcpClient.Connected += (sender, args) =>
         {
-            case nameof(Models.SendOption.HexSend):
-                if (SendOption.HexSend)
-                {
-                    SendString = _settingService.ToHexStr(SendString ?? "");
-                }
-                else
-                {
-                    SendString = _settingService.HexToStr(SendString ?? "");
-                }
-
-                break;
-            case nameof(Models.SendOption.ScheduleSend):
-                Task.Run(StartScheduleSend);
-                break;
-        }
-    }
-
-    private async Task StartScheduleSend()
-    {
-        while (SendOption.ScheduleSend)
+            IsConnect = Client.IsConnect;
+            _showCts = new();
+#pragma warning disable CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
+            Task.Run(StartHandleReceive, _showCts.Token);
+#pragma warning restore CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
+        };
+        tcpClient.Closed += (sender, args) =>
         {
-            await SendAsync();
-            await Task.Delay(SendOption.ScheduleSendTime);
-        }
+            IsConnect = Client.IsConnect;
+            _showCts?.Cancel();
+            _showCts?.Dispose();
+            _showCts = null;
+        };
     }
 
-    private void HandleReceiveOptionChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        switch (e.PropertyName)
-        {
-            case nameof(Models.ReceiveOption.AutoBreak):
-                _client.AutoBreak = ReceiveOption.AutoBreak;
-                break;
-            case nameof(Models.ReceiveOption.AutoBreakTime):
-                _client.AutoBreakTime = ReceiveOption.AutoBreakTime;
-                break;
-        }
-    }
-
-    private void HandleClosed(object? sender, ClosedArgs e)
-    {
-        IsConnect = false;
-        _client.ReceiveMessageAction -= HandleReceive;
-    }
-
-    private Channel<ReceiveArgs> _receiveChannel = Channel.CreateUnbounded<ReceiveArgs>(new UnboundedChannelOptions
-    {
-        AllowSynchronousContinuations = false,
-        SingleReader = true,
-        SingleWriter = true
-    });
-
-    [ObservableProperty] private string? _sendString;
     [ObservableProperty] private bool _isConnect;
-
-    [ObservableProperty] private ReceiveOption _receiveOption = new();
-    [ObservableProperty] private SendOption _sendOption = new();
-
-
-    [ObservableProperty] private TcpConfig _config = new();
-    private IJavaScriptExec _scriptExec = new ScriptEngine();
-    private readonly TcpClientNet _client;
+    public TcpClientAdapter Client { get; }
     private readonly SettingService _settingService;
     public IUiLogger? UiLogger { get; set; }
 
-    public bool CanConnect()
-    {
-        return !_client.IsConnect;
-    }
-
-    [RelayCommand(CanExecute = nameof(CanConnect))]
+    [RelayCommand]
     private async Task Connection()
     {
-        var verify = Config.Verify(out string errMsg);
-        if (!verify)
+        try
         {
-            return;
+            if (!IsConnect)
+            {
+                await Client.ConnectAsync();
+            }
+            else
+            {
+                Client.Close();
+            }
         }
-
-        //载入配置
-        _client.Ip = Config.Ip;
-        _client.Port = Config.Port!.Value;
-        _client.ReceiveMessageAction += HandleReceive;
-        await _client.ConnectAsync();
-        IsConnect = true;
-#pragma warning disable CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
-        Task.Run(StartHandleReceive);
-#pragma warning restore CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
-        var path = Path.Combine(Directory.GetCurrentDirectory(), "JavaScripts", "DefaultScript.js");
-        _scriptExec.Reload(await File.ReadAllTextAsync(path));
+        catch (Exception e)
+        {
+            Client.Notify.Error(e.Message);
+        }
     }
 
     private async Task? StartHandleReceive()
     {
-        await foreach (var args in _receiveChannel.Reader.ReadAllAsync())
+        await foreach (var args in Client.MessageReadAsync())
         {
             string outMessage;
-            if (ReceiveOption.HexDisplay)
+            if (Client.ReceiveOption.IsHex)
             {
-                outMessage = args.Buffer.ToHexString();
+                outMessage = args.Data.ToHexString();
             }
             else
             {
-                outMessage = Encoding.UTF8.GetString(args.Buffer);
+                outMessage = Encoding.UTF8.GetString(args.Data);
             }
 
 
             UiLogger?.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Receive]");
             UiLogger?.Success($"{outMessage}");
-            if (ReceiveOption.AutoNewLine)
+            if (Client.SendOption.IsEnableScript)
             {
                 UiLogger?.Message(string.Empty, string.Empty);
             }
-
-            _scriptExec.OnReceived(args.Buffer);
         }
     }
 
-    private async void HandleReceive(ReceiveMessage message)
-    {
-        // await _receiveChannel.Writer.WriteAsync(e);
-        var s = Encoding.UTF8.GetString(message.Data!);
-        // Console.WriteLine(s);
-        // Thread.Sleep(100);
-        
-        UiLogger?.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Receive]");
-        UiLogger?.Success($"{s}");
-       
-    }
-
     [RelayCommand]
-    private async Task Send()
+    private async Task Send(string message)
     {
-        await SendAsync();
+        await SendAsync(message);
     }
 
-    private async Task SendAsync()
+    private async Task SendAsync(string message)
     {
         try
         {
-            if (!_client.IsConnect || string.IsNullOrEmpty(SendString))
+            if (!Client.IsConnect || string.IsNullOrEmpty(message))
             {
                 return;
             }
 
             byte[] sendBuffer;
-            if (SendOption.HexSend)
+            if (Client.SendOption.IsHex)
             {
-                sendBuffer = SendString.HexStringToArray();
+                sendBuffer = message.HexStringToArray();
             }
             else
             {
-                sendBuffer = Encoding.UTF8.GetBytes(SendString);
+                sendBuffer = Encoding.UTF8.GetBytes(message);
             }
 
-            await _client.SendAsync(sendBuffer);
+            await Client.WriteAsync(sendBuffer, 0, sendBuffer.Length);
 
             string outMessage;
-            if (SendOption.HexSend)
+            if (Client.SendOption.IsHex)
             {
                 outMessage = sendBuffer.ToHexString();
             }
@@ -200,14 +129,14 @@ public partial class TcpClientViewModel : BaseViewModel, IDisposable
 
             UiLogger?.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send]");
             UiLogger?.Message($"{outMessage}", "#1E6FFF");
-            if (ReceiveOption.AutoNewLine)
+            if (Client.SendOption.IsHex)
             {
                 UiLogger?.Message(string.Empty, string.Empty);
             }
 
-            if (SendOption.ScheduleSend)
+            if (Client.SendOption.AutoSend)
             {
-                await Task.Delay(SendOption.ScheduleSendTime);
+                await Task.Delay(Client.SendOption.AutoSendTime);
             }
         }
         catch (Exception e)
@@ -219,6 +148,25 @@ public partial class TcpClientViewModel : BaseViewModel, IDisposable
 
     public void Dispose()
     {
-        _client.Dispose();
+        Client.Dispose();
     }
 }
+
+
+//switch (e.PropertyName)
+//        {
+//            case nameof(Models.SendOption.HexSend) :
+//                if (SendOption.HexSend)
+//                {
+//                    SendString = _settingService.ToHexStr(SendString ?? "");
+//                }
+//                else
+//{
+//    SendString = _settingService.HexToStr(SendString ?? "");
+//}
+
+//break;
+//            case nameof(Models.SendOption.ScheduleSend):
+//    Task.Run(StartScheduleSend);
+//    break;
+//}

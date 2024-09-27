@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Common.Lib.Ioc;
 using NetTool.Lib.Interface;
 
 namespace NetTool.Components;
@@ -112,36 +113,26 @@ public partial class CommunicationDataComponent : ICommunicationUi
         set => SetValue(ReceiveBytesProperty, value);
     }
 
+    public INotify Notify { get; } = Ioc.Resolve<INotify>();
+
     public void AddSendFrame(uint add)
     {
-        Dispatcher.Invoke(() =>
-        {
-            SendFrame += add;
-        });
+        Dispatcher.Invoke(() => { SendFrame += add; });
     }
 
     public void AddReceiveFrame(uint add)
     {
-        Dispatcher.Invoke(() =>
-        {
-            ReceiveFrame += add;
-        });
+        Dispatcher.Invoke(() => { ReceiveFrame += add; });
     }
 
     public void AddSendBytes(uint add)
     {
-        Dispatcher.Invoke(() =>
-        {
-            SendBytes += add;
-        });
+        Dispatcher.Invoke(() => { SendBytes += add; });
     }
 
     public void AddReceiveBytes(uint add)
     {
-        Dispatcher.Invoke(() =>
-        {
-            ReceiveBytes += add;
-        });
+        Dispatcher.Invoke(() => { ReceiveBytes += add; });
     }
 
     #endregion

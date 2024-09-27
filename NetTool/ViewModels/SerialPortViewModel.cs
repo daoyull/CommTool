@@ -22,15 +22,46 @@ public partial class SerialPortViewModel : BaseViewModel
     public ISerialSendOption SendOption { get; }
 
     [ObservableProperty] private bool _isConnected;
+    
+    #region 数据源
 
-    public SerialPortViewModel(SerialPortAdapter serialPortAdapter, SettingService settingService, INotify notify,
-        ISerialReceiveOption receiveOption, ISerialSendOption sendOption)
+    /// <summary>
+    /// 串口名称
+    /// </summary>
+    [ObservableProperty] private List<string> _comPortList = null!;
+
+    /// <summary>
+    /// 校验位
+    /// </summary>
+    public List<EnumItem<Parity>> ParitiesSource { get; } = EnumHelper.EnumConvertToList<Parity>();
+
+    /// <summary>
+    /// 停止位
+    /// </summary>
+    public List<EnumItem<StopBits>> StopBitsSource { get; } = EnumHelper.EnumConvertToList<StopBits>();
+
+    /// <summary>
+    /// 波特率
+    /// </summary>
+    public List<int> BaudRates { get; } = new()
+    {
+        9600, 19200, 38400, 57600, 115200
+    };
+
+    /// <summary>
+    /// 数据位
+    /// </summary>
+    public List<int> DataBits { get; } = new() { 5, 6, 7, 8 };
+
+    #endregion
+
+    public SerialPortViewModel(SerialPortAdapter serialPortAdapter, SettingService settingService, INotify notify)
     {
         _settingService = settingService;
         Serial = serialPortAdapter;
         Notify = notify;
-        ReceiveOption = receiveOption;
-        SendOption = sendOption;
+        ReceiveOption = serialPortAdapter.SerialReceiveOption;
+        SendOption = serialPortAdapter.SerialSendOption;
         InitDefaultValue();
     }
 
@@ -132,39 +163,4 @@ public partial class SerialPortViewModel : BaseViewModel
             Notify.Error(e.Message);
         }
     }
-}
-
-public partial class SerialPortViewModel
-{
-    #region 数据源
-
-    /// <summary>
-    /// 串口名称
-    /// </summary>
-    [ObservableProperty] private List<string> _comPortList = null!;
-
-    /// <summary>
-    /// 校验位
-    /// </summary>
-    public List<EnumItem<Parity>> ParitiesSource { get; } = EnumHelper.EnumConvertToList<Parity>();
-
-    /// <summary>
-    /// 停止位
-    /// </summary>
-    public List<EnumItem<StopBits>> StopBitsSource { get; } = EnumHelper.EnumConvertToList<StopBits>();
-
-    /// <summary>
-    /// 波特率
-    /// </summary>
-    public List<int> BaudRates { get; } = new()
-    {
-        9600, 19200, 38400, 57600, 115200
-    };
-
-    /// <summary>
-    /// 数据位
-    /// </summary>
-    public List<int> DataBits { get; } = new() { 5, 6, 7, 8 };
-
-    #endregion
 }

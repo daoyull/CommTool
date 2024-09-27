@@ -25,7 +25,8 @@
         
             </Grid>
         
-            <views:SerialPortView />
+            <!-- <views:SerialPortView /> -->
+            <views:TcpClientView />
         </Grid>
         
     </materialDesign:DialogHost>

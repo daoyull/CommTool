@@ -1,10 +1,10 @@
-﻿using NetTool.Lib.Interface;
+using NetTool.Lib.Interface;
 
 namespace NetTool.Module.Messages;
 
-public class SerialPortMessage : IMessage
+public class TcpClientMessage: IMessage
 {
-    public SerialPortMessage(byte[] data)
+    public TcpClientMessage(byte[] data)
     {
         Data = data;
     }
