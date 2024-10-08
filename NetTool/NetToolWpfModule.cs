@@ -12,6 +12,7 @@ public class NetToolWpfModule : BaseModule
     public override void LoadService(ContainerBuilder builder)
     {
         builder.RegisterType<TcpClientViewModel>();
+        builder.RegisterType<TcpServerViewModel>();
         builder.RegisterType<SerialPortViewModel>();
 
         builder.RegisterType<SerialOption>().As<ISerialOption>();
@@ -19,12 +20,14 @@ public class NetToolWpfModule : BaseModule
         builder.RegisterType<SerialSendOption>().As<ISerialSendOption>();
 
         builder.RegisterType<TcpClientOption>().As<ITcpClientOption>();
-        builder.RegisterType<TcpClienReceiveOption>().As<ITcpClientReceiveOption>();
-        builder.RegisterType<TcpClienSendOption>().As<ITcpClientSendOption>();
+        builder.RegisterType<TcpClientReceiveOption>().As<ITcpClientReceiveOption>();
+        builder.RegisterType<TcpClientSendOption>().As<ITcpClientSendOption>();
 
+        builder.RegisterType<TcpServerOption>().As<ITcpServerOption>();
+        builder.RegisterType<TcpServerReceiveOption>().As<ITcpServerReceiveOption>();
+        builder.RegisterType<TcpServerSendOption>().As<ITcpServerSendOption>();
+        
         builder.RegisterType<GlobalOption>().As<IGlobalOption>().SingleInstance();
-
-      
         builder.RegisterType<Notify>().As<INotify>().SingleInstance();
     }
 }

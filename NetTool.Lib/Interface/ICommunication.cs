@@ -1,4 +1,6 @@
-﻿using NetTool.Lib.Args;
+﻿using System.Collections.ObjectModel;
+using NetTool.Lib.Args;
+using NetTool.Lib.Entity;
 
 namespace NetTool.Lib.Interface;
 
@@ -56,4 +58,8 @@ public interface ITcpServer
     public ITcpServerReceiveOption TcpServerReceiveOption { get; }
 
     public ITcpServerSendOption TcpServerSendOption { get; }
+
+    public ObservableCollection<TcpClientItem> Clients { get; }
+
+    public void Listen();
 }

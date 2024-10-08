@@ -127,6 +127,7 @@ public class TcpClientAdapter : AbstractCommunication<TcpClientMessage>, ITcpCli
         catch (Exception e)
         {
             Console.WriteLine(e);
+            throw;
         }
     }
 

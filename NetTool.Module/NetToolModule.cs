@@ -11,6 +11,7 @@ public class NetToolModule : BaseModule
     {
         builder.RegisterType<SerialPortAdapter>();
         builder.RegisterType<TcpClientAdapter>();
+        builder.RegisterType<TcpServerAdapter>();
         builder.RegisterType<StringBuilderPool>().SingleInstance();
     }
 }

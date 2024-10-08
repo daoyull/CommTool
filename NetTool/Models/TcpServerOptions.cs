@@ -3,13 +3,13 @@ using NetTool.Lib.Interface;
 
 namespace NetTool.Models;
 
-partial class TcpClientOption : ObservableObject, ITcpClientOption
+public partial class TcpServerOption : ObservableObject, ITcpServerOption
 {
     [ObservableProperty] private string? _ip = "127.0.0.1";
     [ObservableProperty] private int _port = 7789;
 }
 
-partial class TcpClientReceiveOption : ObservableObject, ITcpClientReceiveOption
+public partial class TcpServerReceiveOption : ObservableObject, ITcpServerReceiveOption
 {
     [ObservableProperty] private bool _defaultWriteUi = true;
     [ObservableProperty] private bool _saveToFile;
@@ -21,7 +21,7 @@ partial class TcpClientReceiveOption : ObservableObject, ITcpClientReceiveOption
     [ObservableProperty] private bool _autoNewLine;
 }
 
-partial class TcpClientSendOption : ObservableObject, ITcpClientSendOption
+public partial class TcpServerSendOption : ObservableObject, ITcpServerSendOption
 {
     [ObservableProperty] private bool _defaultWriteUi;
     [ObservableProperty] private bool _isHex;
