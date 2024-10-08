@@ -9,13 +9,12 @@ using NetTool.Lib.Interface;
 using NetTool.Module.IO;
 using NetTool.Module.Messages;
 using NetTool.Module.Share;
-using NetTool.Service;
+
 
 namespace NetTool.ViewModels;
 
 public partial class SerialPortViewModel : BaseViewModel
 {
-    private readonly SettingService _settingService;
     public SerialPortAdapter Serial { get; }
     public INetUi Ui { get; set; } = null!;
     private INotify Notify { get; }
@@ -56,9 +55,8 @@ public partial class SerialPortViewModel : BaseViewModel
 
     #endregion
 
-    public SerialPortViewModel(SerialPortAdapter serialPortAdapter, SettingService settingService, INotify notify)
+    public SerialPortViewModel(SerialPortAdapter serialPortAdapter, INotify notify)
     {
-        _settingService = settingService;
         Serial = serialPortAdapter;
         Notify = notify;
         ReceiveOption = serialPortAdapter.SerialReceiveOption;
@@ -151,7 +149,6 @@ public partial class SerialPortViewModel : BaseViewModel
             }
 
             await Serial.WriteAsync(sendBuffer, 0, sendBuffer.Length);
-            Ui.WriteSend(new SerialPortMessage(sendBuffer));
         }
         catch (Exception e)
         {

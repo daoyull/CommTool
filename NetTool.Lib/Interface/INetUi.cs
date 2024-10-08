@@ -16,6 +16,9 @@ public interface INetUi
     public void AddReceiveBytes(uint add);
     public void ResetNumber();
 
-    public void WriteReceive(IMessage message);
-    public void WriteSend(IMessage message);
+    public string ReceiveMessage { get; }
+    public string SendMessage { get; set; }
+    
+    
+    
 }

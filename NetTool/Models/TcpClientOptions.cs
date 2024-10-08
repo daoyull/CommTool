@@ -18,6 +18,7 @@ partial class TcpClienReceiveOption : ObservableObject, ITcpClientReceiveOption
     [ObservableProperty] private string? _scriptName;
     [ObservableProperty] private bool _autoBreakFrame;
     [ObservableProperty] private int _autoBreakFrameTime = 20;
+    [ObservableProperty] private bool _autoNewLine;
 }
 
 partial class TcpClienSendOption : ObservableObject, ITcpClientSendOption
@@ -27,5 +28,5 @@ partial class TcpClienSendOption : ObservableObject, ITcpClientSendOption
     [ObservableProperty] private bool _isEnableScript;
     [ObservableProperty] private string? _scriptName;
     [ObservableProperty] private bool _autoSend;
-    [ObservableProperty] private int _autoSendTime;
+    [ObservableProperty] private int _autoSendTime = 50;
 }

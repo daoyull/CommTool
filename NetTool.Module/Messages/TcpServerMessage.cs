@@ -15,13 +15,4 @@ public readonly struct TcpServerMessage : IMessage
 
     WeakReference<Socket> Client { get; }
     public byte[] Data { get; }
-    public void ReceiveDisplay(INetUi ui)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void SendDisplay(INetUi ui)
-    {
-        throw new NotImplementedException();
-    }
 }

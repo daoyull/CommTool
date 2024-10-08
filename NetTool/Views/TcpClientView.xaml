@@ -47,7 +47,7 @@
                         Text="{Binding Client.TcpClientOption.Port}" />
 
                     <ToggleButton
-                        Command="{Binding ConnectionCommand}"
+                        Command="{Binding ConnectCommand}"
                         IsChecked="{Binding IsConnect}"
                         Style="{DynamicResource ConnectButton}" />
                     <Border Height="1" BorderBrush="Gainsboro" BorderThickness="1" />
@@ -70,7 +70,7 @@
                     </StackPanel>
                     <StackPanel Style="{DynamicResource ConfigStackPanel}">
                         <CheckBox
-                            IsChecked="{Binding Client.TcpClientReceiveOption.IsHex}"
+                            IsChecked="{Binding Client.TcpClientReceiveOption.AutoNewLine}"
                             ToolTip="MaterialDesignSwitchToggleButton" />
                         <Label>接收数据自动换行</Label>
                     </StackPanel>
@@ -133,6 +133,9 @@
 
         </Grid>
 
-        <components:NetDataComponent x:Name="ComCompenent" Grid.Column="1" Margin="5" />
+        <components:NetDataComponent
+            x:Name="ComCompenent"
+            SendCommand="{Binding SendCommand}"
+            Grid.Column="1" Margin="5" />
     </Grid>
 </commonWpf:UserComponent>

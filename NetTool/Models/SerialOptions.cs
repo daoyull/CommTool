@@ -19,6 +19,7 @@ partial class SerialReceiveOption : ObservableObject, ISerialReceiveOption
     [ObservableProperty] private bool _defaultWriteUi = true;
     [ObservableProperty] private bool _saveToFile;
     [ObservableProperty] private bool _isHex;
+    [ObservableProperty] private bool _autoNewLine;
     [ObservableProperty] private bool _isEnableScript;
     [ObservableProperty] private string? _scriptName;
 }

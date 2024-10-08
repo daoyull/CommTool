@@ -6,14 +6,5 @@ public readonly struct SerialPortMessage(byte[] data) : IMessage
 {
     public DateTime Time { get; } = DateTime.Now;
     public byte[] Data { get; } = data;
-
-    public void ReceiveDisplay(INetUi ui)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void SendDisplay(INetUi ui)
-    {
-        throw new NotImplementedException();
-    }
+    
 }

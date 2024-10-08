@@ -1,7 +1,7 @@
 function registerTip() {
     ShowAutocompletion({
         Ui: {
-            Receive: {
+            ReceiveArea: {
                 WriteInfo: function (message) {
                 },
                 WriteSuccess: function (message) {
@@ -16,7 +16,7 @@ function registerTip() {
                 },
 
             },
-            Send: {
+            SendArea: {
                 SetText(message) {
                 },
                 ClearArea: function () {
@@ -47,7 +47,7 @@ function registerTip() {
 
 function ShowAutocompletion(obj) {
     // Disable default autocompletion for javascript
-    monaco.languages.typescript.javascriptDefaults.setCompilerOptions({noLib: true});
+    // monaco.languages.typescript.javascriptDefaults.setCompilerOptions({noLib: true});
 
     // Helper function to return the monaco completion item type of a thing
     function getType(thing, isMember) {

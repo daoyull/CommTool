@@ -29,6 +29,7 @@ public interface IReceiveOption
 
     public bool IsHex { get; set; }
 
+    public bool AutoNewLine { get; set; }
 
     public bool IsEnableScript { get; set; }
 

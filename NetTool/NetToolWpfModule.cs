@@ -3,8 +3,6 @@ using Common.Lib.Abstracts;
 using NetTool.Components;
 using NetTool.Lib.Interface;
 using NetTool.Models;
-using NetTool.Module.Service;
-using NetTool.Service;
 using NetTool.ViewModels;
 
 namespace NetTool;
@@ -26,7 +24,7 @@ public class NetToolWpfModule : BaseModule
 
         builder.RegisterType<GlobalOption>().As<IGlobalOption>().SingleInstance();
 
-        builder.RegisterType<SettingService>().SingleInstance();
+      
         builder.RegisterType<Notify>().As<INotify>().SingleInstance();
     }
 }

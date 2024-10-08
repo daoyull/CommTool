@@ -55,7 +55,7 @@ public class TcpClientAdapter : AbstractCommunication<TcpClientMessage>, ITcpCli
         catch (Exception e)
         {
             Close();
-            Console.WriteLine(e);
+            throw;
         }
     }
 
@@ -162,7 +162,7 @@ public class TcpClientAdapter : AbstractCommunication<TcpClientMessage>, ITcpCli
     {
         if (_client != null && _networkStream != null)
         {
-            _networkStream.Write(buffer[^offset..][..count]);
+            _networkStream.Write(buffer.AsSpan().Slice(offset, count));
         }
     }
 }

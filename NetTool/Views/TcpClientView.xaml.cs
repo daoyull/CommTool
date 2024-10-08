@@ -16,7 +16,7 @@ public partial class TcpClientView
         base.OnInitialized(e);
         if (ViewModel != null)
         {
-            ViewModel.UiLogger = ComCompenent.NetLogger;
+            ViewModel.Ui = ComCompenent;
         }
     }
 }

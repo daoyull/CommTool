@@ -1,9 +1,12 @@
-﻿using System.Windows;
+﻿using System.ComponentModel;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using Common.Lib.Ioc;
+using CommunityToolkit.Mvvm.ComponentModel;
 using NetTool.Lib.Interface;
+using NetTool.Module.Share;
 
 namespace NetTool.Components;
 
@@ -88,7 +91,9 @@ public partial class NetDataComponent : INetUi
 
 
     public static readonly DependencyProperty SendOptionProperty = DependencyProperty.Register(
-        nameof(SendOption), typeof(ISendOption), typeof(NetDataComponent), new PropertyMetadata(default(ISendOption)));
+        nameof(SendOption), typeof(ISendOption), typeof(NetDataComponent),
+        new PropertyMetadata(default(ISendOption)));
+
 
     public ISendOption SendOption
     {
@@ -167,15 +172,14 @@ public partial class NetDataComponent : INetUi
         SendFrame = ReceiveFrame = SendBytes = ReceiveBytes = 0;
     }
 
-    public void WriteReceive(IMessage message)
+    public string ReceiveMessage => Dispatcher.Invoke(() => NetLogger.Text);
+
+    public string SendMessage
     {
-        Dispatcher.Invoke(() => { message.ReceiveDisplay(this); });
+        get => Dispatcher.Invoke(() => SendTextBox.Text);
+        set => Dispatcher.Invoke(() => SendTextBox.Text = value);
     }
 
-    public void WriteSend(IMessage message)
-    {
-        Dispatcher.Invoke(() => { message.SendDisplay(this); });
-    }
 
     private void ResetNumberClick(object sender, RoutedEventArgs e)
     {

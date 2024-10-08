@@ -13,6 +13,12 @@ public static partial class Extensions
         return encoding.GetString(bytes);
     }
 
+    public static byte[] StringToBytes(this string str)
+    {
+        var encoding = Ioc.Resolve<IGlobalOption>().Encoding;
+        return encoding.GetBytes(str);
+    }
+
     public static string BytesToHexString(this byte[] bytes, string delimiter = " ")
     {
         var builderPool = Ioc.Resolve<StringBuilderPool>();
@@ -26,7 +32,7 @@ public static partial class Extensions
         builderPool.Return(builder);
         return trim;
     }
-    
+
     public static byte[] HexStringToBytes(this string hexStr)
     {
         var filteredHexStr = new string(hexStr.Where(c => HexChars.Contains(c)).ToArray());
@@ -37,6 +43,18 @@ public static partial class Extensions
         }
 
         return Convert.FromHexString(filteredHexStr);
+    }
+
+    public static string HexStringToString(this string hexStr)
+    {
+        var bytes = hexStr.HexStringToBytes();
+        return bytes.BytesToString();
+    }
+
+    public static string StringToHexString(this string encodingStr)
+    {
+        var bytes = encodingStr.StringToBytes();
+        return bytes.BytesToHexString();
     }
 }
 

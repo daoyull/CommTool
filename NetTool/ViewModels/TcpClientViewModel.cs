@@ -1,53 +1,24 @@
-﻿using System.ComponentModel;
-using System.IO;
-using System.Text;
-using System.Threading.Channels;
-using Common.Mvvm.Abstracts;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using NetTool.Lib.Args;
+﻿using NetTool.Abstracts;
 using NetTool.Lib.Interface;
-using NetTool.Models;
-using NetTool.Module.Components;
 using NetTool.Module.IO;
-using NetTool.Module.Service;
-using NetTool.Module.Share;
-using NetTool.Service;
+using NetTool.Module.Messages;
 
 namespace NetTool.ViewModels;
 
-public partial class TcpClientViewModel : BaseViewModel, IDisposable
+public partial class TcpClientViewModel : AbstractNetViewModel<TcpClientMessage>, IDisposable
 {
-    private CancellationTokenSource? _showCts;
-
-    public TcpClientViewModel(TcpClientAdapter tcpClient, SettingService settingService)
+    public TcpClientViewModel(INotify notify, IGlobalOption globalOption, TcpClientAdapter tcpClient) : base(notify,
+        globalOption)
     {
         Client = tcpClient;
-        _settingService = settingService;
-        tcpClient.Connected += (sender, args) =>
-        {
-            IsConnect = Client.IsConnect;
-            _showCts = new();
-#pragma warning disable CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
-            Task.Run(StartHandleReceive, _showCts.Token);
-#pragma warning restore CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
-        };
-        tcpClient.Closed += (sender, args) =>
-        {
-            IsConnect = Client.IsConnect;
-            _showCts?.Cancel();
-            _showCts?.Dispose();
-            _showCts = null;
-        };
+        InitCommunication();
     }
 
-    [ObservableProperty] private bool _isConnect;
-    public TcpClientAdapter Client { get; }
-    private readonly SettingService _settingService;
-    public IUiLogger? UiLogger { get; set; }
 
-    [RelayCommand]
-    private async Task Connection()
+    public TcpClientAdapter Client { get; }
+    public override ICommunication<TcpClientMessage> Communication => Client;
+
+    protected override async Task Connect()
     {
         try
         {
@@ -66,107 +37,37 @@ public partial class TcpClientViewModel : BaseViewModel, IDisposable
         }
     }
 
-    private async Task? StartHandleReceive()
+
+    protected override void HandleReceiveMessage(TcpClientMessage message, string strMessage)
     {
-        await foreach (var args in Client.MessageReadAsync())
+        if (Ui == null)
         {
-            string outMessage;
-            if (Client.ReceiveOption.IsHex)
-            {
-                outMessage = args.Data.ToHexString();
-            }
-            else
-            {
-                outMessage = Encoding.UTF8.GetString(args.Data);
-            }
-
-
-            UiLogger?.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Receive]");
-            UiLogger?.Success($"{outMessage}");
-            if (Client.SendOption.IsEnableScript)
-            {
-                UiLogger?.Message(string.Empty, string.Empty);
-            }
+            return;
+        }
+        Ui.Logger.Info($"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [Receive]");
+        Ui.Logger.Success($"{strMessage}");
+        if (ReceiveOption.AutoNewLine)
+        {
+            Ui.Logger.Message(string.Empty,string.Empty);
         }
     }
 
-    [RelayCommand]
-    private async Task Send(string message)
+    protected override void HandleSendMessage(string message)
     {
-        await SendAsync(message);
-    }
-
-    private async Task SendAsync(string message)
-    {
-        try
+        if (Ui == null)
         {
-            if (!Client.IsConnect || string.IsNullOrEmpty(message))
-            {
-                return;
-            }
-
-            byte[] sendBuffer;
-            if (Client.SendOption.IsHex)
-            {
-                sendBuffer = message.HexStringToArray();
-            }
-            else
-            {
-                sendBuffer = Encoding.UTF8.GetBytes(message);
-            }
-
-            await Client.WriteAsync(sendBuffer, 0, sendBuffer.Length);
-
-            string outMessage;
-            if (Client.SendOption.IsHex)
-            {
-                outMessage = sendBuffer.ToHexString();
-            }
-            else
-            {
-                outMessage = Encoding.UTF8.GetString(sendBuffer);
-            }
-
-            UiLogger?.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send]");
-            UiLogger?.Message($"{outMessage}", "#1E6FFF");
-            if (Client.SendOption.IsHex)
-            {
-                UiLogger?.Message(string.Empty, string.Empty);
-            }
-
-            if (Client.SendOption.AutoSend)
-            {
-                await Task.Delay(Client.SendOption.AutoSendTime);
-            }
+            return;
         }
-        catch (Exception e)
+        Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send]");
+        Ui.Logger.Message($"{message}", "#1E6FFF");
+        if (ReceiveOption.AutoNewLine)
         {
-            Console.WriteLine(e);
+            Ui.Logger.Message(string.Empty,string.Empty);
         }
     }
-
 
     public void Dispose()
     {
         Client.Dispose();
     }
 }
-
-
-//switch (e.PropertyName)
-//        {
-//            case nameof(Models.SendOption.HexSend) :
-//                if (SendOption.HexSend)
-//                {
-//                    SendString = _settingService.ToHexStr(SendString ?? "");
-//                }
-//                else
-//{
-//    SendString = _settingService.HexToStr(SendString ?? "");
-//}
-
-//break;
-//            case nameof(Models.SendOption.ScheduleSend):
-//    Task.Run(StartScheduleSend);
-//    break;
-//}
