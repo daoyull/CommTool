@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Net.Sockets;
 using NetTool.Lib.Args;
 using NetTool.Lib.Entity;
 
@@ -19,11 +20,13 @@ public interface ICommunication<T> : IDisposable where T : IMessage
     public IReceiveOption ReceiveOption { get; }
     public ISendOption SendOption { get; }
 
-    IAsyncEnumerable<T> MessageReadAsync();
+    ValueTask<T> MessageReadAsync(CancellationToken token);
 
     public void Write(byte[] buffer, int offset, int count);
 
     public Task WriteAsync(byte[] buffer, int offset, int count);
+    
+    public void Close();
 }
 
 public interface ISerialPort
@@ -35,7 +38,7 @@ public interface ISerialPort
 
     public void Connect();
 
-    public void Close();
+    
 
     public List<string> GetPortNames();
 }
@@ -47,8 +50,7 @@ public interface ITcpClient
     public ITcpClientSendOption TcpClientSendOption { get; }
 
     public Task ConnectAsync();
-
-    public void Close();
+    
 }
 
 public interface ITcpServer
@@ -59,7 +61,12 @@ public interface ITcpServer
 
     public ITcpServerSendOption TcpServerSendOption { get; }
 
-    public ObservableCollection<TcpClientItem> Clients { get; }
-
     public void Listen();
+
+    event EventHandler<Socket>? ClientConnected;
+    
+    event EventHandler<Socket>? ClientClosed;
+
+    public void Write(Socket socket, byte[] buffer, int offset, int count);
+    public Task WriteAsync(Socket socket, byte[] buffer, int offset, int count);
 }

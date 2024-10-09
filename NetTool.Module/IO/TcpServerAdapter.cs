@@ -26,19 +26,19 @@ public class TcpServerAdapter : AbstractCommunication<TcpServerMessage>, ITcpSer
     public override IReceiveOption ReceiveOption => TcpServerReceiveOption;
     public override ISendOption SendOption => TcpServerSendOption;
 
+    private List<Socket> _clients = new();
+
     public override void Write(byte[] buffer, int offset, int count)
     {
-        var clientItem = Clients.FirstOrDefault(it => it.IsPrimary);
-        if (clientItem != null)
+        foreach (var client in _clients)
         {
-            clientItem.Socket.Send(buffer.AsSpan().Slice(offset, count));
+            client.Send(buffer.AsSpan().Slice(offset, count));
         }
     }
 
     public ITcpServerOption TcpServerOption { get; }
     public ITcpServerReceiveOption TcpServerReceiveOption { get; }
     public ITcpServerSendOption TcpServerSendOption { get; }
-    public ObservableCollection<TcpClientItem> Clients { get; } = new();
 
     private CancellationTokenSource? _connectCts;
 
@@ -52,104 +52,72 @@ public class TcpServerAdapter : AbstractCommunication<TcpServerMessage>, ITcpSer
         Task.Run(StartListen, _connectCts.Token);
     }
 
+    public event EventHandler<Socket>? ClientConnected;
+    public event EventHandler<Socket>? ClientClosed;
+
+    public void Write(Socket socket, byte[] buffer, int offset, int count)
+    {
+        socket.Send(buffer.AsSpan().Slice(offset, count));
+    }
+
+    public Task WriteAsync(Socket socket, byte[] buffer, int offset, int count)
+    {
+        return Task.Factory.StartNew(() => Write(socket, buffer, offset, count));
+    }
+
     private void StartListen()
     {
+        if (_listener == null)
+        {
+            return;
+        }
+
         while (_connectCts is { IsCancellationRequested: false })
         {
-            var socket = _listener.AcceptSocket();
-            if (socket.Connected)
+            try
             {
-                var tcpClientItem = new TcpClientItem(socket);
-                tcpClientItem.IsPrimary = true;
-                Clients.Add(tcpClientItem);
-                Task.Run(() => HandleClientReceive(tcpClientItem), _connectCts.Token);
+                var socket = _listener.AcceptSocket();
+                if (socket.Connected)
+                {
+                    _clients.Add(socket);
+                    var tcpClientItem = new TcpClientItem();
+                    tcpClientItem.ReceiveSocket = new ReceiveSocket(socket,
+                        bytes => WriteMessage(new(socket, bytes)),
+                        () =>
+                        {
+                            ClientClosed?.Invoke(this, socket);
+                            tcpClientItem.Cts.Cancel();
+                            tcpClientItem.Cts.Dispose();
+                            socket.Dispose();
+                            _clients.Remove(socket);
+                        }, TcpServerReceiveOption, GlobalOption, tcpClientItem.Cts);
+                    ClientConnected?.Invoke(this, socket);
+                    Task.Run(() => tcpClientItem.ReceiveSocket.ReceiveTask(), _connectCts.Token);
+                }
+            }
+            catch (SocketException e)
+            {
             }
         }
     }
 
-    private void HandleClientReceive(TcpClientItem item)
+    protected override void Dispose(bool isDispose)
     {
-        var client = item.Socket;
-        var stopwatch = item.StopWatch;
-        var list = item.List;
-        try
+        base.Dispose(isDispose);
+        if (isDispose)
         {
-            byte[] buffer = new byte[GlobalOption.BufferSize];
-            while (_connectCts is { IsCancellationRequested: false })
-            {
-                if (stopwatch.IsRunning &&
-                    (stopwatch.ElapsedMilliseconds > TcpServerReceiveOption.AutoBreakFrameTime ||
-                     client.Available != 0))
-                {
-                    var array = list.ToArray();
-                    Console.WriteLine(array.Length);
-                    list.Clear();
-                    stopwatch.Reset();
-                    stopwatch.Stop();
-                    WriteMessage(new((client), array));
-                }
-
-
-                if (buffer.Length != GlobalOption.BufferSize)
-                {
-                    buffer = new byte[GlobalOption.BufferSize];
-                }
-
-                var count = client.Receive(buffer);
-                if (count == 0)
-                {
-                    ClientClose(item);
-                    return;
-                }
-
-                if (!TcpServerReceiveOption.AutoBreakFrame)
-                {
-                    WriteMessage(new((client), buffer[..count]));
-                    continue;
-                }
-
-                if (client.Available == 0)
-                {
-                    if (stopwatch.IsRunning)
-                    {
-                        list.AddRange(buffer[..count]);
-                    }
-                    else
-                    {
-                        WriteMessage(new((client), buffer[..count]));
-                    }
-                }
-                else
-                {
-                    if (!stopwatch.IsRunning)
-                    {
-                        stopwatch.Start();
-                    }
-
-                    list.AddRange(buffer[..count]);
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
+            Close();
         }
     }
 
-    private void ClientClose(TcpClientItem item)
-    {
-        item.Socket.Dispose();
-        Clients.Remove(item);
-    }
-
-    private void Close()
+    public override void Close()
     {
         OnClosed(new ClosedArgs());
         IsConnect = false;
-        Clients.Clear();
         _connectCts?.Cancel();
         _connectCts?.Dispose();
         _connectCts = null;
+        _clients.Clear();
         _listener?.Stop();
         _listener?.Dispose();
         _listener = null;

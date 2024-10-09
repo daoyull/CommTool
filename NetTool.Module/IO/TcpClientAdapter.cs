@@ -28,6 +28,7 @@ public class TcpClientAdapter : AbstractCommunication<TcpClientMessage>, ITcpCli
 
 
     private CancellationTokenSource? _rcCts;
+    private ReceiveSocket? _receiveSocket;
 
     public async Task ConnectAsync()
     {
@@ -48,8 +49,11 @@ public class TcpClientAdapter : AbstractCommunication<TcpClientMessage>, ITcpCli
             await _client.ConnectAsync(TcpClientOption.Ip, TcpClientOption.Port);
             _networkStream = _client.GetStream();
             OnConnected(new());
+            _receiveSocket = new ReceiveSocket(_client.Client,
+                (bytes => { WriteMessage(new TcpClientMessage(bytes)); }), Close, TcpClientReceiveOption,
+                GlobalOption, _rcCts);
 #pragma warning disable CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
-            Task.Run(ReceiveTask, _rcCts.Token);
+            Task.Run(_receiveSocket.ReceiveTask, _rcCts.Token);
 #pragma warning restore CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
         }
         catch (Exception e)
@@ -58,80 +62,10 @@ public class TcpClientAdapter : AbstractCommunication<TcpClientMessage>, ITcpCli
             throw;
         }
     }
-
-    readonly Stopwatch _stopwatch = new();
-
+    
     private NetworkStream? _networkStream;
-    private readonly List<byte> _list = new();
-
-    private void ReceiveTask()
-    {
-        try
-        {
-            byte[] buffer = new byte[GlobalOption.BufferSize];
-            while (_client != null && _rcCts is { IsCancellationRequested: false })
-            {
-                if (_stopwatch.IsRunning &&
-                    (_stopwatch.ElapsedMilliseconds > TcpClientReceiveOption.AutoBreakFrameTime ||
-                     !_networkStream!.DataAvailable))
-                {
-                    var array = _list.ToArray();
-                    Console.WriteLine(array.Length);
-                    _list.Clear();
-                    _stopwatch.Reset();
-                    _stopwatch.Stop();
-                    WriteMessage(new TcpClientMessage(array));
-                }
-
-
-                if (buffer.Length != GlobalOption.BufferSize)
-                {
-                    buffer = new byte[GlobalOption.BufferSize];
-                }
-
-                var count = _networkStream!.Read(buffer);
-                if (count == 0)
-                {
-                    Close();
-                    return;
-                }
-
-                if (!TcpClientReceiveOption.AutoBreakFrame)
-                {
-                    WriteMessage(new TcpClientMessage(buffer[..count]));
-                    continue;
-                }
-
-                if (!_networkStream.DataAvailable)
-                {
-                    if (_stopwatch.IsRunning)
-                    {
-                        _list.AddRange(buffer[..count]);
-                    }
-                    else
-                    {
-                        WriteMessage(new TcpClientMessage(buffer[..count]));
-                    }
-                }
-                else
-                {
-                    if (!_stopwatch.IsRunning)
-                    {
-                        _stopwatch.Start();
-                    }
-
-                    _list.AddRange(buffer[..count]);
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
-    }
-
-    public void Close()
+    
+    public override void Close()
     {
         _rcCts?.Cancel();
         _rcCts?.Dispose();
@@ -142,6 +76,8 @@ public class TcpClientAdapter : AbstractCommunication<TcpClientMessage>, ITcpCli
             _client.Dispose();
             _client = null;
         }
+
+        _receiveSocket = null;
 
         OnClosed(new());
     }

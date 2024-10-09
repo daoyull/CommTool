@@ -12,9 +12,15 @@ public class NetLogger : TextEditor, IUiLogger
 {
     public NetLogger()
     {
-        HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
+        HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
         VerticalScrollBarVisibility = ScrollBarVisibility.Visible;
+        WordWrap = true;
         TextArea.TextView.LineTransformers.Add(_lineColorTransformer);
+        Options.EnableEmailHyperlinks = false;
+        Options.EnableTextDragDrop = false;
+        Options.EnableHyperlinks = false;
+        Options.EnableRectangularSelection = false;
+        Options.EnableImeSupport = false;
     }
 
     readonly LineColorTransformer _lineColorTransformer = new LineColorTransformer();

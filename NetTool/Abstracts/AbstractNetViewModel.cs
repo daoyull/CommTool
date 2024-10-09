@@ -123,10 +123,11 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
 
     protected virtual async void StartHandleReceive()
     {
-        while (IsConnect && _receiveCts is { IsCancellationRequested: false })
+        try
         {
-            await foreach (var message in Communication.MessageReadAsync())
+            while (IsConnect && _receiveCts is { IsCancellationRequested: false })
             {
+                var message = await Communication.MessageReadAsync(_receiveCts.Token);
                 Ui?.AddReceiveFrame(1);
                 Ui?.AddReceiveBytes((uint)message.Data.Length);
                 string receiveMessage;
@@ -141,6 +142,9 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
 
                 HandleReceiveMessage(message, receiveMessage);
             }
+        }
+        catch (OperationCanceledException _)
+        {
         }
     }
 
@@ -165,9 +169,11 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
             buffer = GlobalOption.Encoding.GetBytes(message);
         }
 
-        await Communication.WriteAsync(buffer, 0, buffer.Length);
-        Ui?.AddSendFrame(1);
-        Ui?.AddSendBytes((uint)buffer.Length);
+        var canSend = await HandleSendBytes(buffer);
+        if (!canSend)
+        {
+            return;
+        }
 
         string uiMessage;
         if (SendOption.IsHex)
@@ -180,5 +186,13 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
         }
 
         HandleSendMessage(uiMessage);
+    }
+
+    protected virtual async Task<bool> HandleSendBytes(byte[] buffer)
+    {
+        await Communication.WriteAsync(buffer, 0, buffer.Length);
+        Ui?.AddSendFrame(1);
+        Ui?.AddSendBytes((uint)buffer.Length);
+        return true;
     }
 }

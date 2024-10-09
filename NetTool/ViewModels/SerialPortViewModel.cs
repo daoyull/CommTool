@@ -113,17 +113,17 @@ public partial class SerialPortViewModel : BaseViewModel
 
     private async Task StartReceiveHandle()
     {
-        await foreach (var message in Serial.MessageReadAsync())
-        {
-            var buffer = message.Data;
-            Ui.AddReceiveBytes((uint)buffer.Length);
-            Ui.AddReceiveFrame(1);
-            if (ReceiveOption.DefaultWriteUi)
-            {
-                Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] Receive");
-                Ui.Logger.Message($" {(ReceiveOption.IsHex ? buffer.ToHexString() : buffer.ToUtf8Str())}", "#2B2BFF");
-            }
-        }
+        // await foreach (var message in Serial.MessageReadAsync())
+        // {
+        //     var buffer = message.Data;
+        //     Ui.AddReceiveBytes((uint)buffer.Length);
+        //     Ui.AddReceiveFrame(1);
+        //     if (ReceiveOption.DefaultWriteUi)
+        //     {
+        //         Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] Receive");
+        //         Ui.Logger.Message($" {(ReceiveOption.IsHex ? buffer.ToHexString() : buffer.ToUtf8Str())}", "#2B2BFF");
+        //     }
+        // }
     }
 
 

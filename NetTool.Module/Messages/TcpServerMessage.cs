@@ -7,12 +7,13 @@ public readonly struct TcpServerMessage : IMessage
 {
     public DateTime Time { get; } = DateTime.Now;
 
+    public string RemoteIp { get; }
+
     public TcpServerMessage(Socket client, byte[] data)
     {
-        Client = client;
         Data = data;
+        RemoteIp = client.RemoteEndPoint?.ToString() ?? "Unknown";
     }
 
-    public Socket Client { get; }
     public byte[] Data { get; }
 }

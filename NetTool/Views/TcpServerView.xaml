@@ -43,12 +43,15 @@
                         IsEnabled="{Binding IsConnect, Converter={StaticResource InverseBooleanConverter}}"
                         Text="{Binding Server.TcpServerOption.Port}" />
 
-                    <TextBlock Text="客户端:"/>
-                    <ScrollViewer>
-                        <ListBox ItemsSource="{Binding Server.Clients,Mode=OneWay}">
+                    <TextBlock Text="客户端:" />
+                    <ScrollViewer MaxHeight="70">
+                        <ListBox ItemsSource="{Binding Clients}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding EndPoint}"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <CheckBox IsChecked="{Binding IsSelected}"></CheckBox>
+                                        <TextBlock Text="{Binding ShowName}" />
+                                    </StackPanel>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>

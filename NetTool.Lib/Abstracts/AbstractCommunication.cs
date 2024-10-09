@@ -45,14 +45,16 @@ public abstract class AbstractCommunication<T> : ICommunication<T> where T : IMe
         Connected?.Invoke(this, args);
     }
 
-    public IAsyncEnumerable<T> MessageReadAsync() => _channel.Reader.ReadAllAsync();
+    public ValueTask<T> MessageReadAsync(CancellationToken token) => _channel.Reader.ReadAsync(token);
 
     public abstract void Write(byte[] buffer, int offset, int count);
 
-    public virtual Task WriteAsync(byte[] buffer, int offset, int count)
+    public virtual  Task  WriteAsync(byte[] buffer, int offset, int count)
     {
         return Task.Factory.StartNew(() => Write(buffer, offset, count));
     }
+
+    public abstract void Close();
 
     protected ValueTask WriteMessage(T t)
     {

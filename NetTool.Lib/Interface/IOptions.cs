@@ -36,6 +36,13 @@ public interface IReceiveOption
     public string? ScriptName { get; set; }
 }
 
+public interface ISocketReceiveOption : IReceiveOption
+{
+    public bool AutoBreakFrame { get; set; }
+
+    public int AutoBreakFrameTime { get; set; }
+}
+
 public interface ISendOption
 {
     public bool DefaultWriteUi { get; set; }
@@ -80,11 +87,8 @@ public interface ITcpClientOption
     public int Port { get; set; }
 }
 
-public interface ITcpClientReceiveOption : IReceiveOption
+public interface ITcpClientReceiveOption : ISocketReceiveOption
 {
-    public bool AutoBreakFrame { get; set; }
-
-    public int AutoBreakFrameTime { get; set; }
 }
 
 public interface ITcpClientSendOption : ISendOption;
@@ -99,11 +103,8 @@ public interface ITcpServerOption
     public int Port { get; set; }
 }
 
-public interface ITcpServerReceiveOption : IReceiveOption
+public interface ITcpServerReceiveOption : ISocketReceiveOption
 {
-    public bool AutoBreakFrame { get; set; }
-
-    public int AutoBreakFrameTime { get; set; }
 }
 
 public interface ITcpServerSendOption : ISendOption;

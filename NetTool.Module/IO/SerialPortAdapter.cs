@@ -67,7 +67,7 @@ public class SerialPortAdapter : AbstractCommunication<SerialPortMessage>, ISeri
         WriteMessage(new SerialPortMessage(buffer));
     }
 
-    public void Close()
+    public override void Close()
     {
         if (_serialPort != null)
         {
