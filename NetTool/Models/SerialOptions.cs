@@ -22,6 +22,7 @@ partial class SerialReceiveOption : ObservableObject, ISerialReceiveOption
     [ObservableProperty] private bool _autoNewLine;
     [ObservableProperty] private bool _isEnableScript;
     [ObservableProperty] private string? _scriptName;
+    public bool AutoScroll { get; set; }
 }
 
 partial class SerialSendOption : ObservableObject, ISerialSendOption

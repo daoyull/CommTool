@@ -19,6 +19,7 @@ partial class TcpClientReceiveOption : ObservableObject, ITcpClientReceiveOption
     [ObservableProperty] private bool _autoBreakFrame;
     [ObservableProperty] private int _autoBreakFrameTime = 20;
     [ObservableProperty] private bool _autoNewLine;
+    public bool AutoScroll { get; set; }
 }
 
 partial class TcpClientSendOption : ObservableObject, ITcpClientSendOption

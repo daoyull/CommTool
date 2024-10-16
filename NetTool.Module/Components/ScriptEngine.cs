@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace NetTool.Module.Components;
 
-public class ScriptEngine : IJavaScriptExec
+public class ScriptEngine : IScript
 {
     private V8ScriptEngine _engine = new();
     private string? _script;
@@ -26,31 +26,6 @@ public class ScriptEngine : IJavaScriptExec
         _engine.Execute(script);
     }
 
-    public SendOption DoSend(byte[] buffer)
-    {
-        try
-        {
-            var result = _engine.Script.doSend(buffer);
-            return JsonConvert.DeserializeObject<ReceiveOption>(JsonConvert.SerializeObject(result));
-        }
-        catch (Exception e)
-        {
-            return SendOption.Default;
-        }
-    }
-
-    public ReceiveOption OnReceived(byte[] buffer)
-    {
-        try
-        {
-            var result = _engine.Script.onReceive(buffer);
-            return JsonConvert.DeserializeObject<ReceiveOption>(JsonConvert.SerializeObject(result));
-        }
-        catch (Exception e)
-        {
-            return ReceiveOption.Default;
-        }
-    }
 
     public void Dispose()
     {
