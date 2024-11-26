@@ -1,12 +1,14 @@
 ﻿@using Microsoft.JSInterop
+@using NetTool.ViewModels
 @inject IJSRuntime JS
+@inject ScriptViewModel ViewModel
 <body>
     <StandaloneCodeEditor ConstructionOptions="EditorConstructionOptions" Id="my-editor-instance-id"/>
 </body>
 
 <style>
        
-    #my-editor-instance-id { /* for a specific editor instance */
+    #my-editor-instance-id {
     	height: 95vh;
     }
    
@@ -21,6 +23,7 @@
         if (firstRender)
         {
             await JS.InvokeVoidAsync("registerTip");
+            await ViewModel.Save("");
         }
     }
 

@@ -29,6 +29,7 @@
       <ProjectReference Include="..\Common.WPF\Common.WPF.csproj" />
       <ProjectReference Include="..\NetTool.Lib\NetTool.Lib.csproj" />
       <ProjectReference Include="..\NetTool.Module\NetTool.Module.csproj" />
+      <ProjectReference Include="..\NetTool.ScriptManager\NetTool.ScriptManager.csproj" />
     </ItemGroup>
 
     <ItemGroup>

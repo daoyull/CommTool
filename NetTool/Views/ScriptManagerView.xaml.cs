@@ -3,6 +3,8 @@ using System.Windows.Controls;
 using Autofac.Extensions.DependencyInjection;
 using Common.Lib.Ioc;
 using Microsoft.Win32;
+using NetTool.ScriptManager.Interface;
+using NetTool.ViewModels;
 
 namespace NetTool.Views;
 
@@ -13,6 +15,16 @@ public partial class ScriptManagerView : Window
         InitializeComponent();
         Loaded += HandleLoaded;
         Unloaded += HandleUnLoaded;
+        this.DataContext = Ioc.Resolve<ScriptViewModel>();
+    }
+
+    public void Show(string type)
+    {
+        if (DataContext is ScriptViewModel viewModel)
+        {
+            viewModel.Type = type;
+        }
+        Show();
     }
 
     private async void HandleUnLoaded(object sender, RoutedEventArgs e)

@@ -1,8 +1,10 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Rendering;
+using LanguageExt;
 using NetTool.Common;
 using NetTool.Lib.Interface;
 
@@ -10,6 +12,8 @@ namespace NetTool.Components;
 
 public class NetLogger : TextEditor, IUiLogger
 {
+   
+
     public NetLogger()
     {
         HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
@@ -21,15 +25,34 @@ public class NetLogger : TextEditor, IUiLogger
         Options.EnableHyperlinks = false;
         Options.EnableRectangularSelection = false;
         Options.EnableImeSupport = false;
+        IsReadOnly = true;
     }
+    
+    /// <summary>
+    /// 每秒更新60次
+    /// </summary>
+    private const int Tick = 1000 / 60;
 
     readonly LineColorTransformer _lineColorTransformer = new LineColorTransformer();
 
     private void AppendLine(string message, string color)
     {
-        AppendText(message + Environment.NewLine);
+        if (message.Length > 2048)
+        {
+            foreach (var item in SplitStringIntoChunks(message, 2048))
+            {
+                AppendText(item);
+            }
+        }
+        else
+        {
+            AppendText(message);
+        }
+
+        AppendText(Environment.NewLine);
         _lineColorTransformer.AddLineColor(Document.LineCount - 1, color);
     }
+
 
     public void Message(string message, string color)
     {
@@ -69,6 +92,31 @@ public class NetLogger : TextEditor, IUiLogger
     {
         _lineColorTransformer.Clear();
         Text = "";
+    }
+
+    private string[] SplitStringIntoChunks(string input, int chunkSize)
+    {
+        if (string.IsNullOrEmpty(input) || input.Length <= chunkSize)
+        {
+            return new string[] { input };
+        }
+
+        List<string> chunks = new List<string>();
+
+        for (int i = 0; i < input.Length; i += chunkSize)
+        {
+            // 如果剩余部分小于chunkSize，则取剩余的所有字符
+            if (i + chunkSize > input.Length)
+            {
+                chunks.Add(input.Substring(i));
+            }
+            else
+            {
+                chunks.Add(input.Substring(i, chunkSize));
+            }
+        }
+
+        return chunks.ToArray();
     }
 }
 

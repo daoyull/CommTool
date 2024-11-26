@@ -5,8 +5,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:blazor="clr-namespace:Microsoft.AspNetCore.Components.WebView.Wpf;assembly=Microsoft.AspNetCore.Components.WebView.Wpf"
         xmlns:blazorCom="clr-namespace:NetTool.Blazor"
+        xmlns:viewModels="clr-namespace:NetTool.ViewModels"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
+        d:DataContext="{viewModels:ScriptViewModel}"
         d:DesignHeight="500" d:DesignWidth="600">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -14,11 +16,8 @@
             <ColumnDefinition Width="5*" />
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Column="0">
-            <TextBlock Text="搜索框"></TextBlock>
-            <ListBox>
-                <ListBoxItem>Script1</ListBoxItem>
-                <ListBoxItem>Script2</ListBoxItem>
-                <ListBoxItem>Script3</ListBoxItem>
+            <TextBox Margin="10" Text="搜索框"></TextBox>
+            <ListBox ItemsSource="{Binding  ScriptNames}">
             </ListBox>
         </StackPanel>
         <Grid Grid.Column="1">
@@ -27,10 +26,12 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal">
-                <TextBlock>工具栏</TextBlock>
+                <Button Content="+"></Button>
+                <Button Content="-"></Button>
+                <Button Content="Save"></Button>
             </StackPanel>
             <Border Grid.Row="1" >
-                <blazor:BlazorWebView HostPage="wwwroot\index.html" x:Name="BlazorWebView" BorderThickness="0">
+                <blazor:BlazorWebView Padding="0" HostPage="wwwroot\index.html" x:Name="BlazorWebView" BorderThickness="0">
                     <blazor:BlazorWebView.RootComponents>
                         <blazor:RootComponent Selector="#app" ComponentType="{x:Type blazorCom:ScriptEdit}" />
                     </blazor:BlazorWebView.RootComponents>

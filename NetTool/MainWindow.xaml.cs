@@ -4,6 +4,7 @@ using Common.Lib.Ioc;
 using MaterialDesignThemes.Wpf;
 using NetTool.Components;
 using NetTool.Lib.Interface;
+using NetTool.ViewModels;
 using NetTool.Views;
 
 namespace NetTool;
@@ -22,7 +23,7 @@ public partial class MainWindow : Window
     private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
     {
         var scriptManagerView = new ScriptManagerView();
-        scriptManagerView.Show();
+        scriptManagerView.Show("SerialReceive");
 
         GC.Collect();
     }

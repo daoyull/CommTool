@@ -29,5 +29,7 @@ public class NetToolWpfModule : BaseModule
         
         builder.RegisterType<GlobalOption>().As<IGlobalOption>().SingleInstance();
         builder.RegisterType<Notify>().As<INotify>().SingleInstance();
+
+        builder.RegisterType<ScriptViewModel>().SingleInstance();
     }
 }
