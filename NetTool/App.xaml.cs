@@ -37,9 +37,7 @@ public partial class App : Application
 
         host.Start();
 
-        PaletteHelper paletteHelper = new PaletteHelper();
-        var theme = paletteHelper.GetTheme();
-        theme.SetPrimaryColor(Colors.Aqua);
+       
     }
 
     private void CreateDefaultServices(HostBuilderContext context, IServiceCollection service)

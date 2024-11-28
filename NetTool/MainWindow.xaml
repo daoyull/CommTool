@@ -3,32 +3,33 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:views="clr-namespace:NetTool.Views"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        xmlns:components="clr-namespace:NetTool.Components"
-        xmlns:blazor="clr-namespace:Microsoft.AspNetCore.Components.WebView.Wpf;assembly=Microsoft.AspNetCore.Components.WebView.Wpf"
-        xmlns:blazorCom="clr-namespace:NetTool.Blazor"
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="800"
         WindowStartupLocation="CenterScreen">
     <materialDesign:DialogHost DialogTheme="Inherit"
                                Identifier="RootDialog">
         <Grid>
-            <Grid HorizontalAlignment="Right" ZIndex="10" VerticalAlignment="Top" Height="10" Width="10">
-                <Button Click="ButtonBase_OnClick" Content="T">
-                    <Button.CommandParameter>
-                       <TextBlock></TextBlock>
-                    </Button.CommandParameter>
-                </Button>
+            <Grid HorizontalAlignment="Right" x:Name="NotifyGrid" VerticalAlignment="Top" ZIndex="11" Margin="40" />
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                    <Button ToolTip="串口">
+                        串口
+                    </Button>
+                    <Button>TCP S</Button>
+                    <Button>TCP C</Button>
+                    <Button>UDP</Button>
+                    <Button>图表</Button>
+                    <Button>帮助</Button>
+                </StackPanel>
+                <ContentControl x:Name="ContentControl" Grid.Row="1" />
             </Grid>
-            <Grid HorizontalAlignment="Right" x:Name="NotifyGrid" VerticalAlignment="Top" ZIndex="11" Margin="40">
-        
-            </Grid>
-        
-            <!-- <views:SerialPortView /> -->
-            <!-- <views:TcpClientView /> -->
-            <views:TcpServerView />
         </Grid>
-        
+
     </materialDesign:DialogHost>
 </Window>

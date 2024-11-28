@@ -6,37 +6,59 @@
         xmlns:blazor="clr-namespace:Microsoft.AspNetCore.Components.WebView.Wpf;assembly=Microsoft.AspNetCore.Components.WebView.Wpf"
         xmlns:blazorCom="clr-namespace:NetTool.Blazor"
         xmlns:viewModels="clr-namespace:NetTool.ViewModels"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        d:DataContext="{viewModels:ScriptViewModel}"
+        d:DataContext="{d:DesignInstance viewModels:ScriptViewModel}"
         d:DesignHeight="500" d:DesignWidth="600">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="5*" />
-        </Grid.ColumnDefinitions>
-        <StackPanel Grid.Column="0">
-            <TextBox Margin="10" Text="搜索框"></TextBox>
-            <ListBox ItemsSource="{Binding  ScriptNames}">
-            </ListBox>
-        </StackPanel>
-        <Grid Grid.Column="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <StackPanel Orientation="Horizontal">
-                <Button Content="+"></Button>
-                <Button Content="-"></Button>
-                <Button Content="Save"></Button>
+    <materialDesign:DialogHost DialogTheme="Inherit"
+                               Identifier="ScriptDialog">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <GroupBox
+                    Style="{StaticResource MaterialDesignCardGroupBox}"
+                    Margin="4"
+
+                    Header="脚本列表">
+                    <ListBox MinWidth="150" ItemsSource="{Binding  ScriptSource}"
+                             SelectedValue="{Binding SelectScriptName}" />
+                </GroupBox>
+
             </StackPanel>
-            <Border Grid.Row="1" >
-                <blazor:BlazorWebView Padding="0" HostPage="wwwroot\index.html" x:Name="BlazorWebView" BorderThickness="0">
-                    <blazor:BlazorWebView.RootComponents>
-                        <blazor:RootComponent Selector="#app" ComponentType="{x:Type blazorCom:ScriptEdit}" />
-                    </blazor:BlazorWebView.RootComponents>
-                </blazor:BlazorWebView>
-            </Border>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal">
+                    <TextBox Margin="10" MinWidth="150" materialDesign:HintAssist.Hint="New Script Name"
+                             Text="{Binding AddScriptName}" />
+                    <Button Margin="2" Command="{Binding AddScriptCommand}">
+                        <materialDesign:PackIcon Kind="Plus" />
+                    </Button>
+                    <Button Margin="2" Command="{Binding DeleteScriptCommand}">
+                        <materialDesign:PackIcon Kind="Delete" />
+                    </Button>
+                    <Button Margin="2" Command="{Binding SaveCommand}">
+                        <materialDesign:PackIcon Kind="ContentSaveOutline" />
+                    </Button>
+                    <Button Margin="2" Command="{Binding RefreshCommand}" CommandParameter="{Binding SelectScriptName}">
+                        <materialDesign:PackIcon Kind="Refresh" />
+                    </Button>
+                </StackPanel>
+                <Border Grid.Row="1">
+                    <blazor:BlazorWebView Padding="0" HostPage="wwwroot\index.html" x:Name="BlazorWebView"
+                                          BorderThickness="0">
+                        <blazor:BlazorWebView.RootComponents>
+                            <blazor:RootComponent Selector="#app" ComponentType="{x:Type blazorCom:ScriptEdit}" />
+                        </blazor:BlazorWebView.RootComponents>
+                    </blazor:BlazorWebView>
+                </Border>
+            </Grid>
         </Grid>
-    </Grid>
+    </materialDesign:DialogHost>
 </Window>

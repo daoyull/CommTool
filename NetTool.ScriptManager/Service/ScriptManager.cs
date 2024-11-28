@@ -49,4 +49,15 @@ public class ScriptManager : IScriptManager
 
         return scriptPath;
     }
+
+    public List<string> GetScriptNames(string type)
+    {
+        var path = GetPathByScriptType(type);
+        return Directory.GetFiles(path)
+            .Where(it => Path.GetExtension(it) == ".js")
+            .Select(Path.GetFileNameWithoutExtension)
+            .Where(it => !string.IsNullOrEmpty(it))
+            .Select(it => it!)
+            .ToList();
+    }
 }

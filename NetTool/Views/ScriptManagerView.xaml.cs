@@ -4,12 +4,15 @@ using Autofac.Extensions.DependencyInjection;
 using Common.Lib.Ioc;
 using Microsoft.Win32;
 using NetTool.ScriptManager.Interface;
+using NetTool.Servcice;
 using NetTool.ViewModels;
 
 namespace NetTool.Views;
 
 public partial class ScriptManagerView : Window
 {
+    private BlazorService BlazorService { get; } = Ioc.Resolve<BlazorService>();
+
     public ScriptManagerView()
     {
         InitializeComponent();
@@ -18,22 +21,27 @@ public partial class ScriptManagerView : Window
         this.DataContext = Ioc.Resolve<ScriptViewModel>();
     }
 
-    public void Show(string type)
+    public void Show(string type,string initScriptContent)
     {
         if (DataContext is ScriptViewModel viewModel)
         {
             viewModel.Type = type;
+            viewModel.InitScriptContent = initScriptContent;
+            viewModel.Refresh();
         }
+
         Show();
     }
 
     private async void HandleUnLoaded(object sender, RoutedEventArgs e)
     {
+        BlazorService.Close();
         await BlazorWebView.DisposeAsync();
     }
 
     private void HandleLoaded(object sender, RoutedEventArgs e)
     {
         BlazorWebView.Services = new AutofacServiceProvider(Ioc.Container!);
+        BlazorService.Start();
     }
 }

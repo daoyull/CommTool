@@ -1,9 +1,10 @@
 ﻿@using Microsoft.JSInterop
+@using NetTool.Servcice
 @using NetTool.ViewModels
 @inject IJSRuntime JS
-@inject ScriptViewModel ViewModel
+@inject BlazorService BlazorService
 <body>
-    <StandaloneCodeEditor ConstructionOptions="EditorConstructionOptions" Id="my-editor-instance-id"/>
+<StandaloneCodeEditor ConstructionOptions="EditorConstructionOptions" Id="my-editor-instance-id"/>
 </body>
 
 <style>
@@ -17,27 +18,26 @@
 
 @code {
 
+    private StandaloneCodeEditor Editor;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            BlazorService.JsRuntime = JS;
             await JS.InvokeVoidAsync("registerTip");
-            await ViewModel.Save("");
         }
     }
 
 
     private StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor)
     {
+        BlazorService.Editor = editor;
         return new StandaloneEditorConstructionOptions
         {
             AutomaticLayout = true,
             Theme = "vs-dark",
             Language = "javascript",
-            Value = "function receive() {\n" +
-                    "    \n" +
-                    "}",
         };
     }
 

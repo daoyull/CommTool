@@ -44,8 +44,8 @@ public partial class Notify : INotify
                 var border = new Border
                 {
                     CornerRadius = new CornerRadius(8),
-                    MaxWidth = 300,
-                    Height = 40,
+                    MinHeight  = 40,
+                    Width = 300,
                     Margin = new Thickness(5),
                     HorizontalAlignment = HorizontalAlignment.Right,
                     VerticalAlignment = VerticalAlignment.Top,
@@ -78,7 +78,7 @@ public partial class Notify : INotify
                     Storyboard storyboard = new Storyboard();
                     DoubleAnimation animation2 = new DoubleAnimation();
                     animation2.To = 0;
-                    animation2.Duration = new Duration(TimeSpan.FromMilliseconds(200));
+                    animation2.Duration = new Duration(TimeSpan.FromMilliseconds(250));
                     var animation3 = new DoubleAnimation();
                     animation3.From = border.ActualHeight;
                     animation3.To = 0;

@@ -3,6 +3,7 @@ using Common.Lib.Abstracts;
 using NetTool.Components;
 using NetTool.Lib.Interface;
 using NetTool.Models;
+using NetTool.Servcice;
 using NetTool.ViewModels;
 
 namespace NetTool;
@@ -31,5 +32,6 @@ public class NetToolWpfModule : BaseModule
         builder.RegisterType<Notify>().As<INotify>().SingleInstance();
 
         builder.RegisterType<ScriptViewModel>().SingleInstance();
+        builder.RegisterType<BlazorService>().SingleInstance();
     }
 }

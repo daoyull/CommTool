@@ -11,4 +11,5 @@ public interface IScriptManager
     public void RemoveScript(string type, string name);
 
     public string GetPathByScriptType(string type);
+    public List<string> GetScriptNames(string type);
 }
