@@ -13,15 +13,17 @@ public partial class ScriptManagerView : Window
 {
     private BlazorService BlazorService { get; } = Ioc.Resolve<BlazorService>();
 
+    public ScriptViewModel ScriptViewModel { get; }
+
     public ScriptManagerView()
     {
         InitializeComponent();
         Loaded += HandleLoaded;
         Unloaded += HandleUnLoaded;
-        this.DataContext = Ioc.Resolve<ScriptViewModel>();
+        this.DataContext = ScriptViewModel = Ioc.Resolve<ScriptViewModel>();
     }
 
-    public void Show(string type,string initScriptContent)
+    public void ShowDialog(string type, string initScriptContent)
     {
         if (DataContext is ScriptViewModel viewModel)
         {
@@ -30,7 +32,7 @@ public partial class ScriptManagerView : Window
             viewModel.Refresh();
         }
 
-        Show();
+        var showDialog = ShowDialog();
     }
 
     private async void HandleUnLoaded(object sender, RoutedEventArgs e)

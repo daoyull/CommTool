@@ -144,22 +144,22 @@ public partial class NetDataComponent : INetUi
 
     public void AddSendFrame(uint add)
     {
-        Dispatcher.Invoke(() => { SendFrame += add; });
+        Dispatcher.BeginInvoke(() => { SendFrame += add; });
     }
 
     public void AddReceiveFrame(uint add)
     {
-        Dispatcher.Invoke(() => { ReceiveFrame += add; });
+        Dispatcher.BeginInvoke(() => { ReceiveFrame += add; });
     }
 
     public void AddSendBytes(uint add)
     {
-        Dispatcher.Invoke(() => { SendBytes += add; });
+        Dispatcher.BeginInvoke(() => { SendBytes += add; });
     }
 
     public void AddReceiveBytes(uint add)
     {
-        Dispatcher.Invoke(() => { ReceiveBytes += add; });
+        Dispatcher.BeginInvoke(() => { ReceiveBytes += add; });
     }
 
     #endregion

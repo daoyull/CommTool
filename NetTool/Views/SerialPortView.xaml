@@ -6,7 +6,6 @@
     xmlns:components="clr-namespace:NetTool.Components"
     xmlns:converts="clr-namespace:NetTool.Converts"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="clr-namespace:NetTool.Views"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:NetTool.ViewModels"
@@ -78,7 +77,7 @@
                         Style="{DynamicResource ConfigComboBox}" />
 
                     <ToggleButton
-                        Command="{Binding ConnectionCommand}"
+                        Command="{Binding ConnectCommand}"
                         IsChecked="{Binding IsConnected}"
                         Style="{DynamicResource ConnectButton}" />
 
@@ -101,7 +100,17 @@
                     <StackPanel Style="{StaticResource ConfigStackPanel}">
                         <CheckBox Content="接收数据保存到文件" IsChecked="{Binding ReceiveOption.SaveToFile}" />
                     </StackPanel>
-
+                    <StackPanel Style="{StaticResource ConfigStackPanel}">
+                        <CheckBox Content="脚本" IsChecked="{Binding ReceiveOption.IsEnableScript}" />
+                        <ComboBox ItemsSource="{Binding ReceiveScriptSource}"
+                                  MinWidth="60"
+                                  IsEnabled="{Binding ReceiveOption.IsEnableScript, Converter={StaticResource InverseBooleanConverter}}"
+                                  SelectedValue="{Binding SelectedReceiveScript}" />
+                        <Button Command="{Binding ShowReceiveScriptManagerCommand}"
+                                IsEnabled="{Binding ReceiveOption.IsEnableScript, Converter={StaticResource InverseBooleanConverter}}">
+                            <materialDesign:PackIcon Kind="PencilOutline" />
+                        </Button>
+                    </StackPanel>
                     <Border
                         Height="1"
                         Margin="0,5,0,0"
@@ -130,7 +139,17 @@
                     <StackPanel Style="{StaticResource ConfigStackPanel}">
                         <CheckBox Content="16进制发送" IsChecked="{Binding SendOption.IsHex}" />
                     </StackPanel>
-
+                    <StackPanel Style="{StaticResource ConfigStackPanel}">
+                        <CheckBox Content="脚本" IsChecked="{Binding SendOption.IsEnableScript}" />
+                        <ComboBox ItemsSource="{Binding SendScriptSource}"
+                                  MinWidth="60"
+                                  IsEnabled="{Binding SendOption.IsEnableScript, Converter={StaticResource InverseBooleanConverter}}"
+                                  SelectedValue="{Binding SelectedSendScript}" />
+                        <Button Command="{Binding ShowSendScriptManagerCommand}"
+                                IsEnabled="{Binding SendOption.IsEnableScript, Converter={StaticResource InverseBooleanConverter}}">
+                            <materialDesign:PackIcon Kind="PencilOutline" />
+                        </Button>
+                    </StackPanel>
                     <StackPanel Style="{StaticResource ConfigStackPanel}">
                         <CheckBox Content="定时发送" IsChecked="{Binding SendOption.AutoSend}" />
                         <TextBox

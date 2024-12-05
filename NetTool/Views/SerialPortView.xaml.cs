@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace NetTool.Views;
@@ -10,7 +11,7 @@ public partial class SerialPortView
         InitializeComponent();
         ViewModel!.Ui = CommunicationDataComponent;
     }
-    
+
     private async void OnSendTextKeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter)
@@ -47,5 +48,14 @@ public partial class SerialPortView
         //     e.Handled = true;
         //     // todo 提示
         // }
+    }
+
+    private const string ScriptType = "SerialReceive";
+
+    private void EditScript(object sender, RoutedEventArgs e)
+    {
+        var scriptManagerView = new ScriptManagerView();
+        scriptManagerView.ShowDialog(ScriptType, @"yuzhijiaoben");
+        ViewModel!.RefreshScriptSource();
     }
 }

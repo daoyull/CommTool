@@ -35,7 +35,7 @@ public partial class MainWindow : Window
 
     private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
     {
-        var scriptManagerView = new ScriptManagerView();
-        scriptManagerView.Show("SerialReceive", @"yuzhijiaoben");
+       
+        
     }
 }

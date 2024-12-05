@@ -1,23 +1,31 @@
 using System.ComponentModel;
+using Common.Lib.Ioc;
+using Common.Lib.Service;
 using Common.Mvvm.Abstracts;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using NetTool.Common;
 using NetTool.Lib.Args;
 using NetTool.Lib.Interface;
 using NetTool.Module.Share;
+using NetTool.ScriptManager.Interface;
 
 namespace NetTool.Abstracts;
 
 public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : IMessage
 {
-    protected INotify Notify { get; }
-    protected IGlobalOption GlobalOption { get; }
-
-    public AbstractNetViewModel(INotify notify, IGlobalOption globalOption)
+    public AbstractNetViewModel()
     {
-        Notify = notify;
-        GlobalOption = globalOption;
+        RefreshScriptSource();
+        AddPlugin<EventRegisterPlugin<T>>();
     }
+
+
+    protected INotify Notify => Ioc.Resolve<INotify>();
+
+    protected IGlobalOption GlobalOption => Ioc.Resolve<IGlobalOption>();
+
+    protected IScriptManager ScriptManager => Ioc.Resolve<IScriptManager>();
 
     [ObservableProperty] private bool _isConnect;
 
@@ -34,7 +42,7 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
     [RelayCommand]
     protected abstract Task Connect();
 
-    protected virtual void InitCommunication()
+    protected internal virtual void InitCommunication()
     {
         Communication.Connected += HandleConnected;
         Communication.Closed += HandleClosed;
@@ -133,11 +141,11 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
                 string receiveMessage;
                 if (ReceiveOption.IsHex)
                 {
-                    receiveMessage = message.Data.ToHexString();
+                    receiveMessage = message.Data.BytesToHexString();
                 }
                 else
                 {
-                    receiveMessage = GlobalOption.Encoding.GetString(message.Data);
+                    receiveMessage = message.Data.BytesToString();
                 }
 
                 HandleReceiveMessage(message, receiveMessage);
@@ -151,9 +159,25 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
     protected abstract void HandleReceiveMessage(T message, string strMessage);
     protected abstract void HandleSendMessage(string message);
 
+    protected virtual bool SendCheck(string message)
+    {
+        if (string.IsNullOrEmpty(message))
+        {
+            Notify.Warning("发送内容不可为空");
+            return false;
+        }
+
+        return true;
+    }
+
     [RelayCommand]
     private async Task Send(string message)
     {
+        if (!SendCheck(message))
+        {
+            return;
+        }
+
         await SendMessage(message);
     }
 
@@ -178,11 +202,11 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
         string uiMessage;
         if (SendOption.IsHex)
         {
-            uiMessage = buffer.ToHexString();
+            uiMessage = buffer.BytesToHexString();
         }
         else
         {
-            uiMessage = GlobalOption.Encoding.GetString(buffer);
+            uiMessage = buffer.BytesToString();
         }
 
         HandleSendMessage(uiMessage);
@@ -194,5 +218,79 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
         Ui?.AddSendFrame(1);
         Ui?.AddSendBytes((uint)buffer.Length);
         return true;
+    }
+
+    #region 脚本相关
+
+    public abstract string ScriptType { get; }
+    public string ReceiveScriptType => ScriptType + "Receive";
+    public string SendScriptType => ScriptType + "Send";
+
+    [ObservableProperty] private List<string>? _receiveScriptSource;
+    [ObservableProperty] private List<string>? _sendScriptSource;
+    [ObservableProperty] private string? _selectedReceiveScript;
+    [ObservableProperty] private string? _selectedSendScript;
+
+
+    public void RefreshScriptSource()
+    {
+        ReceiveScriptSource = ScriptManager.GetScriptNames(ReceiveScriptType);
+        SendScriptSource = ScriptManager.GetScriptNames(SendScriptType);
+        if (!string.IsNullOrEmpty(SelectedReceiveScript) && !ReceiveScriptSource.Contains(SelectedReceiveScript))
+        {
+            SelectedReceiveScript = null;
+        }
+
+        if (!string.IsNullOrEmpty(SelectedSendScript) && !SendScriptSource.Contains(SelectedSendScript))
+        {
+            SelectedSendScript = null;
+        }
+    }
+
+    protected virtual string InitReceiveScript { get; } = "";
+    protected virtual string InitSendScript { get; } = "";
+
+    [RelayCommand]
+    private void ShowReceiveScriptManager()
+    {
+        ScriptDialogHelper.ShowDialog(ReceiveScriptType, InitReceiveScript, this);
+        RefreshScriptSource();
+    }
+
+    [RelayCommand]
+    private void ShowSendScriptManager()
+    {
+        ScriptDialogHelper.ShowDialog(SendScriptType, InitSendScript, this);
+        RefreshScriptSource();
+    }
+
+    #endregion
+}
+
+internal class EventRegisterPlugin<T> : ILifePlugin where T : IMessage
+{
+    public Task OnCreate(ILifeCycle lifeCycle)
+    {
+        if (lifeCycle is AbstractNetViewModel<T> viewModel)
+        {
+            viewModel.InitCommunication();
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task OnInit(ILifeCycle lifeCycle)
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task OnLoad(ILifeCycle lifeCycle)
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task OnUnload(ILifeCycle lifeCycle)
+    {
+        return Task.CompletedTask;
     }
 }

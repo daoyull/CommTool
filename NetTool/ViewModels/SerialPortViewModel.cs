@@ -1,10 +1,8 @@
 ﻿using System.IO.Ports;
-using System.Text;
 using Common.Lib.Helpers;
 using Common.Lib.Models;
-using Common.Mvvm.Abstracts;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using NetTool.Abstracts;
 using NetTool.Lib.Interface;
 using NetTool.Module.IO;
 using NetTool.Module.Messages;
@@ -13,13 +11,37 @@ using NetTool.Module.Share;
 
 namespace NetTool.ViewModels;
 
-public partial class SerialPortViewModel : BaseViewModel
+public partial class SerialPortViewModel : AbstractNetViewModel<SerialPortMessage>
 {
     public SerialPortAdapter Serial { get; }
-    public INetUi Ui { get; set; } = null!;
-    private INotify Notify { get; }
-    public ISerialReceiveOption ReceiveOption { get; }
-    public ISerialSendOption SendOption { get; }
+    public override ICommunication<SerialPortMessage> Communication { get; }
+
+    protected override Task Connect()
+    {
+        try
+        {
+            if (IsConnected)
+            {
+                Serial.Close();
+                Serial.Dispose();
+                Notify.Info("已关闭连接");
+            }
+            else
+            {
+                Serial.Connect();
+                Notify.Success("串口连接成功");
+            }
+
+            IsConnected = !IsConnected;
+        }
+        catch (Exception e)
+        {
+            // todo
+            Notify.Error(e.Message);
+        }
+
+        return Task.CompletedTask;
+    }
 
     [ObservableProperty] private bool _isConnected;
 
@@ -55,17 +77,14 @@ public partial class SerialPortViewModel : BaseViewModel
 
     #endregion
 
-    public SerialPortViewModel(SerialPortAdapter serialPortAdapter, INotify notify)
+    public SerialPortViewModel(SerialPortAdapter serialPortAdapter)
     {
-        Serial = serialPortAdapter;
-        Notify = notify;
-        ReceiveOption = serialPortAdapter.SerialReceiveOption;
-        SendOption = serialPortAdapter.SerialSendOption;
-        InitDefaultValue();
+        Communication = Serial = serialPortAdapter;
     }
 
-    private void InitDefaultValue()
+    protected internal override void InitCommunication()
     {
+        base.InitCommunication();
         ComPortList = Serial.GetPortNames();
         Serial.SerialOption.Parity = ParitiesSource.FirstOrDefault(it => it.Value == Parity.None)?.Value;
         Serial.SerialOption.StopBits = StopBitsSource.FirstOrDefault(it => it.Value == StopBits.One)?.Value;
@@ -75,84 +94,19 @@ public partial class SerialPortViewModel : BaseViewModel
     }
 
 
-    private CancellationTokenSource? _cts;
-
-    [RelayCommand]
-    private async Task Connection()
+    protected override void HandleReceiveMessage(SerialPortMessage message, string strMessage)
     {
-        try
+        if (Ui != null && ReceiveOption.DefaultWriteUi)
         {
-            if (IsConnected)
-            {
-                _cts?.Cancel();
-                _cts?.Dispose();
-                _cts = null;
-                Serial.Close();
-                Serial.Dispose();
-                Notify.Info("已关闭连接");
-            }
-            else
-            {
-                _cts = new();
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                Task.Run(StartReceiveHandle, _cts.Token);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-
-                Serial.Connect();
-                Notify.Success("串口连接成功");
-            }
-
-            IsConnected = !IsConnected;
-        }
-        catch (Exception e)
-        {
-            // todo
-            Notify.Error(e.Message);
+            Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] Receive");
+            Ui.Logger.Message($"{strMessage}",
+                "#2B2BFF");
         }
     }
 
-    private async Task StartReceiveHandle()
+    protected override void HandleSendMessage(string message)
     {
-        // await foreach (var message in Serial.MessageReadAsync())
-        // {
-        //     var buffer = message.Data;
-        //     Ui.AddReceiveBytes((uint)buffer.Length);
-        //     Ui.AddReceiveFrame(1);
-        //     if (ReceiveOption.DefaultWriteUi)
-        //     {
-        //         Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] Receive");
-        //         Ui.Logger.Message($" {(ReceiveOption.IsHex ? buffer.ToHexString() : buffer.ToUtf8Str())}", "#2B2BFF");
-        //     }
-        // }
     }
 
-
-    [RelayCommand]
-    private async Task Send(string sendStr)
-    {
-        try
-        {
-            if (!IsConnected || string.IsNullOrEmpty(sendStr))
-            {
-                Notify.Warning("串口未连接或发送内容为空");
-                return;
-            }
-
-            byte[] sendBuffer;
-            if (SendOption.IsHex)
-            {
-                sendBuffer = sendStr.HexStringToArray();
-            }
-            else
-            {
-                sendBuffer = Encoding.UTF8.GetBytes(sendStr);
-            }
-
-            await Serial.WriteAsync(sendBuffer, 0, sendBuffer.Length);
-        }
-        catch (Exception e)
-        {
-            Notify.Error(e.Message);
-        }
-    }
+    public override string ScriptType => "Script";
 }

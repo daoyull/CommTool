@@ -7,11 +7,9 @@ namespace NetTool.ViewModels;
 
 public partial class TcpClientViewModel : AbstractNetViewModel<TcpClientMessage>, IDisposable
 {
-    public TcpClientViewModel(INotify notify, IGlobalOption globalOption, TcpClientAdapter tcpClient) : base(notify,
-        globalOption)
+    public TcpClientViewModel(TcpClientAdapter tcpClient) 
     {
         Client = tcpClient;
-        InitCommunication();
     }
 
 
@@ -65,6 +63,8 @@ public partial class TcpClientViewModel : AbstractNetViewModel<TcpClientMessage>
             Ui.Logger.Message(string.Empty,string.Empty);
         }
     }
+
+    public override string ScriptType => "TcpClient";
 
     public void Dispose()
     {

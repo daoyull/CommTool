@@ -7,7 +7,7 @@ namespace NetTool.ViewModels;
 
 public partial class ScriptViewModel : ObservableObject
 {
-    private readonly IScriptManager _scriptManager;
+    public readonly IScriptManager ScriptManager;
     private readonly BlazorService _blazorService;
 
     public string Type { get; set; }
@@ -34,7 +34,7 @@ public partial class ScriptViewModel : ObservableObject
             return;
         }
 
-        var content = await _scriptManager.GetScriptContent(Type, value);
+        var content = await ScriptManager.GetScriptContent(Type, value);
         _blazorService.Content = content;
     }
 
@@ -46,14 +46,14 @@ public partial class ScriptViewModel : ObservableObject
             return;
         }
 
-        var scriptNames = _scriptManager.GetScriptNames(Type);
+        var scriptNames = ScriptManager.GetScriptNames(Type);
         if (scriptNames.Contains(AddScriptName))
         {
             Refresh(AddScriptName);
             return;
         }
 
-        await _scriptManager.EditScript(Type, AddScriptName, InitScriptContent ?? "");
+        await ScriptManager.EditScript(Type, AddScriptName, InitScriptContent ?? "");
         Refresh(AddScriptName);
     }
 
@@ -65,7 +65,7 @@ public partial class ScriptViewModel : ObservableObject
             return;
         }
 
-        _scriptManager.RemoveScript(Type, SelectScriptName);
+        ScriptManager.RemoveScript(Type, SelectScriptName);
         Refresh();
     }
 
@@ -78,7 +78,7 @@ public partial class ScriptViewModel : ObservableObject
     [RelayCommand]
     public void Refresh(string name = "")
     {
-        SetScriptSource(_scriptManager.GetScriptNames(Type));
+        SetScriptSource(ScriptManager.GetScriptNames(Type));
         if (string.IsNullOrEmpty(name))
         {
             if (ScriptSource.Count > 0)
@@ -103,7 +103,7 @@ public partial class ScriptViewModel : ObservableObject
         if (_blazorService.Editor != null && !string.IsNullOrEmpty(SelectScriptName))
         {
             var content = await _blazorService.Editor.GetValue();
-            await _scriptManager.EditScript(Type, SelectScriptName, content);
+            await ScriptManager.EditScript(Type, SelectScriptName, content);
             Refresh(SelectScriptName);
         }
     }
@@ -111,7 +111,7 @@ public partial class ScriptViewModel : ObservableObject
 
     public ScriptViewModel(IScriptManager scriptManager, BlazorService blazorService)
     {
-        _scriptManager = scriptManager;
+        ScriptManager = scriptManager;
         _blazorService = blazorService;
     }
 }

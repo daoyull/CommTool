@@ -33,10 +33,13 @@ public class NetLogger : TextEditor, IUiLogger
     /// </summary>
     private const int Tick = 1000 / 60;
 
-    readonly LineColorTransformer _lineColorTransformer = new LineColorTransformer();
+    readonly LineColorTransformer _lineColorTransformer = new();
+
+    private bool isChange = false;
 
     private void AppendLine(string message, string color)
     {
+        
         if (message.Length > 2048)
         {
             foreach (var item in SplitStringIntoChunks(message, 2048))
@@ -49,7 +52,9 @@ public class NetLogger : TextEditor, IUiLogger
             AppendText(message);
         }
 
+        
         AppendText(Environment.NewLine);
+        // this.EndChange();
         _lineColorTransformer.AddLineColor(Document.LineCount - 1, color);
     }
 
@@ -57,7 +62,7 @@ public class NetLogger : TextEditor, IUiLogger
     public void Message(string message, string color)
     {
         var lineList = message.Split(Environment.NewLine).ToList();
-        Dispatcher.Invoke(() =>
+        Dispatcher.InvokeAsync(() =>
         {
             foreach (var item in lineList)
             {

@@ -11,11 +11,9 @@ namespace NetTool.ViewModels;
 
 public partial class TcpServerViewModel : AbstractNetViewModel<TcpServerMessage>, IDisposable
 {
-    public TcpServerViewModel(INotify notify, IGlobalOption globalOption, TcpServerAdapter tcpServerAdapter) : base(
-        notify, globalOption)
+    public TcpServerViewModel(TcpServerAdapter tcpServerAdapter)
     {
         Server = tcpServerAdapter;
-        InitCommunication();
         tcpServerAdapter.ClientConnected += HandleClientConnected;
         tcpServerAdapter.ClientClosed += HandleClientClosed;
     }
@@ -29,7 +27,6 @@ public partial class TcpServerViewModel : AbstractNetViewModel<TcpServerMessage>
         }
 
         Clients = new(_clientList);
-        
     }
 
 
@@ -112,6 +109,8 @@ public partial class TcpServerViewModel : AbstractNetViewModel<TcpServerMessage>
 
         return true;
     }
+
+    public override string ScriptType => "TcpServer";
 
     public void Dispose()
     {

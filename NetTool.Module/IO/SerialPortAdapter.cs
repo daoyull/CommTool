@@ -57,6 +57,7 @@ public class SerialPortAdapter : AbstractCommunication<SerialPortMessage>, ISeri
         }
 
         int length = serialPort.BytesToRead;
+        Console.WriteLine($"串口接收到{length}字节数据");
         if (length == 0)
         {
             return;
