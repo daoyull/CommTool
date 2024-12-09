@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using NetTool.Lib.Abstracts;
 using NetTool.Lib.Interface;
 using NetTool.Module.Messages;
+using NetTool.Module.Service;
 
 namespace NetTool.Module.IO;
 
@@ -49,12 +50,6 @@ public class TcpClientAdapter : AbstractCommunication<TcpClientMessage>, ITcpCli
             await _client.ConnectAsync(TcpClientOption.Ip, TcpClientOption.Port);
             _networkStream = _client.GetStream();
             OnConnected(new());
-            _receiveSocket = new ReceiveSocket(_client.Client,
-                (bytes => { WriteMessage(new TcpClientMessage(bytes)); }), Close, TcpClientReceiveOption,
-                GlobalOption, _rcCts);
-#pragma warning disable CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
-            Task.Run(_receiveSocket.ReceiveTask, _rcCts.Token);
-#pragma warning restore CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
         }
         catch (Exception e)
         {
@@ -62,9 +57,9 @@ public class TcpClientAdapter : AbstractCommunication<TcpClientMessage>, ITcpCli
             throw;
         }
     }
-    
+
     private NetworkStream? _networkStream;
-    
+
     public override void Close()
     {
         _rcCts?.Cancel();
@@ -94,7 +89,7 @@ public class TcpClientAdapter : AbstractCommunication<TcpClientMessage>, ITcpCli
         base.Dispose(isDispose);
     }
 
-
+    
     public override void Write(byte[] buffer, int offset, int count)
     {
         if (_client != null && _networkStream != null)

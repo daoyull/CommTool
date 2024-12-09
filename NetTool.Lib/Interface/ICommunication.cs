@@ -31,7 +31,7 @@ public interface ICommunication<T> : IDisposable where T : IMessage
 
 public interface ISerialPort
 {
-    public ISerialOption SerialOption { get; }
+    public ISerialConnectOption SerialConnectOption { get; }
 
     public ISerialReceiveOption SerialReceiveOption { get; }
     public ISerialSendOption SerialSendOption { get; }

@@ -28,7 +28,8 @@ public partial class MainWindow : Window
     {
         PaletteHelper paletteHelper = new PaletteHelper();
         var theme = paletteHelper.GetTheme();
-        theme.SetPrimaryColor(BrushHelper.Parse("#A0CFFF").Color);
+        theme.SetPrimaryColor(BrushHelper.Parse("#409EFF").Color);
+        theme.SetSecondaryColor(BrushHelper.Parse("#D9ECFF").Color);
         paletteHelper.SetTheme(theme);
       
     }

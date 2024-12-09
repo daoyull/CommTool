@@ -6,6 +6,7 @@ using NetTool.Lib.Args;
 using NetTool.Lib.Entity;
 using NetTool.Lib.Interface;
 using NetTool.Module.Messages;
+using NetTool.Module.Service;
 
 namespace NetTool.Module.IO;
 
@@ -27,6 +28,7 @@ public class TcpServerAdapter : AbstractCommunication<TcpServerMessage>, ITcpSer
     public override ISendOption SendOption => TcpServerSendOption;
 
     private List<Socket> _clients = new();
+    
 
     public override void Write(byte[] buffer, int offset, int count)
     {

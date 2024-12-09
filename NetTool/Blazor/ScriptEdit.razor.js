@@ -1,44 +1,25 @@
 function registerTip() {
     ShowAutocompletion({
-        Ui: {
-            ReceiveArea: {
-                WriteInfo: function (message) {
-                },
-                WriteSuccess: function (message) {
-                },
-                WriteWarning: function (message) {
-                },
-                WriteError: function (message) {
-                },
-                WriteMessage: function (message, color) {
-                },
-                ClearArea: function () {
-                },
-
+        notify: {
+            Info: function (message) {
             },
-            SendArea: {
-                SetText(message) {
-                },
-                ClearArea: function () {
-                },
+            Success: function (message) {
             },
-            Notify: {
-                Info: function (message) {
-                },
-                Success: function (message) {
-                },
-                Warning: function (message) {
-                },
-                Error: function (message) {
-                },
+            Warning: function (message) {
             },
-            ResetCount: function () {
+            Error: function (message) {
+            },
+        },
+        receiveArea: {
+            ClearArea: function () {
+            },
+            Write: function (message, color) {
             }
         },
-        Net: {
-            SendStr: function (message) {
+        net: {
+            sendStr: function (message) {
             },
-            SendBytes: function (bytes) {
+            sendBytes: function (bytes) {
             }
         }
     });

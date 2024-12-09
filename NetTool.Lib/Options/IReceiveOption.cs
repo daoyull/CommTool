@@ -11,7 +11,7 @@ public interface IReceiveOption
     /// 是否自动滚屏
     /// </summary>
     public bool AutoScroll { get; set; }
-    
+
     /// <summary>
     /// 是否输出到界面
     /// </summary>
@@ -33,7 +33,15 @@ public interface IReceiveOption
     public bool IsEnableScript { get; set; }
 
     /// <summary>
+    /// 是否启用脚本调试
+    /// </summary>
+    public bool IsEnableScriptDebug { get; set; }
+
+    /// <summary>
     /// 脚本名称
     /// </summary>
     public string? ScriptName { get; set; }
+
+    public int MaxFrameTime { get; set; }
+    public int MaxFrameSize { get; set; }
 }

@@ -1,4 +1,4 @@
-﻿using System.Threading.Channels;
+using System.Threading.Channels;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -39,12 +39,13 @@ public partial class Notify : INotify
                 await Task.Delay(50);
             }
 
+
             Dispatcher.InvokeAsync(async () =>
             {
                 var border = new Border
                 {
                     CornerRadius = new CornerRadius(8),
-                    MinHeight  = 40,
+                    MinHeight = 40,
                     Width = 300,
                     Margin = new Thickness(5),
                     HorizontalAlignment = HorizontalAlignment.Right,
@@ -127,21 +128,25 @@ public partial class Notify : INotify
 
     public async void Info(string message)
     {
-        await _channel.Writer.WriteAsync(new MessageQueue(message, BrushHelper.Parse("#EDF2FC"), BrushHelper.Parse("#909399")));
+        await _channel.Writer.WriteAsync(new MessageQueue(message, BrushHelper.Parse("#EDF2FC"),
+            BrushHelper.Parse("#909399")));
     }
 
     public async void Success(string message)
     {
-        await _channel.Writer.WriteAsync(new MessageQueue(message, BrushHelper.Parse("#F0F9EB"), BrushHelper.Parse("#67C23A")));
+        await _channel.Writer.WriteAsync(new MessageQueue(message, BrushHelper.Parse("#F0F9EB"),
+            BrushHelper.Parse("#67C23A")));
     }
 
     public async void Warning(string message)
     {
-        await _channel.Writer.WriteAsync(new MessageQueue(message, BrushHelper.Parse("#FDF6EC"), BrushHelper.Parse("#E6A23C")));
+        await _channel.Writer.WriteAsync(new MessageQueue(message, BrushHelper.Parse("#FDF6EC"),
+            BrushHelper.Parse("#E6A23C")));
     }
 
     public async void Error(string message)
     {
-        await _channel.Writer.WriteAsync(new MessageQueue(message, BrushHelper.Parse("#FEF0F0"), BrushHelper.Parse("#F56C6C")));
+        await _channel.Writer.WriteAsync(new MessageQueue(message, BrushHelper.Parse("#FEF0F0"),
+            BrushHelper.Parse("#F56C6C")));
     }
 }

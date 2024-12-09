@@ -1,14 +1,17 @@
 using System.ComponentModel;
+using System.Windows.Forms;
 using Common.Lib.Ioc;
 using Common.Lib.Service;
 using Common.Mvvm.Abstracts;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.ClearScript.V8;
 using NetTool.Common;
 using NetTool.Lib.Args;
 using NetTool.Lib.Interface;
 using NetTool.Module.Share;
 using NetTool.ScriptManager.Interface;
+using NetTool.ScriptManager.Service;
 
 namespace NetTool.Abstracts;
 
@@ -20,6 +23,7 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
         AddPlugin<EventRegisterPlugin<T>>();
     }
 
+    protected ScriptEngine ScriptEngine { get; } = Ioc.Resolve<ScriptEngine>();
 
     protected INotify Notify => Ioc.Resolve<INotify>();
 
@@ -265,18 +269,70 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
     }
 
     #endregion
+
+    public async Task StartScript()
+    {
+        // 启动脚本
+        // 查找脚本内容
+        if (string.IsNullOrEmpty(SelectedReceiveScript))
+        {
+            Notify.Warning("请先选择脚本");
+            ReceiveOption.IsEnableScript = false;
+            return;
+        }
+
+        var scriptContent = await ScriptManager.GetScriptContent(ReceiveScriptType, SelectedReceiveScript!);
+        ScriptEngine.Reload(scriptContent, LoadEngine);
+    }
+
+    protected virtual void LoadEngine(V8ScriptEngine engine)
+    {
+        engine.AddHostObject("notify", Notify);
+        engine.AddHostObject("Communication", this);
+        engine.AddHostObject("area", Ui!.Logger);
+    }
+
+    public void StopScript()
+    {
+        // 停止脚本
+        ScriptEngine.Unload();
+    }
 }
 
 internal class EventRegisterPlugin<T> : ILifePlugin where T : IMessage
 {
-    public Task OnCreate(ILifeCycle lifeCycle)
+    public async Task OnCreate(ILifeCycle lifeCycle)
     {
         if (lifeCycle is AbstractNetViewModel<T> viewModel)
         {
             viewModel.InitCommunication();
-        }
+            if (viewModel.ReceiveOption is ObservableObject receiveOption)
+            {
+                receiveOption.PropertyChanged += async (sender, e) =>
+                {
+                    if (sender is not IReceiveOption option)
+                    {
+                        return;
+                    }
 
-        return Task.CompletedTask;
+                    if (e.PropertyName == nameof(IReceiveOption.IsEnableScript))
+                    {
+                        if (option.IsEnableScript)
+                        {
+                            await viewModel.StartScript();
+                        }
+                        else
+                        {
+                            viewModel.StopScript();
+                        }
+                    }
+                };
+            }
+        }
+    }
+
+    private void HandleReceiveOptionChanged(object? sender, PropertyChangedEventArgs e)
+    {
     }
 
     public Task OnInit(ILifeCycle lifeCycle)

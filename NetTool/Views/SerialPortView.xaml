@@ -17,7 +17,8 @@
     <commonWpf:UserComponent.Resources>
         <ResourceDictionary>
             <converts:InverseBooleanConverter x:Key="InverseBooleanConverter" />
-
+            <converts:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <converts:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
         </ResourceDictionary>
 
 
@@ -25,7 +26,7 @@
     <Grid>
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="230" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
@@ -33,54 +34,101 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
-
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Border Grid.Row="0" Padding="5">
                 <StackPanel>
-                    <ComboBox
-                        materialDesign:HintAssist.Hint="串口号"
-                        IsEditable="True"
-                        IsEnabled="{Binding IsConnected, Converter={StaticResource InverseBooleanConverter}}"
-                        ItemsSource="{Binding ComPortList}"
-                        SelectedValue="{Binding Serial.SerialOption.SerialPortName}"
-                        Style="{DynamicResource ConfigComboBox}" />
-                    <ComboBox
-                        materialDesign:HintAssist.Hint="波特率"
-                        IsEditable="True"
-                        IsEnabled="{Binding IsConnected, Converter={StaticResource InverseBooleanConverter}}"
-                        ItemsSource="{Binding BaudRates}"
-                        SelectedValue="{Binding Serial.SerialOption.BaudRate}"
-                        Style="{DynamicResource ConfigComboBox}" />
-                    <ComboBox
-                        materialDesign:HintAssist.Hint="校验位"
-                        DisplayMemberPath="Name"
-                        IsEnabled="{Binding IsConnected, Converter={StaticResource InverseBooleanConverter}}"
-                        ItemsSource="{Binding ParitiesSource}"
-                        SelectedValue="{Binding Serial.SerialOption.Parity}"
-                        SelectedValuePath="Value"
-                        Style="{DynamicResource ConfigComboBox}" />
-                    <ComboBox
-                        materialDesign:HintAssist.Hint="数据位"
-                        IsEnabled="{Binding IsConnected, Converter={StaticResource InverseBooleanConverter}}"
-                        ItemsSource="{Binding DataBits}"
-                        SelectedValue="{Binding Serial.SerialOption.DataBits}"
-                        Style="{DynamicResource ConfigComboBox}" />
-                    <ComboBox
-                        materialDesign:HintAssist.Hint="停止位"
-                        DisplayMemberPath="Name"
-                        IsEnabled="{Binding IsConnected, Converter={StaticResource InverseBooleanConverter}}"
-                        ItemsSource="{Binding StopBitsSource}"
-                        SelectedValue="{Binding Serial.SerialOption.StopBits}"
-                        SelectedValuePath="Value"
-                        Style="{DynamicResource ConfigComboBox}" />
+                    <StackPanel IsEnabled="{Binding IsConnected, Converter={StaticResource InverseBooleanConverter}}">
+                        <DockPanel>
+                            <TextBlock
+                                DockPanel.Dock="Left"
+                                Style="{DynamicResource ConfigItemKey}"
+                                Text="端口号:" />
+                            <ComboBox
+                                DockPanel.Dock="Right"
+                                ItemsSource="{Binding ComPortList}"
+                                SelectedValue="{Binding Serial.SerialConnectOption.SerialPortName}"
+                                Style="{DynamicResource ConfigComboBox}" />
+                            <Button
+                                HorizontalAlignment="Right"
+                                DockPanel.Dock="Right"
+                                Style="{StaticResource ConfigButton}">
+                                <materialDesign:PackIcon Kind="Refresh" />
+                            </Button>
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock
+                                DockPanel.Dock="Left"
+                                Style="{DynamicResource ConfigItemKey}"
+                                Text="波特率:" />
+                            <ComboBox
+                                DockPanel.Dock="Right"
+                                ItemsSource="{Binding BaudRates}"
+                                SelectedValue="{Binding Serial.SerialConnectOption.BaudRate}"
+                                Style="{DynamicResource ConfigComboBox}"
+                                Visibility="{Binding Serial.SerialConnectOption.CanEditBaudRate, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
+                            <TextBox
+                                HorizontalAlignment="Right"
+                                DockPanel.Dock="Right"
+                                Style="{StaticResource ConfigTextBox}"
+                                Text="{Binding Serial.SerialConnectOption.BaudRate}"
+                                Visibility="{Binding Serial.SerialConnectOption.CanEditBaudRate, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            <ToggleButton
+                                HorizontalAlignment="Right"
+                                Content="{materialDesign:PackIcon Kind=Pencil}"
+                                DockPanel.Dock="Right"
+                                IsChecked="{Binding Serial.SerialConnectOption.CanEditBaudRate}"
+                                Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                ToolTip="填写波特率" />
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock
+                                DockPanel.Dock="Left"
+                                Style="{DynamicResource ConfigItemKey}"
+                                Text="校验位:" />
+                            <ComboBox
+                                HorizontalAlignment="Right"
+                                DisplayMemberPath="Name"
+                                DockPanel.Dock="Right"
+                                ItemsSource="{Binding ParitiesSource}"
+                                SelectedValue="{Binding Serial.SerialConnectOption.Parity}"
+                                SelectedValuePath="Value"
+                                Style="{DynamicResource ConfigComboBox}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock
+                                DockPanel.Dock="Left"
+                                Style="{DynamicResource ConfigItemKey}"
+                                Text="数据位:" />
+                            <ComboBox
+                                HorizontalAlignment="Right"
+                                DockPanel.Dock="Right"
+                                ItemsSource="{Binding DataBits}"
+                                SelectedValue="{Binding Serial.SerialConnectOption.DataBits}"
+                                Style="{DynamicResource ConfigComboBox}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock
+                                DockPanel.Dock="Left"
+                                Style="{DynamicResource ConfigItemKey}"
+                                Text="停止位:" />
+                            <ComboBox
+                                HorizontalAlignment="Right"
+                                DisplayMemberPath="Name"
+                                DockPanel.Dock="Right"
+                                ItemsSource="{Binding StopBitsSource}"
+                                SelectedValue="{Binding Serial.SerialConnectOption.StopBits}"
+                                SelectedValuePath="Value"
+                                Style="{DynamicResource ConfigComboBox}" />
+                        </DockPanel>
 
+
+                    </StackPanel>
                     <ToggleButton
                         Command="{Binding ConnectCommand}"
                         IsChecked="{Binding IsConnected}"
                         Style="{DynamicResource ConnectButton}" />
-
                     <Border
                         Height="1"
                         Margin="0,5,0,0"
@@ -91,25 +139,76 @@
             <Border Grid.Row="1" Padding="5">
                 <StackPanel>
                     <TextBlock FontSize="15" Text="接收设置:" />
-                    <StackPanel Style="{StaticResource ConfigStackPanel}">
-                        <CheckBox Content="输出到界面" IsChecked="{Binding ReceiveOption.DefaultWriteUi}" />
+                    <StackPanel Margin="0,5,0,0" Style="{StaticResource ConfigStackPanel}">
+                        <CheckBox Content="数据保存到文件" IsChecked="{Binding ReceiveOption.SaveToFile}" />
+                        <CheckBox
+                            Margin="10,0,0,0"
+                            Content="16进制显示"
+                            IsChecked="{Binding ReceiveOption.IsHex}" />
+
                     </StackPanel>
                     <StackPanel Style="{StaticResource ConfigStackPanel}">
-                        <CheckBox Content="16进制显示" IsChecked="{Binding ReceiveOption.IsHex}" />
+                        <CheckBox Content="接收数据不显示" IsChecked="{Binding ReceiveOption.DefaultWriteUi}" />
+                        <CheckBox
+                            Margin="10,0,0,0"
+                            Content="日志格式显示"
+                            IsChecked="{Binding ReceiveOption.SaveToFile}" />
+                    </StackPanel>
+
+                    <StackPanel Style="{StaticResource ConfigStackPanel}">
+                        <CheckBox Content="接收区自动换行" IsChecked="{Binding ReceiveOption.DefaultWriteUi}" />
+                        <CheckBox
+                            Margin="10,0,0,0"
+                            Content="自动滚屏"
+                            IsChecked="{Binding ReceiveOption.SaveToFile}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource ConfigStackPanel}">
-                        <CheckBox Content="接收数据保存到文件" IsChecked="{Binding ReceiveOption.SaveToFile}" />
+                        <CheckBox Content="分包时间" IsChecked="{Binding ReceiveOption.DefaultWriteUi}" />
+                        <TextBox
+                            Margin="10,0,0,0"
+                            Style="{StaticResource ConfigTextBox}" />
+                        <TextBlock Text="(ms)"></TextBlock>
                     </StackPanel>
                     <StackPanel Style="{StaticResource ConfigStackPanel}">
-                        <CheckBox Content="脚本" IsChecked="{Binding ReceiveOption.IsEnableScript}" />
-                        <ComboBox ItemsSource="{Binding ReceiveScriptSource}"
-                                  MinWidth="60"
-                                  IsEnabled="{Binding ReceiveOption.IsEnableScript, Converter={StaticResource InverseBooleanConverter}}"
-                                  SelectedValue="{Binding SelectedReceiveScript}" />
-                        <Button Command="{Binding ShowReceiveScriptManagerCommand}"
-                                IsEnabled="{Binding ReceiveOption.IsEnableScript, Converter={StaticResource InverseBooleanConverter}}">
+                        <CheckBox Content="最大包长" IsChecked="{Binding ReceiveOption.DefaultWriteUi}" />
+                        <TextBox
+                            Margin="10,0,0,0"
+                            Style="{StaticResource ConfigTextBox}" />
+                        <TextBlock Text="(字节)"></TextBlock>
+                    </StackPanel>
+                    <StackPanel
+                        Margin="0,5,0,0"
+                        IsEnabled="{Binding ReceiveOption.IsEnableScript, Converter={StaticResource InverseBooleanConverter}}"
+                        Style="{StaticResource ConfigStackPanel}">
+                        <TextBlock
+                            Margin="0,0,3,0"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            FontSize="14"
+                            Text="脚本:" />
+                        <ComboBox
+                            IsEnabled="{Binding ReceiveOption.IsEnableScript, Converter={StaticResource InverseBooleanConverter}}"
+                            ItemsSource="{Binding ReceiveScriptSource}"
+                            SelectedValue="{Binding SelectedReceiveScript}"
+                            Style="{DynamicResource ConfigComboBox}" />
+                        <Button
+                            Height="{DynamicResource ConfigItemHeight}"
+                            Margin="5,0,0,0"
+                            Command="{Binding ShowReceiveScriptManagerCommand}"
+                            IsEnabled="{Binding ReceiveOption.IsEnableScript, Converter={StaticResource InverseBooleanConverter}}"
+                            ToolTip="编辑脚本">
                             <materialDesign:PackIcon Kind="PencilOutline" />
                         </Button>
+                    </StackPanel>
+
+                    <StackPanel Style="{StaticResource ConfigStackPanel}">
+                        <CheckBox
+                            Margin="0,0,5,0"
+                            Content="脚本启用调试"
+                            IsChecked="{Binding ReceiveOption.IsEnableScriptDebug}" />
+                        <ToggleButton IsChecked="{Binding ReceiveOption.IsEnableScript}"
+                                      Style="{StaticResource MaterialDesignSwitchSecondaryToggleButton}" />
+                        <TextBlock VerticalAlignment="Center" Text="启用脚本" />
                     </StackPanel>
                     <Border
                         Height="1"
@@ -121,13 +220,6 @@
 
             <Border Grid.Row="2" Padding="5">
                 <StackPanel>
-                    <TextBlock FontSize="15" Text="扩展设置:" />
-
-                </StackPanel>
-            </Border>
-
-            <Border Grid.Row="3" Padding="5">
-                <StackPanel>
                     <Border
                         Height="1"
                         Margin="0,0,0,5"
@@ -138,17 +230,6 @@
                     </StackPanel>
                     <StackPanel Style="{StaticResource ConfigStackPanel}">
                         <CheckBox Content="16进制发送" IsChecked="{Binding SendOption.IsHex}" />
-                    </StackPanel>
-                    <StackPanel Style="{StaticResource ConfigStackPanel}">
-                        <CheckBox Content="脚本" IsChecked="{Binding SendOption.IsEnableScript}" />
-                        <ComboBox ItemsSource="{Binding SendScriptSource}"
-                                  MinWidth="60"
-                                  IsEnabled="{Binding SendOption.IsEnableScript, Converter={StaticResource InverseBooleanConverter}}"
-                                  SelectedValue="{Binding SelectedSendScript}" />
-                        <Button Command="{Binding ShowSendScriptManagerCommand}"
-                                IsEnabled="{Binding SendOption.IsEnableScript, Converter={StaticResource InverseBooleanConverter}}">
-                            <materialDesign:PackIcon Kind="PencilOutline" />
-                        </Button>
                     </StackPanel>
                     <StackPanel Style="{StaticResource ConfigStackPanel}">
                         <CheckBox Content="定时发送" IsChecked="{Binding SendOption.AutoSend}" />
@@ -168,6 +249,7 @@
 
                 </StackPanel>
             </Border>
+            <Border Grid.Row="3" Padding="5" />
 
 
         </Grid>

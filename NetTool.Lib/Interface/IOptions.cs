@@ -3,10 +3,6 @@ using System.Text;
 
 namespace NetTool.Lib.Interface;
 
-
-
-
-
 public interface ISocketReceiveOption : IReceiveOption
 {
     public bool AutoBreakFrame { get; set; }
@@ -14,11 +10,9 @@ public interface ISocketReceiveOption : IReceiveOption
     public int AutoBreakFrameTime { get; set; }
 }
 
-
-
 #region SerialPort
 
-public interface ISerialOption
+public interface ISerialConnectOption
 {
     public string? SerialPortName { get; set; }
 
@@ -29,6 +23,8 @@ public interface ISerialOption
     public StopBits? StopBits { get; set; }
 
     public Parity? Parity { get; set; }
+
+    public bool CanEditBaudRate { get; set; } 
 }
 
 public interface ISerialReceiveOption : IReceiveOption;

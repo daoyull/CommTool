@@ -2,6 +2,7 @@
 using Common.Lib.Helpers;
 using Common.Lib.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.ClearScript.V8;
 using NetTool.Abstracts;
 using NetTool.Lib.Interface;
 using NetTool.Module.IO;
@@ -86,11 +87,11 @@ public partial class SerialPortViewModel : AbstractNetViewModel<SerialPortMessag
     {
         base.InitCommunication();
         ComPortList = Serial.GetPortNames();
-        Serial.SerialOption.Parity = ParitiesSource.FirstOrDefault(it => it.Value == Parity.None)?.Value;
-        Serial.SerialOption.StopBits = StopBitsSource.FirstOrDefault(it => it.Value == StopBits.One)?.Value;
-        Serial.SerialOption.SerialPortName = ComPortList.FirstOrDefault();
-        Serial.SerialOption.BaudRate = 9600;
-        Serial.SerialOption.DataBits = 8;
+        Serial.SerialConnectOption.Parity = ParitiesSource.FirstOrDefault(it => it.Value == Parity.None)?.Value;
+        Serial.SerialConnectOption.StopBits = StopBitsSource.FirstOrDefault(it => it.Value == StopBits.One)?.Value;
+        Serial.SerialConnectOption.SerialPortName = ComPortList.FirstOrDefault();
+        Serial.SerialConnectOption.BaudRate = 9600;
+        Serial.SerialConnectOption.DataBits = 8;
     }
 
 
@@ -99,14 +100,30 @@ public partial class SerialPortViewModel : AbstractNetViewModel<SerialPortMessag
         if (Ui != null && ReceiveOption.DefaultWriteUi)
         {
             Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] Receive");
-            Ui.Logger.Message($"{strMessage}",
+            Ui.Logger.Write($"{strMessage}",
                 "#2B2BFF");
         }
+
+        if (ReceiveOption.IsEnableScript && ScriptEngine.Loaded && ScriptEngine.Engine != null)
+        {
+            ScriptEngine.Engine.Script.receive(message.Data,message.Time, strMessage);
+        }
+    }
+
+    protected override void LoadEngine(V8ScriptEngine engine)
+    {
+        base.LoadEngine(engine);
     }
 
     protected override void HandleSendMessage(string message)
     {
     }
 
-    public override string ScriptType => "Script";
+    protected override string InitReceiveScript { get; } = $@"function receive(buffer,message){{
+    debugger;
+    area.Info(`Script Console: ${{message}}`)
+}}";
+
+
+    public override string ScriptType => "Serial";
 }

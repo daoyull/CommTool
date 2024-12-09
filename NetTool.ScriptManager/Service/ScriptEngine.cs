@@ -4,31 +4,35 @@ using NetTool.ScriptManager.Interface;
 
 namespace NetTool.ScriptManager.Service;
 
-public class ScriptExec : IScriptExec
+public class ScriptEngine : IScriptExec
 {
     private readonly INotify _notify;
 
-    public ScriptExec(INotify notify)
+    public ScriptEngine(INotify notify)
     {
         _notify = notify;
     }
 
-    private V8ScriptEngine? _engine;
+
     private bool _isLoad;
     private readonly object _lock = new();
     private string? _script;
 
+    public V8ScriptEngine? Engine { get; private set; }
     public bool Loaded => _isLoad;
 
     public void Reload(string script, Action<V8ScriptEngine>? initAction = null)
     {
         lock (_lock)
         {
-            _engine?.Dispose();
-            _engine = new V8ScriptEngine();
-            initAction?.Invoke(_engine);
+            Engine?.Dispose();
+            Engine = new V8ScriptEngine(V8ScriptEngineFlags.EnableDebugging
+                                        | V8ScriptEngineFlags.EnableDateTimeConversion
+                                        | V8ScriptEngineFlags.AwaitDebuggerAndPauseOnStart, 9901);
+            initAction?.Invoke(Engine);
             _script = script;
             _isLoad = true;
+            Engine.Execute(_script);
         }
     }
 
@@ -42,7 +46,7 @@ public class ScriptExec : IScriptExec
                 return;
             }
 
-            _engine!.Execute(_script);
+            Engine!.Execute(_script);
         }
     }
 
@@ -50,7 +54,7 @@ public class ScriptExec : IScriptExec
     {
         lock (_lock)
         {
-            _engine?.Dispose();
+            Engine?.Dispose();
             _isLoad = false;
         }
     }

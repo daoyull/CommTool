@@ -1,6 +1,6 @@
 using NetTool.Lib.Interface;
 
-namespace NetTool.TcpClient.Options;
+namespace NetTool.Module.Options;
 
 public interface ITcpConnectOption : IConnectOption
 {

@@ -7,6 +7,9 @@ namespace NetTool.Lib.Abstracts;
 
 public abstract class AbstractCommunication<T> : ICommunication<T> where T : IMessage
 {
+    protected IReceiveTask? ReceiveTask { get; set; }
+
+    protected CancellationTokenSource? Cts { get; set; }
     public INotify Notify { get; }
 
     public IUiLogger? UiLogger { get; set; }
@@ -35,21 +38,25 @@ public abstract class AbstractCommunication<T> : ICommunication<T> where T : IMe
 
     protected void OnClosed(ClosedArgs args)
     {
+        Cts?.Dispose();
+        Cts = null;
         IsConnect = false;
         Closed?.Invoke(this, args);
     }
 
     protected void OnConnected(ConnectedArgs args)
     {
+        Cts = new CancellationTokenSource();
         IsConnect = true;
         Connected?.Invoke(this, args);
     }
+
 
     public ValueTask<T> MessageReadAsync(CancellationToken token) => _channel.Reader.ReadAsync(token);
 
     public abstract void Write(byte[] buffer, int offset, int count);
 
-    public virtual  Task  WriteAsync(byte[] buffer, int offset, int count)
+    public virtual Task WriteAsync(byte[] buffer, int offset, int count)
     {
         return Task.Factory.StartNew(() => Write(buffer, offset, count));
     }

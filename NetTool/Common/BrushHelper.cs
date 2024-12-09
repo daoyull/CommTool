@@ -1,4 +1,5 @@
-﻿using System.Windows.Media;
+﻿using System.Windows;
+using System.Windows.Media;
 
 namespace NetTool.Common;
 
@@ -29,7 +30,8 @@ public static class BrushHelper
         }
 
         Color color = Color.FromArgb(a, r, g, b);
-        var brush = new SolidColorBrush(color);
+        var brush = Application.Current.Dispatcher.Invoke(() => new SolidColorBrush(color));
+        //var brush = new SolidColorBrush(color);
         _brushDict[hexColor] = brush;
         return brush;
     }

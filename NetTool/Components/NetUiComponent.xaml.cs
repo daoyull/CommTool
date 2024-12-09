@@ -188,7 +188,7 @@ public partial class NetDataComponent : INetUi
 
     private void ClearReceiveClick(object sender, RoutedEventArgs e)
     {
-        Logger.ClearAllMessage();
+        Logger.ClearArea();
     }
 
     private void ClearSendClick(object sender, RoutedEventArgs e)

@@ -14,8 +14,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Mvvm", "Common\src\C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.WPF", "Common.WPF\Common.WPF.csproj", "{79FAEAF4-E0BA-4DC4-92C1-8F96D8E86F37}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetTool.Tcp", "NetTool.Tcp\NetTool.Tcp.csproj", "{12707318-8BF0-4F3A-BBBB-7F8DE84E7B90}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetTool.ScriptManager", "NetTool.ScriptManager\NetTool.ScriptManager.csproj", "{5CD994A4-2349-4A50-9C14-E9A4A02A162B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetTool.Unit", "NetTool.Unit\NetTool.Unit.csproj", "{51D1E671-F176-4437-9855-AA236F323AF8}"
@@ -50,10 +48,6 @@ Global
 		{79FAEAF4-E0BA-4DC4-92C1-8F96D8E86F37}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79FAEAF4-E0BA-4DC4-92C1-8F96D8E86F37}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79FAEAF4-E0BA-4DC4-92C1-8F96D8E86F37}.Release|Any CPU.Build.0 = Release|Any CPU
-		{12707318-8BF0-4F3A-BBBB-7F8DE84E7B90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{12707318-8BF0-4F3A-BBBB-7F8DE84E7B90}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{12707318-8BF0-4F3A-BBBB-7F8DE84E7B90}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{12707318-8BF0-4F3A-BBBB-7F8DE84E7B90}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5CD994A4-2349-4A50-9C14-E9A4A02A162B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5CD994A4-2349-4A50-9C14-E9A4A02A162B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5CD994A4-2349-4A50-9C14-E9A4A02A162B}.Release|Any CPU.ActiveCfg = Release|Any CPU

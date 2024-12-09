@@ -46,7 +46,7 @@ public partial class TcpClientViewModel : AbstractNetViewModel<TcpClientMessage>
         Ui.Logger.Success($"{strMessage}");
         if (ReceiveOption.AutoNewLine)
         {
-            Ui.Logger.Message(string.Empty,string.Empty);
+            Ui.Logger.Write(string.Empty,string.Empty);
         }
     }
 
@@ -57,10 +57,10 @@ public partial class TcpClientViewModel : AbstractNetViewModel<TcpClientMessage>
             return;
         }
         Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send]");
-        Ui.Logger.Message($"{message}", "#1E6FFF");
+        Ui.Logger.Write($"{message}", "#1E6FFF");
         if (ReceiveOption.AutoNewLine)
         {
-            Ui.Logger.Message(string.Empty,string.Empty);
+            Ui.Logger.Write(string.Empty,string.Empty);
         }
     }
 

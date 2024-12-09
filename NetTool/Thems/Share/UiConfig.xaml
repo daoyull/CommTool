@@ -1,0 +1,6 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=System.Runtime">
+    <system:Double x:Key="ConfigItemHeight">30</system:Double>
+    <system:Double x:Key="ConfigItemKeyFontSize">10</system:Double>
+</ResourceDictionary>

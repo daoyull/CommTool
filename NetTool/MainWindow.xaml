@@ -1,23 +1,30 @@
-﻿<Window x:Class="NetTool.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="800"
-        WindowStartupLocation="CenterScreen">
-    <materialDesign:DialogHost DialogTheme="Inherit"
-                               Identifier="RootDialog">
+﻿<Window
+    x:Class="NetTool.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="MainWindow"
+    Width="1000"
+    Height="800"
+    WindowStartupLocation="CenterScreen"
+    mc:Ignorable="d">
+    <materialDesign:DialogHost DialogTheme="Inherit" Identifier="RootDialog">
         <Grid>
-            <Grid HorizontalAlignment="Right" x:Name="NotifyGrid" VerticalAlignment="Top" ZIndex="11" Margin="40" />
+            <Grid
+                x:Name="NotifyGrid"
+                Margin="40"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                ZIndex="11" />
 
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="40" />
+                    <RowDefinition Height="0" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                <!--<StackPanel Grid.Row="0" Orientation="Horizontal">
                     <Button ToolTip="串口">
                         串口
                     </Button>
@@ -26,7 +33,7 @@
                     <Button>UDP</Button>
                     <Button>图表</Button>
                     <Button>帮助</Button>
-                </StackPanel>
+                </StackPanel>-->
                 <ContentControl x:Name="ContentControl" Grid.Row="1" />
             </Grid>
         </Grid>

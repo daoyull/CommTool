@@ -4,11 +4,15 @@ public interface IReceiveTask
 {
     public int CanReadByte { get; }
 
-    public int ReadByte(byte[] buffer);
+    public IReceiveOption ReceiveOption { get; }
 
-    public bool TimeBreak { get; }
+    public event EventHandler<byte[]>? FrameReceive;
 
-    public int AutoBreakTime { get; }
+    public int Read(byte[] buffer, int size);
 
-    public int MaxByteSize { get; }
+    public CancellationTokenSource Cts { get; }
+
+    public Action? CloseEvent { get; set; }
+
+    public Task StartTask();
 }

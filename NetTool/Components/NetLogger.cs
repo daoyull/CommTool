@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Threading;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
@@ -12,8 +13,6 @@ namespace NetTool.Components;
 
 public class NetLogger : TextEditor, IUiLogger
 {
-   
-
     public NetLogger()
     {
         HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
@@ -26,8 +25,28 @@ public class NetLogger : TextEditor, IUiLogger
         Options.EnableRectangularSelection = false;
         Options.EnableImeSupport = false;
         IsReadOnly = true;
+        ICSharpCode.AvalonEdit.Search.SearchPanel.Install(this);
+        this.PreviewMouseWheel += HandlePreviewMouseWheel;
     }
-    
+
+
+    private void HandlePreviewMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+        {
+            e.Handled = true;
+            if (e.Delta > 0)
+            {
+                FontSize += 0.2;
+            }
+            else if (e.Delta < 0)
+            {
+                FontSize -= 0.2;
+            }
+        }
+    }
+
+
     /// <summary>
     /// 每秒更新60次
     /// </summary>
@@ -39,7 +58,6 @@ public class NetLogger : TextEditor, IUiLogger
 
     private void AppendLine(string message, string color)
     {
-        
         if (message.Length > 2048)
         {
             foreach (var item in SplitStringIntoChunks(message, 2048))
@@ -52,14 +70,14 @@ public class NetLogger : TextEditor, IUiLogger
             AppendText(message);
         }
 
-        
+
         AppendText(Environment.NewLine);
         // this.EndChange();
         _lineColorTransformer.AddLineColor(Document.LineCount - 1, color);
     }
 
 
-    public void Message(string message, string color)
+    public void Write(string message, string color)
     {
         var lineList = message.Split(Environment.NewLine).ToList();
         Dispatcher.InvokeAsync(() =>
@@ -75,25 +93,25 @@ public class NetLogger : TextEditor, IUiLogger
 
     public void Info(string message)
     {
-        Message(message, "#808080");
+        Write(message, "#808080");
     }
 
     public void Success(string message)
     {
-        Message(message, "#1BD66C");
+        Write(message, "#1BD66C");
     }
 
     public void Warning(string message)
     {
-        Message(message, "#FFCE44");
+        Write(message, "#FFCE44");
     }
 
     public void Error(string message)
     {
-        Message(message, "#E30519");
+        Write(message, "#E30519");
     }
 
-    public void ClearAllMessage()
+    public void ClearArea()
     {
         _lineColorTransformer.Clear();
         Text = "";

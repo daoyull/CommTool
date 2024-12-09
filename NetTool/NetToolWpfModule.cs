@@ -16,7 +16,7 @@ public class NetToolWpfModule : BaseModule
         builder.RegisterType<TcpServerViewModel>();
         builder.RegisterType<SerialPortViewModel>();
 
-        builder.RegisterType<SerialOption>().As<ISerialOption>();
+        builder.RegisterType<SerialConnectOption>().As<ISerialConnectOption>();
         builder.RegisterType<SerialReceiveOption>().As<ISerialReceiveOption>();
         builder.RegisterType<SerialSendOption>().As<ISerialSendOption>();
 

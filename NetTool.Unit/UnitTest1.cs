@@ -1,4 +1,5 @@
 
+using System.Net.Sockets;
 using NetTool.ScriptManager.Service;
 
 namespace NetTool.Unit;
@@ -14,6 +15,6 @@ public class Tests
     [Test]
     public async Task ScriptManager()
     {
-        
+        var udpClient = new UdpClient();
     }
 }

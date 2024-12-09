@@ -5,7 +5,7 @@
 /// </summary>
 public interface IUiLogger
 {
-    public void Message(string message, string color);
+    public void Write(string message, string color);
 
     public void Info(string message);
 
@@ -14,5 +14,6 @@ public interface IUiLogger
     public void Warning(string message);
 
     public void Error(string message);
-    public void ClearAllMessage();
+
+    public void ClearArea();
 }

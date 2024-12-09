@@ -70,7 +70,7 @@ public partial class TcpServerViewModel : AbstractNetViewModel<TcpServerMessage>
         Ui.Logger.Success($"{strMessage}");
         if (ReceiveOption.AutoNewLine)
         {
-            Ui.Logger.Message(string.Empty, string.Empty);
+            Ui.Logger.Write(string.Empty, string.Empty);
         }
     }
 
@@ -84,10 +84,10 @@ public partial class TcpServerViewModel : AbstractNetViewModel<TcpServerMessage>
         foreach (var clientItem in _clientList.Where(it => it.IsSelected))
         {
             Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [{clientItem.Socket.RemoteEndPoint}] [Send]");
-            Ui.Logger.Message($"{message}", "#1E6FFF");
+            Ui.Logger.Write($"{message}", "#1E6FFF");
             if (ReceiveOption.AutoNewLine)
             {
-                Ui.Logger.Message(string.Empty, string.Empty);
+                Ui.Logger.Write(string.Empty, string.Empty);
             }
         }
     }

@@ -1,9 +1,9 @@
-﻿using System.Diagnostics;
-using System.IO.Ports;
+﻿using System.IO.Ports;
 using NetTool.Lib.Abstracts;
 using NetTool.Lib.Args;
 using NetTool.Lib.Interface;
 using NetTool.Module.Messages;
+using NetTool.Module.Service;
 
 namespace NetTool.Module.IO;
 
@@ -12,11 +12,11 @@ public class SerialPortAdapter : AbstractCommunication<SerialPortMessage>, ISeri
     public SerialPortAdapter(
         INotify notify,
         IGlobalOption globalOption,
-        ISerialOption serialOption,
+        ISerialConnectOption serialConnectOption,
         ISerialReceiveOption receiveOption,
         ISerialSendOption sendOption) : base(notify, globalOption)
     {
-        SerialOption = serialOption;
+        SerialConnectOption = serialConnectOption;
         SerialReceiveOption = receiveOption;
         SerialSendOption = sendOption;
     }
@@ -24,55 +24,60 @@ public class SerialPortAdapter : AbstractCommunication<SerialPortMessage>, ISeri
     private SerialPort? _serialPort;
 
 
-    public ISerialOption SerialOption { get; }
+    public ISerialConnectOption SerialConnectOption { get; }
     public ISerialReceiveOption SerialReceiveOption { get; }
     public ISerialSendOption SerialSendOption { get; }
 
     public void Connect()
     {
-        if (IsConnect)
+        try
         {
-            return;
-        }
+            if (IsConnect)
+            {
+                return;
+            }
 
-        _serialPort = new SerialPort();
-        _serialPort.PortName = SerialOption.SerialPortName;
-        _serialPort.BaudRate = SerialOption.BaudRate;
-        _serialPort.Parity = SerialOption.Parity!.Value;
-        _serialPort.DataBits = SerialOption.DataBits;
-        _serialPort.StopBits = SerialOption.StopBits!.Value;
-        _serialPort.DataReceived += OnDataReceived;
-        _serialPort.Open();
-        OnConnected(new ConnectedArgs());
-        IsConnect = true;
+            _serialPort = new SerialPort();
+            _serialPort.PortName = SerialConnectOption.SerialPortName;
+            _serialPort.BaudRate = SerialConnectOption.BaudRate;
+            _serialPort.Parity = SerialConnectOption.Parity!.Value;
+            _serialPort.DataBits = SerialConnectOption.DataBits;
+            _serialPort.StopBits = SerialConnectOption.StopBits!.Value;
+            _serialPort.ReadBufferSize = 1024 * 1024;
+            _serialPort.Open();
+            OnConnected(new ConnectedArgs());
+
+            ReceiveTask = new SerialReceiveTask(_serialPort, SerialReceiveOption, Cts!);
+            SerialReceiveOption.MaxFrameSize = 0;
+            SerialReceiveOption.MaxFrameTime = 100;
+            ReceiveTask.FrameReceive += HandleFrameReceive;
+            Task.Run(() => ReceiveTask.StartTask(), Cts!.Token);
+        }
+        catch (Exception e)
+        {
+            Close();
+            throw;
+        }
+    }
+
+    private void HandleFrameReceive(object? sender, byte[] e)
+    {
+        Console.WriteLine($"串口接收到{e.Length}字节数据");
+        WriteMessage(new SerialPortMessage(e));
     }
 
     public List<string> GetPortNames() => SerialPort.GetPortNames().ToList();
 
-    private void OnDataReceived(object sender, SerialDataReceivedEventArgs e)
-    {
-        if (sender is not SerialPort serialPort)
-        {
-            return;
-        }
-
-        int length = serialPort.BytesToRead;
-        Console.WriteLine($"串口接收到{length}字节数据");
-        if (length == 0)
-        {
-            return;
-        }
-
-        byte[] buffer = new byte[length];
-        serialPort.Read(buffer, 0, length);
-        WriteMessage(new SerialPortMessage(buffer));
-    }
-
     public override void Close()
     {
+        if (ReceiveTask != null)
+        {
+            ReceiveTask.FrameReceive -= HandleFrameReceive;
+            ReceiveTask = null;
+        }
+
         if (_serialPort != null)
         {
-            _serialPort.DataReceived -= OnDataReceived;
             _serialPort?.Close();
             _serialPort?.Dispose();
             _serialPort = null;
@@ -92,7 +97,6 @@ public class SerialPortAdapter : AbstractCommunication<SerialPortMessage>, ISeri
 
         base.Dispose(isDispose);
     }
-
 
     public override IReceiveOption ReceiveOption => SerialReceiveOption;
     public override ISendOption SendOption => SerialSendOption;
