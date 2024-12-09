@@ -164,12 +164,7 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
                 {
                     Ui?.Logger.Write(string.Empty, string.Empty);
                 }
-
-                // 自动滚屏
-                if (ReceiveOption.AutoScroll)
-                {
-                    Ui?.ScrollToEnd();
-                }
+                
             }
         }
         catch (OperationCanceledException _)

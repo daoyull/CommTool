@@ -13,6 +13,8 @@ namespace NetTool.Components;
 
 public class NetLogger : TextEditor, IUiLogger
 {
+    private CancellationTokenSource _cts = new();
+
     public NetLogger()
     {
         HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
@@ -27,6 +29,37 @@ public class NetLogger : TextEditor, IUiLogger
         IsReadOnly = true;
         ICSharpCode.AvalonEdit.Search.SearchPanel.Install(this);
         this.PreviewMouseWheel += HandlePreviewMouseWheel;
+        Unloaded += (sender, args) => { _cts.Dispose(); };
+
+        Task.Run(StartWriteMessageToUi, _cts.Token);
+    }
+
+    private async Task? StartWriteMessageToUi()
+    {
+        try
+        {
+            while (!_cts.IsCancellationRequested)
+            {
+                await Task.Delay(Tick);
+                while (_writeQueue.Count > 0)
+                {
+                    var item = _writeQueue.Dequeue();
+                    var lineList = item.Item1.Split(Environment.NewLine).ToList();
+                    Dispatcher.InvokeAsync(() =>
+                    {
+                        foreach (var message in lineList)
+                        {
+                            AppendLine(message, item.Item2);
+                        }
+                    });
+                }
+                TickUpdate.Invoke();
+            }
+        }
+        catch (OperationCanceledException e)
+        {
+            // ignore
+        }
     }
 
 
@@ -75,21 +108,17 @@ public class NetLogger : TextEditor, IUiLogger
         {
             AppendText(Environment.NewLine);
         }
+
         _lineColorTransformer.AddLineColor(Document.LineCount - 1, color);
     }
 
 
     public void Write(string message, string color)
     {
-        var lineList = message.Split(Environment.NewLine).ToList();
-        Dispatcher.InvokeAsync(() =>
-        {
-            foreach (var item in lineList)
-            {
-                AppendLine(item, color);
-            }
-        });
+        _writeQueue.Enqueue((message, color));
     }
+
+    private Queue<(string, string)> _writeQueue = new();
 
     public void Info(string message)
     {
@@ -116,6 +145,8 @@ public class NetLogger : TextEditor, IUiLogger
         _lineColorTransformer.Clear();
         Text = "";
     }
+
+    public Action TickUpdate { get; set; }
 
     private string[] SplitStringIntoChunks(string input, int chunkSize)
     {

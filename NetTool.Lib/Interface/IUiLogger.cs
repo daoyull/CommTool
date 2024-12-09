@@ -16,4 +16,6 @@ public interface IUiLogger
     public void Error(string message);
 
     public void ClearArea();
+
+    public Action TickUpdate { get; set; }
 }

@@ -1,4 +1,5 @@
 using System.IO.Ports;
+using System.Text;
 
 namespace NetTool.Unit;
 
@@ -8,7 +9,7 @@ public class SerialPortTest
     public async Task Receive()
     {
         var serialPort = new SerialPort();
-        serialPort.PortName = "COM1";
+        serialPort.PortName = "COM2";
         serialPort.BaudRate = 9600;
         serialPort.DataBits = 8;
         serialPort.Parity = Parity.None;
@@ -16,8 +17,14 @@ public class SerialPortTest
 
         serialPort.DataReceived += HandleDataReceive;
         serialPort.Open();
-
-        Console.ReadKey();
+        // var builder = new StringBuilder();
+        for (int i = 0; i < 100_000; i++)
+        {
+            serialPort.Write(Guid.NewGuid().ToString());
+            Thread.Sleep(2);
+           
+        }
+        // serialPort.Write(builder.ToString());
     }
 
     private void HandleDataReceive(object sender, SerialDataReceivedEventArgs e)

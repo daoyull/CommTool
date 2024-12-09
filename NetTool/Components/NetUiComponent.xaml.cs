@@ -16,6 +16,7 @@ public partial class NetDataComponent : INetUi
     {
         InitializeComponent();
         Logger = NetLogger;
+        Logger.TickUpdate += () => { Dispatcher.InvokeAsync(() => NetLogger.ScrollToEnd()); };
     }
 
 
@@ -174,7 +175,7 @@ public partial class NetDataComponent : INetUi
 
     public void ScrollToEnd()
     {
-        Dispatcher.BeginInvoke(()=> NetLogger.ScrollToEnd());
+        Dispatcher.BeginInvoke(() => NetLogger.ScrollToEnd());
     }
 
     public string ReceiveMessage => Dispatcher.Invoke(() => NetLogger.Text);

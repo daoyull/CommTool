@@ -23,4 +23,9 @@
       </Reference>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\NetTool.Lib\NetTool.Lib.csproj" />
+      <ProjectReference Include="..\NetTool.Module\NetTool.Module.csproj" />
+    </ItemGroup>
+
 </Project>

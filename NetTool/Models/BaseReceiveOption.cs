@@ -12,7 +12,7 @@ public partial class BaseReceiveOption : ObservableObject, IReceiveOption
     [ObservableProperty] private bool _autoNewLine = true;
     [ObservableProperty] private bool _isEnableScript;
     [ObservableProperty] private bool _isEnableScriptDebug;
-    [ObservableProperty] private bool _logStyleShow;
+    [ObservableProperty] private bool _logStyleShow = true;
     [ObservableProperty] private string? _scriptName;
     [ObservableProperty] private int _maxFrameSize = 255;
     [ObservableProperty] private int _maxFrameTime = 20;
