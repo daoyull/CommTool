@@ -1,3 +1,4 @@
+using NetTool.Lib.Interface;
 using NetTool.ScriptManager.Interface;
 
 namespace NetTool.ScriptManager.Service;
