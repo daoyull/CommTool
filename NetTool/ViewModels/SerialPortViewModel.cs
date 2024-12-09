@@ -2,6 +2,7 @@
 using Common.Lib.Helpers;
 using Common.Lib.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.ClearScript.V8;
 using NetTool.Abstracts;
 using NetTool.Lib.Interface;
@@ -97,16 +98,25 @@ public partial class SerialPortViewModel : AbstractNetViewModel<SerialPortMessag
 
     protected override void HandleReceiveMessage(SerialPortMessage message, string strMessage)
     {
-        if (Ui != null && ReceiveOption.DefaultWriteUi)
+        // 脚本处理
+        if (ReceiveOption.IsEnableScript && ScriptLoad && Engine != null)
         {
-            Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] Receive");
-            Ui.Logger.Write($"{strMessage}",
-                "#2B2BFF");
+            Engine.Script.receive(message.Data, message.Time, strMessage);
         }
 
-        if (ReceiveOption.IsEnableScript && ScriptEngine.Loaded && ScriptEngine.Engine != null)
+        if (Ui == null)
         {
-            ScriptEngine.Engine.Script.receive(message.Data,message.Time, strMessage);
+          return;
+        }
+
+        if (ReceiveOption.LogStyleShow)
+        {
+            Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] Receive");
+            Ui.Logger.Write($"{strMessage}","#2B2BFF");
+        }
+        else
+        {
+            Ui.Logger.Write($"{strMessage}","#2B2BFF");
         }
     }
 
@@ -115,11 +125,17 @@ public partial class SerialPortViewModel : AbstractNetViewModel<SerialPortMessag
         base.LoadEngine(engine);
     }
 
+    [RelayCommand]
+    private void RefreshSerialPort()
+    {
+        ComPortList = Serial.GetPortNames();
+    }
+
     protected override void HandleSendMessage(string message)
     {
     }
 
-    protected override string InitReceiveScript { get; } = $@"function receive(buffer,message){{
+    protected override string InitReceiveScript { get; } = $@"function receive(buffer,time,message){{
     debugger;
     area.Info(`Script Console: ${{message}}`)
 }}";

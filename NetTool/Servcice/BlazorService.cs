@@ -29,16 +29,22 @@ public class BlazorService
     public async Task StartSetValue()
     {
         // monaco加载需要一定时间
-        while (!_cts!.IsCancellationRequested)
+        try
         {
-            if (Content == null || Editor == null || JsRuntime == null)
+            while (!_cts!.IsCancellationRequested)
             {
-                await Task.Delay(200);
-                continue;
-            }
+                if (Content == null || Editor == null || JsRuntime == null)
+                {
+                    await Task.Delay(200);
+                    continue;
+                }
 
-            await Editor.SetValue(Content);
-            Content = null;
+                await Editor.SetValue(Content);
+                Content = null;
+            }
+        }catch(Exception e)
+        {
+            // ignore
         }
     }
 }

@@ -71,8 +71,10 @@ public class NetLogger : TextEditor, IUiLogger
         }
 
 
-        AppendText(Environment.NewLine);
-        // this.EndChange();
+        if (!message.EndsWith(Environment.NewLine))
+        {
+            AppendText(Environment.NewLine);
+        }
         _lineColorTransformer.AddLineColor(Document.LineCount - 1, color);
     }
 
@@ -86,8 +88,6 @@ public class NetLogger : TextEditor, IUiLogger
             {
                 AppendLine(item, color);
             }
-
-            ScrollToEnd();
         });
     }
 

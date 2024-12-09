@@ -4,9 +4,44 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:NetTool.Components"
+             xmlns:viewmodels="clr-namespace:NetTool.ViewModels"
+             xmlns:converts="clr-namespace:NetTool.Converts"
+             d:DataContext="{d:DesignInstance viewmodels:TestViewModel}"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
-        
-    </Grid>
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <converts:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+            <converts:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <converts:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <StackPanel>
+        <TextBlock FontSize="15" Text="发送设置:" />
+        <StackPanel Style="{StaticResource ConfigStackPanel}">
+            <CheckBox Content="发送数据不显示" IsChecked="{Binding SendOption.DefaultWriteUi}" />
+            <CheckBox
+                Margin="5,0,0,0"
+                Content="16进制发送"
+                IsChecked="{Binding SendOption.IsHex}" />
+        </StackPanel>
+
+        <StackPanel Style="{StaticResource ConfigStackPanel}">
+            <TextBox
+                Width="70"
+                HorizontalContentAlignment="Right"
+                IsEnabled="{Binding SendOption.AutoSend, Converter={StaticResource InverseBooleanConverter}}"
+                Style="{StaticResource ConfigTextBox}"
+                Text="{Binding SendOption.AutoSendTime}" />
+            <Label VerticalAlignment="Center" Content="毫秒" />
+            <CheckBox
+                Margin="8,0,0,0"
+                Content="定时发送"
+                IsChecked="{Binding SendOption.AutoSend}" />
+        </StackPanel>
+        <StackPanel Style="{StaticResource ConfigStackPanel}">
+            <Button>发送文件</Button>
+        </StackPanel>
+
+    </StackPanel>
 </UserControl>

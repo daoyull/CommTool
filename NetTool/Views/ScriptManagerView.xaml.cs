@@ -3,7 +3,6 @@ using System.Windows.Controls;
 using Autofac.Extensions.DependencyInjection;
 using Common.Lib.Ioc;
 using Microsoft.Win32;
-using NetTool.ScriptManager.Interface;
 using NetTool.Servcice;
 using NetTool.ViewModels;
 

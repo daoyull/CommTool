@@ -16,6 +16,8 @@ public interface INetUi
     public void AddReceiveBytes(uint add);
     public void ResetNumber();
 
+    public void ScrollToEnd();
+
     public string ReceiveMessage { get; }
     public string SendMessage { get; set; }
     

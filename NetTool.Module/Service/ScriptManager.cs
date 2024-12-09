@@ -1,7 +1,6 @@
 using NetTool.Lib.Interface;
-using NetTool.ScriptManager.Interface;
 
-namespace NetTool.ScriptManager.Service;
+namespace NetTool.Module.Service;
 
 public class ScriptManager : IScriptManager
 {

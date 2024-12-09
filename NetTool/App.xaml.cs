@@ -1,17 +1,11 @@
-﻿using System.Configuration;
-using System.Data;
-using System.Windows;
-using System.Windows.Media;
-using AspectCore.Extensions.Autofac;
+﻿using System.Windows;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Common.Lib.Ioc;
-using MaterialDesignThemes.Wpf;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NetTool.Module;
-using NetTool.ScriptManager;
 
 namespace NetTool;
 
@@ -49,7 +43,6 @@ public partial class App : Application
         {
             builder.RegisterModule<NetToolWpfModule>();
             builder.RegisterModule<NetToolModule>();
-            builder.RegisterModule<ScriptManagerModule>();
             builder.Populate(service);
         });
         Ioc.Builder();

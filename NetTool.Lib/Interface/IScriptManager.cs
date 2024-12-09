@@ -1,4 +1,4 @@
-namespace NetTool.ScriptManager.Interface;
+namespace NetTool.Lib.Interface;
 
 public interface IScriptManager
 {

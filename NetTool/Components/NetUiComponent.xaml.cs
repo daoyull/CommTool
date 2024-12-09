@@ -172,6 +172,11 @@ public partial class NetDataComponent : INetUi
         SendFrame = ReceiveFrame = SendBytes = ReceiveBytes = 0;
     }
 
+    public void ScrollToEnd()
+    {
+        Dispatcher.BeginInvoke(()=> NetLogger.ScrollToEnd());
+    }
+
     public string ReceiveMessage => Dispatcher.Invoke(() => NetLogger.Text);
 
     public string SendMessage

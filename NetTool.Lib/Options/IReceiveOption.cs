@@ -44,4 +44,7 @@ public interface IReceiveOption
 
     public int MaxFrameTime { get; set; }
     public int MaxFrameSize { get; set; }
+    public bool IsMaxFrameTime { get; set; }
+
+    public bool LogStyleShow { get; set; }
 }

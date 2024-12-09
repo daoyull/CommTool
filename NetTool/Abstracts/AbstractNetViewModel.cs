@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.Windows.Forms;
 using Common.Lib.Ioc;
 using Common.Lib.Service;
 using Common.Mvvm.Abstracts;
@@ -10,8 +9,6 @@ using NetTool.Common;
 using NetTool.Lib.Args;
 using NetTool.Lib.Interface;
 using NetTool.Module.Share;
-using NetTool.ScriptManager.Interface;
-using NetTool.ScriptManager.Service;
 
 namespace NetTool.Abstracts;
 
@@ -23,7 +20,6 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
         AddPlugin<EventRegisterPlugin<T>>();
     }
 
-    protected ScriptEngine ScriptEngine { get; } = Ioc.Resolve<ScriptEngine>();
 
     protected INotify Notify => Ioc.Resolve<INotify>();
 
@@ -140,8 +136,11 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
             while (IsConnect && _receiveCts is { IsCancellationRequested: false })
             {
                 var message = await Communication.MessageReadAsync(_receiveCts.Token);
+                // 收到数据帧和次数增加
                 Ui?.AddReceiveFrame(1);
                 Ui?.AddReceiveBytes((uint)message.Data.Length);
+
+                // 解析收到的数据
                 string receiveMessage;
                 if (ReceiveOption.IsHex)
                 {
@@ -152,7 +151,25 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
                     receiveMessage = message.Data.BytesToString();
                 }
 
+                // 不输出到界面
+                if (!ReceiveOption.DefaultWriteUi)
+                {
+                    continue;
+                }
+
                 HandleReceiveMessage(message, receiveMessage);
+
+                // 自动换行
+                if (ReceiveOption.AutoNewLine)
+                {
+                    Ui?.Logger.Write(string.Empty, string.Empty);
+                }
+
+                // 自动滚屏
+                if (ReceiveOption.AutoScroll)
+                {
+                    Ui?.ScrollToEnd();
+                }
             }
         }
         catch (OperationCanceledException _)
@@ -223,10 +240,19 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
         Ui?.AddSendBytes((uint)buffer.Length);
         return true;
     }
+}
 
-    #region 脚本相关
-
+/// <summary>
+/// 脚本部分
+/// </summary>
+/// <typeparam name="T"></typeparam>
+public abstract partial class AbstractNetViewModel<T>
+{
+    public bool ScriptLoad { get; set; }
+    private readonly object _scriptLock = new();
+    protected V8ScriptEngine? Engine { get; private set; }
     public abstract string ScriptType { get; }
+
     public string ReceiveScriptType => ScriptType + "Receive";
     public string SendScriptType => ScriptType + "Send";
 
@@ -268,7 +294,6 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
         RefreshScriptSource();
     }
 
-    #endregion
 
     public async Task StartScript()
     {
@@ -282,7 +307,34 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
         }
 
         var scriptContent = await ScriptManager.GetScriptContent(ReceiveScriptType, SelectedReceiveScript!);
-        ScriptEngine.Reload(scriptContent, LoadEngine);
+
+        if (string.IsNullOrEmpty(scriptContent))
+        {
+            Notify.Warning("脚本内容为空");
+            ReceiveOption.IsEnableScript = false;
+            return;
+        }
+
+        lock (_scriptLock)
+        {
+            Engine?.Dispose();
+            V8ScriptEngineFlags flags;
+            if (ReceiveOption.IsEnableScriptDebug)
+            {
+                flags = V8ScriptEngineFlags.EnableDebugging
+                        | V8ScriptEngineFlags.EnableDateTimeConversion
+                        | V8ScriptEngineFlags.AwaitDebuggerAndPauseOnStart;
+            }
+            else
+            {
+                flags = V8ScriptEngineFlags.EnableDateTimeConversion;
+            }
+
+            Engine = new V8ScriptEngine(flags, GlobalOption.ScriptDebugPort);
+            LoadEngine(Engine);
+            ScriptLoad = true;
+            Engine.Execute(scriptContent);
+        }
     }
 
     protected virtual void LoadEngine(V8ScriptEngine engine)
@@ -295,7 +347,11 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
     public void StopScript()
     {
         // 停止脚本
-        ScriptEngine.Unload();
+        lock (_scriptLock)
+        {
+            Engine?.Dispose();
+            ScriptLoad = false;
+        }
     }
 }
 

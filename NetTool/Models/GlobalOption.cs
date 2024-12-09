@@ -20,4 +20,6 @@ public partial class GlobalOption : ObservableObject, IGlobalOption
     /// 默认编码
     /// </summary>
     [ObservableProperty] private Encoding _encoding = Encoding.ASCII;
+
+    [ObservableProperty] private int _scriptDebugPort = 9901;
 }

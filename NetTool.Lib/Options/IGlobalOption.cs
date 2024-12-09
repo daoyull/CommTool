@@ -18,4 +18,5 @@ public interface IGlobalOption
     public string ScriptPath { get; set; }
 
     public Encoding Encoding { get; set; }
+    public int ScriptDebugPort { get; set; }
 }

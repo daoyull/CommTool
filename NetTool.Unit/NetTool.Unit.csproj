@@ -18,7 +18,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\NetTool.ScriptManager\NetTool.ScriptManager.csproj" />
+      <Reference Include="System.IO.Ports">
+        <HintPath>..\NetTool\bin\Debug\net8.0-windows\runtimes\win\lib\net8.0\System.IO.Ports.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
 </Project>

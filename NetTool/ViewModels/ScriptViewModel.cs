@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using NetTool.ScriptManager.Interface;
+using NetTool.Lib.Interface;
 using NetTool.Servcice;
 
 namespace NetTool.ViewModels;

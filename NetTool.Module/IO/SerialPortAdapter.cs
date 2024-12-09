@@ -48,8 +48,6 @@ public class SerialPortAdapter : AbstractCommunication<SerialPortMessage>, ISeri
             OnConnected(new ConnectedArgs());
 
             ReceiveTask = new SerialReceiveTask(_serialPort, SerialReceiveOption, Cts!);
-            SerialReceiveOption.MaxFrameSize = 0;
-            SerialReceiveOption.MaxFrameTime = 100;
             ReceiveTask.FrameReceive += HandleFrameReceive;
             Task.Run(() => ReceiveTask.StartTask(), Cts!.Token);
         }
