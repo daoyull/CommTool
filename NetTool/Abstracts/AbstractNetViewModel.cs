@@ -1,13 +1,19 @@
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading;
+using System.Threading.Tasks;
 using Common.Lib.Ioc;
 using Common.Lib.Service;
 using Common.Mvvm.Abstracts;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.ClearScript.V8;
+using NetTool.Abstracts.Plugins;
 using NetTool.Common;
 using NetTool.Lib.Args;
 using NetTool.Lib.Interface;
+using NetTool.Models;
 using NetTool.Module.Share;
 
 namespace NetTool.Abstracts;
@@ -18,8 +24,9 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
     {
         RefreshScriptSource();
         AddPlugin<EventRegisterPlugin<T>>();
+        AddPlugin<ReceiveScriptPlugin<T>>();
+        AddPlugin<SendScriptPlugin<T>>();
     }
-
 
     protected INotify Notify => Ioc.Resolve<INotify>();
 
@@ -33,7 +40,7 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
 
     public IReceiveOption ReceiveOption => Communication.ReceiveOption;
 
-    public INetUi? Ui { get; set; }
+    public INetUi Ui { get; set; } = null!;
 
 
     public abstract ICommunication<T> Communication { get; }
@@ -137,8 +144,8 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
             {
                 var message = await Communication.MessageReadAsync(_receiveCts.Token);
                 // 收到数据帧和次数增加
-                Ui?.AddReceiveFrame(1);
-                Ui?.AddReceiveBytes((uint)message.Data.Length);
+                Ui.AddReceiveFrame(1);
+                Ui.AddReceiveBytes((uint)message.Data.Length);
 
                 // 解析收到的数据
                 string receiveMessage;
@@ -162,9 +169,10 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
                 // 自动换行
                 if (ReceiveOption.AutoNewLine)
                 {
-                    Ui?.Logger.Write(string.Empty, string.Empty);
+                    Ui.Logger.Write(string.Empty, string.Empty);
                 }
-                
+
+                // 执行脚本
             }
         }
         catch (OperationCanceledException _)
@@ -172,8 +180,9 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
         }
     }
 
+
     protected abstract void HandleReceiveMessage(T message, string strMessage);
-    protected abstract void HandleSendMessage(string message);
+    protected abstract void HandleSendMessage(byte[] bytes, string message);
 
     protected virtual bool SendCheck(string message)
     {
@@ -225,7 +234,13 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
             uiMessage = buffer.BytesToString();
         }
 
-        HandleSendMessage(uiMessage);
+        HandleSendMessage(buffer, uiMessage);
+
+        // 自动换行
+        if (ReceiveOption.AutoNewLine)
+        {
+            Ui.Logger.Write(string.Empty, string.Empty);
+        }
     }
 
     protected virtual async Task<bool> HandleSendBytes(byte[] buffer)
@@ -243,9 +258,6 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
 /// <typeparam name="T"></typeparam>
 public abstract partial class AbstractNetViewModel<T>
 {
-    public bool ScriptLoad { get; set; }
-    private readonly object _scriptLock = new();
-    protected V8ScriptEngine? Engine { get; private set; }
     public abstract string ScriptType { get; }
 
     public string ReceiveScriptType => ScriptType + "Receive";
@@ -272,8 +284,15 @@ public abstract partial class AbstractNetViewModel<T>
         }
     }
 
-    protected virtual string InitReceiveScript { get; } = "";
-    protected virtual string InitSendScript { get; } = "";
+    protected virtual string InitReceiveScript { get; } = $@"function receive(buffer,time,message){{
+    debugger;
+    area.Info(`Receive Script Console: ${{message}}`)
+}}";
+
+    protected virtual string InitSendScript { get; } = $@"function send(buffer,time,message){{
+    debugger;
+    area.Info(`Send Script Console: ${{message}}`)
+}}";
 
     [RelayCommand]
     private void ShowReceiveScriptManager()
@@ -290,114 +309,10 @@ public abstract partial class AbstractNetViewModel<T>
     }
 
 
-    public async Task StartScript()
-    {
-        // 启动脚本
-        // 查找脚本内容
-        if (string.IsNullOrEmpty(SelectedReceiveScript))
-        {
-            Notify.Warning("请先选择脚本");
-            ReceiveOption.IsEnableScript = false;
-            return;
-        }
-
-        var scriptContent = await ScriptManager.GetScriptContent(ReceiveScriptType, SelectedReceiveScript!);
-
-        if (string.IsNullOrEmpty(scriptContent))
-        {
-            Notify.Warning("脚本内容为空");
-            ReceiveOption.IsEnableScript = false;
-            return;
-        }
-
-        lock (_scriptLock)
-        {
-            Engine?.Dispose();
-            V8ScriptEngineFlags flags;
-            if (ReceiveOption.IsEnableScriptDebug)
-            {
-                flags = V8ScriptEngineFlags.EnableDebugging
-                        | V8ScriptEngineFlags.EnableDateTimeConversion
-                        | V8ScriptEngineFlags.AwaitDebuggerAndPauseOnStart;
-            }
-            else
-            {
-                flags = V8ScriptEngineFlags.EnableDateTimeConversion;
-            }
-
-            Engine = new V8ScriptEngine(flags, GlobalOption.ScriptDebugPort);
-            LoadEngine(Engine);
-            ScriptLoad = true;
-            Engine.Execute(scriptContent);
-        }
-    }
-
-    protected virtual void LoadEngine(V8ScriptEngine engine)
+    internal virtual void LoadEngine(V8ScriptEngine engine)
     {
         engine.AddHostObject("notify", Notify);
         engine.AddHostObject("Communication", this);
         engine.AddHostObject("area", Ui!.Logger);
-    }
-
-    public void StopScript()
-    {
-        // 停止脚本
-        lock (_scriptLock)
-        {
-            Engine?.Dispose();
-            ScriptLoad = false;
-        }
-    }
-}
-
-internal class EventRegisterPlugin<T> : ILifePlugin where T : IMessage
-{
-    public async Task OnCreate(ILifeCycle lifeCycle)
-    {
-        if (lifeCycle is AbstractNetViewModel<T> viewModel)
-        {
-            viewModel.InitCommunication();
-            if (viewModel.ReceiveOption is ObservableObject receiveOption)
-            {
-                receiveOption.PropertyChanged += async (sender, e) =>
-                {
-                    if (sender is not IReceiveOption option)
-                    {
-                        return;
-                    }
-
-                    if (e.PropertyName == nameof(IReceiveOption.IsEnableScript))
-                    {
-                        if (option.IsEnableScript)
-                        {
-                            await viewModel.StartScript();
-                        }
-                        else
-                        {
-                            viewModel.StopScript();
-                        }
-                    }
-                };
-            }
-        }
-    }
-
-    private void HandleReceiveOptionChanged(object? sender, PropertyChangedEventArgs e)
-    {
-    }
-
-    public Task OnInit(ILifeCycle lifeCycle)
-    {
-        return Task.CompletedTask;
-    }
-
-    public Task OnLoad(ILifeCycle lifeCycle)
-    {
-        return Task.CompletedTask;
-    }
-
-    public Task OnUnload(ILifeCycle lifeCycle)
-    {
-        return Task.CompletedTask;
     }
 }

@@ -9,10 +9,10 @@ namespace NetTool.Module.IO;
 
 public class TcpClientAdapter : AbstractCommunication<TcpClientMessage>, ITcpClient
 {
-    public TcpClientAdapter(INotify notify, IGlobalOption globalOption, ITcpClientOption clientOption,
+    public TcpClientAdapter(INotify notify, IGlobalOption globalOption, ITcpClientConnectOption clientConnectOption,
         ITcpClientReceiveOption clientReceiveOption, ITcpClientSendOption clientSendOption) : base(notify, globalOption)
     {
-        TcpClientOption = clientOption;
+        TcpClientConnectOption = clientConnectOption;
         TcpClientReceiveOption = clientReceiveOption;
         TcpClientSendOption = clientSendOption;
     }
@@ -21,15 +21,16 @@ public class TcpClientAdapter : AbstractCommunication<TcpClientMessage>, ITcpCli
 
     #region 只读属性
 
+    public override IConnectOption ConnectOption => TcpClientConnectOption;
     public override IReceiveOption ReceiveOption => TcpClientReceiveOption;
     public override ISendOption SendOption => TcpClientSendOption;
-    public ITcpClientOption TcpClientOption { get; }
+    public ITcpClientConnectOption TcpClientConnectOption { get; }
     public ITcpClientReceiveOption TcpClientReceiveOption { get; }
     public ITcpClientSendOption TcpClientSendOption { get; }
 
 
     private CancellationTokenSource? _rcCts;
-    private ReceiveSocket? _receiveSocket;
+    
 
     public async Task ConnectAsync()
     {
@@ -40,14 +41,14 @@ public class TcpClientAdapter : AbstractCommunication<TcpClientMessage>, ITcpCli
                 Close();
             }
 
-            if (string.IsNullOrEmpty(TcpClientOption.Ip) || TcpClientOption.Port <= 0)
+            if (string.IsNullOrEmpty(TcpClientConnectOption.Ip) || TcpClientConnectOption.Port <= 0)
             {
                 throw new Exception("Ip or Port is null");
             }
 
             _client = new();
             _rcCts = new();
-            await _client.ConnectAsync(TcpClientOption.Ip, TcpClientOption.Port);
+            await _client.ConnectAsync(TcpClientConnectOption.Ip, TcpClientConnectOption.Port);
             _networkStream = _client.GetStream();
             OnConnected(new());
         }
@@ -72,7 +73,7 @@ public class TcpClientAdapter : AbstractCommunication<TcpClientMessage>, ITcpCli
             _client = null;
         }
 
-        _receiveSocket = null;
+       
 
         OnClosed(new());
     }

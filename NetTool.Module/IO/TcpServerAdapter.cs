@@ -1,12 +1,9 @@
-﻿using System.Collections.ObjectModel;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using NetTool.Lib.Abstracts;
 using NetTool.Lib.Args;
-using NetTool.Lib.Entity;
 using NetTool.Lib.Interface;
 using NetTool.Module.Messages;
-using NetTool.Module.Service;
 
 namespace NetTool.Module.IO;
 
@@ -14,21 +11,22 @@ public class TcpServerAdapter : AbstractCommunication<TcpServerMessage>, ITcpSer
 {
     private TcpListener? _listener;
 
-    public TcpServerAdapter(INotify notify, IGlobalOption globalOption, ITcpServerOption tcpServerOption,
+    public TcpServerAdapter(INotify notify, IGlobalOption globalOption, ITcpServerConnectOption tcpServerConnectOption,
         ITcpServerReceiveOption tcpServerReceiveOption, ITcpServerSendOption tcpServerSendOption) : base(notify,
         globalOption)
     {
-        TcpServerOption = tcpServerOption;
+        TcpServerConnectOption = tcpServerConnectOption;
         TcpServerReceiveOption = tcpServerReceiveOption;
         TcpServerSendOption = tcpServerSendOption;
     }
 
 
+    public override IConnectOption ConnectOption => TcpServerConnectOption;
     public override IReceiveOption ReceiveOption => TcpServerReceiveOption;
     public override ISendOption SendOption => TcpServerSendOption;
 
     private List<Socket> _clients = new();
-    
+
 
     public override void Write(byte[] buffer, int offset, int count)
     {
@@ -38,7 +36,7 @@ public class TcpServerAdapter : AbstractCommunication<TcpServerMessage>, ITcpSer
         }
     }
 
-    public ITcpServerOption TcpServerOption { get; }
+    public ITcpServerConnectOption TcpServerConnectOption { get; }
     public ITcpServerReceiveOption TcpServerReceiveOption { get; }
     public ITcpServerSendOption TcpServerSendOption { get; }
 
@@ -47,7 +45,7 @@ public class TcpServerAdapter : AbstractCommunication<TcpServerMessage>, ITcpSer
     public void Listen()
     {
         _connectCts = new();
-        _listener = new TcpListener(IPAddress.Any, TcpServerOption.Port);
+        _listener = new TcpListener(IPAddress.Any, TcpServerConnectOption.Port);
         _listener.Start();
         IsConnect = true;
         OnConnected(new ConnectedArgs());
@@ -82,19 +80,19 @@ public class TcpServerAdapter : AbstractCommunication<TcpServerMessage>, ITcpSer
                 if (socket.Connected)
                 {
                     _clients.Add(socket);
-                    var tcpClientItem = new TcpClientItem();
-                    tcpClientItem.ReceiveSocket = new ReceiveSocket(socket,
-                        bytes => WriteMessage(new(socket, bytes)),
-                        () =>
-                        {
-                            ClientClosed?.Invoke(this, socket);
-                            tcpClientItem.Cts.Cancel();
-                            tcpClientItem.Cts.Dispose();
-                            socket.Dispose();
-                            _clients.Remove(socket);
-                        }, TcpServerReceiveOption, GlobalOption, tcpClientItem.Cts);
-                    ClientConnected?.Invoke(this, socket);
-                    Task.Run(() => tcpClientItem.ReceiveSocket.ReceiveTask(), _connectCts.Token);
+                    // var tcpClientItem = new TcpClientItem();
+                    // tcpClientItem.ReceiveSocket = new ReceiveSocket(socket,
+                    //     bytes => WriteMessage(new(socket, bytes)),
+                    //     () =>
+                    //     {
+                    //         ClientClosed?.Invoke(this, socket);
+                    //         tcpClientItem.Cts.Cancel();
+                    //         tcpClientItem.Cts.Dispose();
+                    //         socket.Dispose();
+                    //         _clients.Remove(socket);
+                    //     }, TcpServerReceiveOption, GlobalOption, tcpClientItem.Cts);
+                    // ClientConnected?.Invoke(this, socket);
+                    // Task.Run(() => tcpClientItem.ReceiveSocket.ReceiveTask(), _connectCts.Token);
                 }
             }
             catch (SocketException e)

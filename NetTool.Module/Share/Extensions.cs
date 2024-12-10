@@ -1,4 +1,3 @@
-using System.Text;
 using Common.Lib.Ioc;
 using NetTool.Lib.Interface;
 using NetTool.Module.Components;

@@ -6,7 +6,8 @@
              xmlns:local="clr-namespace:NetTool.Components"
              xmlns:viewmodels="clr-namespace:NetTool.ViewModels"
              xmlns:converts="clr-namespace:NetTool.Converts"
-             d:DataContext="{d:DesignInstance viewmodels:TestViewModel}"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             d:DataContext="{d:DesignInstance viewmodels:DesignViewModel}"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
@@ -25,23 +26,56 @@
                 Content="16进制发送"
                 IsChecked="{Binding SendOption.IsHex}" />
         </StackPanel>
-
         <StackPanel Style="{StaticResource ConfigStackPanel}">
+            <CheckBox
+                Content="定时发送"
+                IsChecked="{Binding SendOption.AutoSend}" />
             <TextBox
+                Margin="10 0 0 0"
                 Width="70"
                 HorizontalContentAlignment="Right"
                 IsEnabled="{Binding SendOption.AutoSend, Converter={StaticResource InverseBooleanConverter}}"
                 Style="{StaticResource ConfigTextBox}"
                 Text="{Binding SendOption.AutoSendTime}" />
             <Label VerticalAlignment="Center" Content="毫秒" />
-            <CheckBox
-                Margin="8,0,0,0"
-                Content="定时发送"
-                IsChecked="{Binding SendOption.AutoSend}" />
+           
         </StackPanel>
+        <StackPanel
+            Margin="0,5,0,0"
+            IsEnabled="{Binding SendOption.IsEnableScript, Converter={StaticResource InverseBooleanConverter}}"
+            Style="{StaticResource ConfigStackPanel}">
+            <TextBlock
+                Margin="0,0,3,0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                FontSize="14"
+                Text="脚本:" />
+            <ComboBox
+                ItemsSource="{Binding SendScriptSource}"
+                SelectedValue="{Binding SelectedSendScript}"
+                Style="{DynamicResource ConfigComboBox}" />
+            <Button
+                Height="{DynamicResource ConfigItemHeight}"
+                Margin="5,0,0,0"
+                Command="{Binding ShowSendScriptManagerCommand}"
+                ToolTip="编辑脚本">
+                <materialDesign:PackIcon Kind="PencilOutline" />
+            </Button>
+        </StackPanel>
+
         <StackPanel Style="{StaticResource ConfigStackPanel}">
-            <Button>发送文件</Button>
+            <CheckBox
+                Margin="0,0,5,0"
+                Content="脚本启用调试"
+                IsChecked="{Binding SendOption.IsEnableScriptDebug}" />
+            <ToggleButton IsChecked="{Binding SendOption.IsEnableScript}" Style="{StaticResource MaterialDesignSwitchSecondaryToggleButton}" />
+            <TextBlock VerticalAlignment="Center" Text="启用脚本" />
         </StackPanel>
+
+      
+        <!-- <StackPanel Style="{StaticResource ConfigStackPanel}"> -->
+        <!--     <Button>发送文件</Button> -->
+        <!-- </StackPanel> -->
 
     </StackPanel>
 </UserControl>

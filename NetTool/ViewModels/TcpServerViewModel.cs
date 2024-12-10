@@ -74,7 +74,7 @@ public partial class TcpServerViewModel : AbstractNetViewModel<TcpServerMessage>
         }
     }
 
-    protected override void HandleSendMessage(string message)
+    protected override void HandleSendMessage(byte[] bytes,string message)
     {
         if (Ui == null)
         {

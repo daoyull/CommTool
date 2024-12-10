@@ -36,12 +36,12 @@
                         Margin="0 5 0 5"
                         materialDesign:HintAssist.Hint="IP"
                         IsEnabled="{Binding IsConnect, Converter={StaticResource InverseBooleanConverter}}"
-                        Text="{Binding Server.TcpServerOption.Ip}" />
+                        Text="{Binding Server.TcpServerConnectOption.Ip}" />
                     <TextBox
                         Margin="0 5 0 5"
                         materialDesign:HintAssist.Hint="端口"
                         IsEnabled="{Binding IsConnect, Converter={StaticResource InverseBooleanConverter}}"
-                        Text="{Binding Server.TcpServerOption.Port}" />
+                        Text="{Binding Server.TcpServerConnectOption.Port}" />
 
                     <TextBlock Text="客户端:" />
                     <ScrollViewer MaxHeight="70">
@@ -138,7 +138,7 @@
 
         </Grid>
 
-        <components:NetDataComponent
+        <components:NetUiComponent
             x:Name="ComCompenent"
             SendCommand="{Binding SendCommand}"
             Grid.Column="1" Margin="5" />

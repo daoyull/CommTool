@@ -20,18 +20,18 @@ public class NetToolWpfModule : BaseModule
         builder.RegisterType<SerialReceiveOption>().As<ISerialReceiveOption>();
         builder.RegisterType<SerialSendOption>().As<ISerialSendOption>();
 
-        builder.RegisterType<TcpClientOption>().As<ITcpClientOption>();
+        builder.RegisterType<TcpClientConnectOption>().As<ITcpClientConnectOption>();
         builder.RegisterType<TcpClientReceiveOption>().As<ITcpClientReceiveOption>();
         builder.RegisterType<TcpClientSendOption>().As<ITcpClientSendOption>();
 
-        builder.RegisterType<TcpServerOption>().As<ITcpServerOption>();
+        builder.RegisterType<TcpServerConnectOption>().As<ITcpServerConnectOption>();
         builder.RegisterType<TcpServerReceiveOption>().As<ITcpServerReceiveOption>();
         builder.RegisterType<TcpServerSendOption>().As<ITcpServerSendOption>();
-        
+
         builder.RegisterType<GlobalOption>().As<IGlobalOption>().SingleInstance();
         builder.RegisterType<Notify>().As<INotify>().SingleInstance();
 
-        builder.RegisterType<ScriptViewModel>().SingleInstance();
+        builder.RegisterType<ScriptManagerViewModel>().SingleInstance();
         builder.RegisterType<BlazorService>().SingleInstance();
     }
 }

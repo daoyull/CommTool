@@ -12,19 +12,19 @@ public partial class ScriptManagerView : Window
 {
     private BlazorService BlazorService { get; } = Ioc.Resolve<BlazorService>();
 
-    public ScriptViewModel ScriptViewModel { get; }
+    public ScriptManagerViewModel ScriptManagerViewModel { get; }
 
     public ScriptManagerView()
     {
         InitializeComponent();
         Loaded += HandleLoaded;
         Unloaded += HandleUnLoaded;
-        this.DataContext = ScriptViewModel = Ioc.Resolve<ScriptViewModel>();
+        this.DataContext = ScriptManagerViewModel = Ioc.Resolve<ScriptManagerViewModel>();
     }
 
     public void ShowDialog(string type, string initScriptContent)
     {
-        if (DataContext is ScriptViewModel viewModel)
+        if (DataContext is ScriptManagerViewModel viewModel)
         {
             viewModel.Type = type;
             viewModel.InitScriptContent = initScriptContent;

@@ -9,7 +9,7 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        d:DataContext="{d:DesignInstance viewModels:ScriptViewModel}"
+        d:DataContext="{d:DesignInstance viewModels:ScriptManagerViewModel}"
         d:DesignHeight="500" d:DesignWidth="600">
     <materialDesign:DialogHost DialogTheme="Inherit"
                                Identifier="ScriptDialog">

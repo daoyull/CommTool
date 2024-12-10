@@ -1,0 +1,28 @@
+﻿<Window x:Class="Udp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Udp"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:views="clr-namespace:NetTool.Views;assembly=NetTool"
+        mc:Ignorable="d"
+        Title="MainWindow"
+        Width="1000"
+        Height="800"
+        WindowStartupLocation="CenterScreen">
+    <materialDesign:DialogHost DialogTheme="Inherit" Identifier="RootDialog">
+        <Grid>
+
+            <Grid
+                x:Name="NotifyGrid"
+                Margin="40"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                ZIndex="11" />
+
+            <views:TcpClientView />
+        </Grid>
+
+    </materialDesign:DialogHost>
+</Window>

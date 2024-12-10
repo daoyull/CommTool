@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Reference Include="MaterialDesignThemes.Wpf">
+        <HintPath>C:\Users\DaoYu\.nuget\packages\materialdesignthemes\5.1.0\lib\net8.0\MaterialDesignThemes.Wpf.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\NetTool\NetTool.csproj" />
+    </ItemGroup>
+
+</Project>

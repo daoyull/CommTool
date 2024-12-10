@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UseWPF>true</UseWPF>
+        <AssemblyName>SerialPort</AssemblyName>
+        <RootNamespace>SerialPort</RootNamespace>
+        <PackageId>SerialPort</PackageId>
+        <Authors>SerialPort</Authors>
+        <Company>SerialPort</Company>
+        <Product>SerialPort</Product>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\NetTool\NetTool.csproj" />
+    </ItemGroup>
+
+</Project>

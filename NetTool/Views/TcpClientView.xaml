@@ -39,12 +39,12 @@
                         Margin="0 5 0 5"
                         materialDesign:HintAssist.Hint="IP"
                         IsEnabled="{Binding IsConnect, Converter={StaticResource InverseBooleanConverter}}"
-                        Text="{Binding Client.TcpClientOption.Ip}" />
+                        Text="{Binding Client.TcpClientConnectOption.Ip}" />
                     <TextBox
                         Margin="0 5 0 5"
                         materialDesign:HintAssist.Hint="端口"
                         IsEnabled="{Binding IsConnect, Converter={StaticResource InverseBooleanConverter}}"
-                        Text="{Binding Client.TcpClientOption.Port}" />
+                        Text="{Binding Client.TcpClientConnectOption.Port}" />
 
                     <ToggleButton
                         Command="{Binding ConnectCommand}"
@@ -128,7 +128,7 @@
 
         </Grid>
 
-        <components:NetDataComponent
+        <components:NetUiComponent
             x:Name="ComCompenent"
             SendCommand="{Binding SendCommand}"
             Grid.Column="1" Margin="5" />

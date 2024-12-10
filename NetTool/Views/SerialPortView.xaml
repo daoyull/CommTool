@@ -68,13 +68,13 @@
                                 ItemsSource="{Binding BaudRates}"
                                 SelectedValue="{Binding Serial.SerialConnectOption.BaudRate}"
                                 Style="{DynamicResource ConfigComboBox}"
-                                Visibility="{Binding Serial.SerialConnectOption.CanEditBaudRate, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
+                                Visibility="{Binding CanEditBaudRate, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
                             <TextBox
                                 HorizontalAlignment="Right"
                                 DockPanel.Dock="Right"
                                 Style="{StaticResource ConfigTextBox}"
                                 Text="{Binding Serial.SerialConnectOption.BaudRate}"
-                                Visibility="{Binding Serial.SerialConnectOption.CanEditBaudRate, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                Visibility="{Binding CanEditBaudRate, Converter={StaticResource BooleanToVisibilityConverter}}" />
                             <ToggleButton
                                 HorizontalAlignment="Right"
                                 Content="{materialDesign:PackIcon Kind=Pencil}"
@@ -143,8 +143,10 @@
             <Border Grid.Row="3" Padding="5" />
         </Grid>
 
-        <components:NetDataComponent
+        <components:NetUiComponent
             x:Name="CommunicationDataComponent"
+            ReceiveOption="{Binding ReceiveOption}"
+            SendOption="{Binding SendOption}"
             Grid.Column="1"
             Margin="3"
             SendCommand="{Binding SendCommand}" />

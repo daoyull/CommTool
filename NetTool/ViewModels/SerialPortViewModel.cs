@@ -3,13 +3,11 @@ using Common.Lib.Helpers;
 using Common.Lib.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.ClearScript.V8;
 using NetTool.Abstracts;
+using NetTool.Abstracts.Plugins;
 using NetTool.Lib.Interface;
 using NetTool.Module.IO;
 using NetTool.Module.Messages;
-using NetTool.Module.Share;
-
 
 namespace NetTool.ViewModels;
 
@@ -49,6 +47,8 @@ public partial class SerialPortViewModel : AbstractNetViewModel<SerialPortMessag
 
     #region 数据源
 
+    [ObservableProperty] private bool _canEditBaudRate;
+
     /// <summary>
     /// 串口名称
     /// </summary>
@@ -62,20 +62,18 @@ public partial class SerialPortViewModel : AbstractNetViewModel<SerialPortMessag
     /// <summary>
     /// 停止位
     /// </summary>
-    public List<EnumItem<StopBits>> StopBitsSource { get; } = EnumHelper.EnumConvertToList<StopBits>();
+    public List<EnumItem<StopBits>> StopBitsSource { get; } =
+        EnumHelper.EnumConvertToList<StopBits>().Where(it => it.Name != nameof(StopBits.None)).ToList();
 
     /// <summary>
     /// 波特率
     /// </summary>
-    public List<int> BaudRates { get; } = new()
-    {
-        9600, 19200, 38400, 57600, 115200
-    };
+    public List<int> BaudRates { get; } = [1200, 2400, 4800, 9600, 14400, 19200, 38400, 57600, 115200, 128000];
 
     /// <summary>
     /// 数据位
     /// </summary>
-    public List<int> DataBits { get; } = new() { 5, 6, 7, 8 };
+    public List<int> DataBits { get; } = [5, 6, 7, 8];
 
     #endregion
 
@@ -98,32 +96,21 @@ public partial class SerialPortViewModel : AbstractNetViewModel<SerialPortMessag
 
     protected override void HandleReceiveMessage(SerialPortMessage message, string strMessage)
     {
-        // 脚本处理
-        if (ReceiveOption.IsEnableScript && ScriptLoad && Engine != null)
-        {
-            Engine.Script.receive(message.Data, message.Time, strMessage);
-        }
-
-        if (Ui == null)
-        {
-          return;
-        }
-
         if (ReceiveOption.LogStyleShow)
         {
             Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] Receive");
-            Ui.Logger.Write($"{strMessage}","#2B2BFF");
+            Ui.Logger.Success($"{strMessage}");
         }
         else
         {
-            Ui.Logger.Write($"{strMessage}","#2B2BFF");
+            Ui.Logger.Success($"{strMessage}");
         }
+
+        var plugin = (ReceiveScriptPlugin<SerialPortMessage>?)Plugins.FirstOrDefault(it =>
+            it.GetType() == typeof(ReceiveScriptPlugin<SerialPortMessage>));
+        plugin?.InvokeScript(engine => { engine.Script.receive(message.Data, message.Time, strMessage); });
     }
 
-    protected override void LoadEngine(V8ScriptEngine engine)
-    {
-        base.LoadEngine(engine);
-    }
 
     [RelayCommand]
     private void RefreshSerialPort()
@@ -131,14 +118,19 @@ public partial class SerialPortViewModel : AbstractNetViewModel<SerialPortMessag
         ComPortList = Serial.GetPortNames();
     }
 
-    protected override void HandleSendMessage(string message)
+    protected override void HandleSendMessage(byte[] bytes, string message)
     {
-    }
+        var time = DateTime.Now;
+        if (SendOption.DefaultWriteUi)
+        {
+            Ui.Logger.Info($"[{time:yyyy-MM-dd HH:mm:ss.fff}] Send");
+            Ui.Logger.Primary(message);
+        }
 
-    protected override string InitReceiveScript { get; } = $@"function receive(buffer,time,message){{
-    debugger;
-    area.Info(`Script Console: ${{message}}`)
-}}";
+        var plugin = (SendScriptPlugin<SerialPortMessage>?)Plugins.FirstOrDefault(it =>
+            it.GetType() == typeof(SendScriptPlugin<SerialPortMessage>));
+        plugin?.InvokeScript(engine => { engine.Script.send(bytes, time, message); });
+    }
 
 
     public override string ScriptType => "Serial";

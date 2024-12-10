@@ -96,6 +96,7 @@ public class SerialPortAdapter : AbstractCommunication<SerialPortMessage>, ISeri
         base.Dispose(isDispose);
     }
 
+    public override IConnectOption ConnectOption => SerialConnectOption;
     public override IReceiveOption ReceiveOption => SerialReceiveOption;
     public override ISendOption SendOption => SerialSendOption;
 

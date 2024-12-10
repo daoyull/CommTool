@@ -40,20 +40,38 @@ public class NetLogger : TextEditor, IUiLogger
         {
             while (!_cts.IsCancellationRequested)
             {
-                await Task.Delay(Tick);
-                while (_writeQueue.Count > 0)
+                try
                 {
-                    var item = _writeQueue.Dequeue();
-                    var lineList = item.Item1.Split(Environment.NewLine).ToList();
-                    Dispatcher.InvokeAsync(() =>
+                    await Task.Delay(Tick);
+                    bool canInvoke = false;
+                    while (_writeQueue.Count > 0)
                     {
-                        foreach (var message in lineList)
+                        var item = _writeQueue.Dequeue();
+                        if (string.IsNullOrEmpty(item.Item1))
                         {
-                            AppendLine(message, item.Item2);
+                            item.Item1 = "";
                         }
-                    });
+
+                        var lineList = item.Item1.Split(Environment.NewLine).ToList();
+                        Dispatcher.InvokeAsync(() =>
+                        {
+                            foreach (var message in lineList)
+                            {
+                                AppendLine(message, item.Item2);
+                            }
+                        });
+                        canInvoke = true;
+                    }
+
+                    if (canInvoke)
+                    {
+                        TickUpdate.Invoke();
+                    }
                 }
-                TickUpdate.Invoke();
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
         }
         catch (OperationCanceledException e)
@@ -123,6 +141,11 @@ public class NetLogger : TextEditor, IUiLogger
     public void Info(string message)
     {
         Write(message, "#808080");
+    }
+
+    public void Primary(string message)
+    {
+        Write(message, "#2B2BFF");
     }
 
     public void Success(string message)

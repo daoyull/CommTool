@@ -33,6 +33,7 @@ public abstract class AbstractCommunication<T> : ICommunication<T> where T : IMe
     public event EventHandler<ClosedArgs>? Closed;
 
     public event EventHandler<ConnectedArgs>? Connected;
+    public abstract IConnectOption ConnectOption { get; }
     public abstract IReceiveOption ReceiveOption { get; }
     public abstract ISendOption SendOption { get; }
 

@@ -10,14 +10,25 @@ using NetTool.Module.Share;
 
 namespace NetTool.Components;
 
-public partial class NetDataComponent : INetUi
+public partial class NetUiComponent : INetUi
 {
-    public NetDataComponent()
+    public NetUiComponent()
     {
         InitializeComponent();
         Logger = NetLogger;
-        Logger.TickUpdate += () => { Dispatcher.InvokeAsync(() => NetLogger.ScrollToEnd()); };
+        Logger.TickUpdate += () =>
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (!ReceiveOption.AutoScroll)
+                {
+                    return;
+                }
+                NetLogger.ScrollToEnd();
+            });
+        };
     }
+    
 
 
     private async void OnSendTextKeyDown(object sender, KeyEventArgs e)
@@ -67,7 +78,7 @@ public partial class NetDataComponent : INetUi
     #region Command
 
     public static readonly DependencyProperty SendCommandProperty = DependencyProperty.Register(
-        nameof(SendCommand), typeof(ICommand), typeof(NetDataComponent),
+        nameof(SendCommand), typeof(ICommand), typeof(NetUiComponent),
         new PropertyMetadata(default(ICommand)));
 
     public ICommand SendCommand
@@ -81,7 +92,7 @@ public partial class NetDataComponent : INetUi
     #region 依赖属性
 
     public static readonly DependencyProperty ReceiveOptionProperty = DependencyProperty.Register(
-        nameof(ReceiveOption), typeof(IReceiveOption), typeof(NetDataComponent),
+        nameof(ReceiveOption), typeof(IReceiveOption), typeof(NetUiComponent),
         new PropertyMetadata(default(IReceiveOption)));
 
     public IReceiveOption ReceiveOption
@@ -92,7 +103,7 @@ public partial class NetDataComponent : INetUi
 
 
     public static readonly DependencyProperty SendOptionProperty = DependencyProperty.Register(
-        nameof(SendOption), typeof(ISendOption), typeof(NetDataComponent),
+        nameof(SendOption), typeof(ISendOption), typeof(NetUiComponent),
         new PropertyMetadata(default(ISendOption)));
 
 
@@ -103,7 +114,7 @@ public partial class NetDataComponent : INetUi
     }
 
     public static readonly DependencyProperty SendFrameProperty = DependencyProperty.Register(
-        nameof(SendFrame), typeof(uint), typeof(NetDataComponent),
+        nameof(SendFrame), typeof(uint), typeof(NetUiComponent),
         new PropertyMetadata(default(uint)));
 
 
@@ -114,7 +125,7 @@ public partial class NetDataComponent : INetUi
     }
 
     public static readonly DependencyProperty ReceiveFrameProperty = DependencyProperty.Register(
-        nameof(ReceiveFrame), typeof(uint), typeof(NetDataComponent), new PropertyMetadata(default(uint)));
+        nameof(ReceiveFrame), typeof(uint), typeof(NetUiComponent), new PropertyMetadata(default(uint)));
 
     public uint ReceiveFrame
     {
@@ -123,7 +134,7 @@ public partial class NetDataComponent : INetUi
     }
 
     public static readonly DependencyProperty SendBytesProperty = DependencyProperty.Register(
-        nameof(SendBytes), typeof(uint), typeof(NetDataComponent), new PropertyMetadata(default(uint)));
+        nameof(SendBytes), typeof(uint), typeof(NetUiComponent), new PropertyMetadata(default(uint)));
 
     public uint SendBytes
     {
@@ -132,7 +143,7 @@ public partial class NetDataComponent : INetUi
     }
 
     public static readonly DependencyProperty ReceiveBytesProperty = DependencyProperty.Register(
-        nameof(ReceiveBytes), typeof(uint), typeof(NetDataComponent), new PropertyMetadata(default(uint)));
+        nameof(ReceiveBytes), typeof(uint), typeof(NetUiComponent), new PropertyMetadata(default(uint)));
 
     public uint ReceiveBytes
     {
