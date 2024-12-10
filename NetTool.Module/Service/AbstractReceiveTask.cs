@@ -8,6 +8,8 @@ public abstract class AbstractReceiveTask(IReceiveOption receiveOption, Cancella
     private readonly Stopwatch _stopwatch = new();
     private readonly List<byte> _list = new();
 
+    protected abstract bool IsBreakConnect { get; }
+
     public abstract int CanReadByte { get; }
     public IReceiveOption ReceiveOption { get; } = receiveOption;
     public event EventHandler<byte[]>? FrameReceive;
@@ -19,28 +21,39 @@ public abstract class AbstractReceiveTask(IReceiveOption receiveOption, Cancella
 
     public async Task StartTask()
     {
-        while (Cts is { IsCancellationRequested: false })
+        try
         {
-            if (CanReadByte == 0)
+            while (Cts is { IsCancellationRequested: false })
             {
-                await Task.Delay(1);
-                continue;
-            }
+                if (!IsBreakConnect)
+                {
+                    return;
+                }
+                if (CanReadByte == 0)
+                {
+                    await Task.Delay(1);
+                    continue;
+                }
 
-            byte[] buffer;
-            // 判断截取方式
-            if (ReceiveOption.MaxFrameSize > 0)
-            {
-                // 按照最大包长
-                buffer = await HandleMaxByteSize(ReceiveOption.MaxFrameSize);
-            }
-            else
-            {
-                // 按照最大时间
-                buffer = await HandleMaxTime(ReceiveOption.MaxFrameTime);
-            }
+                byte[] buffer;
+                // 判断截取方式
+                if (ReceiveOption.MaxFrameSize > 0)
+                {
+                    // 按照最大包长
+                    buffer = await HandleMaxByteSize(ReceiveOption.MaxFrameSize);
+                }
+                else
+                {
+                    // 按照最大时间
+                    buffer = await HandleMaxTime(ReceiveOption.MaxFrameTime);
+                }
 
-            FrameReceive?.Invoke(this, buffer);
+                FrameReceive?.Invoke(this, buffer);
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
         }
     }
 

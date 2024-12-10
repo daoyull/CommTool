@@ -16,12 +16,7 @@ public interface ISerialPort
     /// 串口发送选项
     /// </summary>
     public ISerialSendOption SerialSendOption { get; }
-
-    /// <summary>
-    /// 连接
-    /// </summary>
-    public void Connect();
-
+    
     /// <summary>
     /// 获取全部串口名称
     /// </summary>

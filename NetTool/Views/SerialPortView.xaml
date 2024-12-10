@@ -39,7 +39,7 @@
             </Grid.RowDefinitions>
             <Border Grid.Row="0" Padding="5">
                 <StackPanel>
-                    <StackPanel IsEnabled="{Binding IsConnected, Converter={StaticResource InverseBooleanConverter}}">
+                    <StackPanel IsEnabled="{Binding IsConnect, Converter={StaticResource InverseBooleanConverter}}">
                         <DockPanel>
                             <TextBlock 
                                 DockPanel.Dock="Left"
@@ -79,7 +79,7 @@
                                 HorizontalAlignment="Right"
                                 Content="{materialDesign:PackIcon Kind=Pencil}"
                                 DockPanel.Dock="Right"
-                                IsChecked="{Binding Serial.SerialConnectOption.CanEditBaudRate}"
+                                IsChecked="{Binding CanEditBaudRate}"
                                 Style="{StaticResource MaterialDesignSwitchToggleButton}"
                                 ToolTip="填写波特率" />
                         </DockPanel>
@@ -128,7 +128,7 @@
                     </StackPanel>
                     <ToggleButton
                         Command="{Binding ConnectCommand}"
-                        IsChecked="{Binding IsConnected}"
+                        IsChecked="{Binding IsConnect}"
                         Style="{DynamicResource ConnectButton}" />
                     <Border
                         Height="1"
@@ -144,7 +144,7 @@
         </Grid>
 
         <components:NetUiComponent
-            x:Name="CommunicationDataComponent"
+            x:Name="NetUiComponent"
             ReceiveOption="{Binding ReceiveOption}"
             SendOption="{Binding SendOption}"
             Grid.Column="1"

@@ -42,7 +42,7 @@ public class TcpServerAdapter : AbstractCommunication<TcpServerMessage>, ITcpSer
 
     private CancellationTokenSource? _connectCts;
 
-    public void Listen()
+    public override void Connect()
     {
         _connectCts = new();
         _listener = new TcpListener(IPAddress.Any, TcpServerConnectOption.Port);

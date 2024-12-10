@@ -9,14 +9,6 @@ public partial class TcpClientView
     public TcpClientView()
     {
         InitializeComponent();
-    }
-
-    protected override void OnInitialized(EventArgs e)
-    {
-        base.OnInitialized(e);
-        if (ViewModel != null)
-        {
-            ViewModel.Ui = ComCompenent;
-        }
+        ViewModel!.Ui = NetUiComponent;
     }
 }

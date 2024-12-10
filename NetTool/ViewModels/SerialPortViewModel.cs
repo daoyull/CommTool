@@ -15,36 +15,7 @@ public partial class SerialPortViewModel : AbstractNetViewModel<SerialPortMessag
 {
     public SerialPortAdapter Serial { get; }
     public override ICommunication<SerialPortMessage> Communication { get; }
-
-    protected override Task Connect()
-    {
-        try
-        {
-            if (IsConnected)
-            {
-                Serial.Close();
-                Serial.Dispose();
-                Notify.Info("已关闭连接");
-            }
-            else
-            {
-                Serial.Connect();
-                Notify.Success("串口连接成功");
-            }
-
-            IsConnected = !IsConnected;
-        }
-        catch (Exception e)
-        {
-            // todo
-            Notify.Error(e.Message);
-        }
-
-        return Task.CompletedTask;
-    }
-
-    [ObservableProperty] private bool _isConnected;
-
+    
     #region 数据源
 
     [ObservableProperty] private bool _canEditBaudRate;

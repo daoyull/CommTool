@@ -44,10 +44,33 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
 
 
     public abstract ICommunication<T> Communication { get; }
+    
 
 
     [RelayCommand]
-    protected abstract Task Connect();
+    protected virtual Task Connect()
+    {
+        try
+        {
+            if (IsConnect)
+            {
+                Communication.Close();
+                Communication.Dispose();
+            }
+            else
+            {
+                Communication.Connect();
+            }
+            
+        }
+        catch (Exception e)
+        {
+            Notify.Error(e.Message);
+        }
+
+        return Task.CompletedTask;
+    }
+    
 
     protected internal virtual void InitCommunication()
     {
@@ -82,7 +105,7 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
         {
             if (e.PropertyName == nameof(SendOption.IsHex))
             {
-                var message = Ui!.SendMessage;
+                var message = Ui.SendMessage;
                 if (string.IsNullOrEmpty(message))
                 {
                     return;
@@ -284,12 +307,14 @@ public abstract partial class AbstractNetViewModel<T>
         }
     }
 
-    protected virtual string InitReceiveScript { get; } = $@"function receive(buffer,time,message){{
+    protected virtual string InitReceiveScript =>
+        $@"function receive(buffer,time,message){{
     debugger;
     area.Info(`Receive Script Console: ${{message}}`)
 }}";
 
-    protected virtual string InitSendScript { get; } = $@"function send(buffer,time,message){{
+    protected virtual string InitSendScript =>
+        $@"function send(buffer,time,message){{
     debugger;
     area.Info(`Send Script Console: ${{message}}`)
 }}";
@@ -313,6 +338,6 @@ public abstract partial class AbstractNetViewModel<T>
     {
         engine.AddHostObject("notify", Notify);
         engine.AddHostObject("Communication", this);
-        engine.AddHostObject("area", Ui!.Logger);
+        engine.AddHostObject("area", Ui.Logger);
     }
 }

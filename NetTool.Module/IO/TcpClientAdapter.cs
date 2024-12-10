@@ -19,7 +19,7 @@ public class TcpClientAdapter : AbstractCommunication<TcpClientMessage>, ITcpCli
 
     private TcpClient? _client;
 
-    #region 只读属性
+    #region Option
 
     public override IConnectOption ConnectOption => TcpClientConnectOption;
     public override IReceiveOption ReceiveOption => TcpClientReceiveOption;
@@ -27,12 +27,12 @@ public class TcpClientAdapter : AbstractCommunication<TcpClientMessage>, ITcpCli
     public ITcpClientConnectOption TcpClientConnectOption { get; }
     public ITcpClientReceiveOption TcpClientReceiveOption { get; }
     public ITcpClientSendOption TcpClientSendOption { get; }
-
-
-    private CancellationTokenSource? _rcCts;
+    
     
 
-    public async Task ConnectAsync()
+    #endregion
+    
+    public override void Connect()
     {
         try
         {
@@ -46,39 +46,37 @@ public class TcpClientAdapter : AbstractCommunication<TcpClientMessage>, ITcpCli
                 throw new Exception("Ip or Port is null");
             }
 
-            _client = new();
-            _rcCts = new();
-            await _client.ConnectAsync(TcpClientConnectOption.Ip, TcpClientConnectOption.Port);
-            _networkStream = _client.GetStream();
+            _client = new(); _client.Connect(TcpClientConnectOption.Ip, TcpClientConnectOption.Port);
             OnConnected(new());
+            
+            ReceiveTask = new SocketReceiveTask(_client.Client, TcpClientReceiveOption, Cts!);
+            ReceiveTask.FrameReceive += HandleFrameReceive;
+            Task.Run(() => ReceiveTask.StartTask(), Cts!.Token);
         }
         catch (Exception e)
         {
             Close();
-            throw;
         }
     }
 
-    private NetworkStream? _networkStream;
+    private void HandleFrameReceive(object? sender, byte[] e)
+    {
+        Console.WriteLine($"Tcp Client接收到{e.Length}字节数据");
+        WriteMessage(new (e));
+    }
 
     public override void Close()
     {
-        _rcCts?.Cancel();
-        _rcCts?.Dispose();
-        _rcCts = null;
+       
         if (_client != null)
         {
             _client.Close();
             _client.Dispose();
             _client = null;
         }
-
-       
-
+        
         OnClosed(new());
     }
-
-    #endregion
 
     protected override void Dispose(bool isDispose)
     {
@@ -93,9 +91,9 @@ public class TcpClientAdapter : AbstractCommunication<TcpClientMessage>, ITcpCli
     
     public override void Write(byte[] buffer, int offset, int count)
     {
-        if (_client != null && _networkStream != null)
+        if (_client != null && IsConnect)
         {
-            _networkStream.Write(buffer.AsSpan().Slice(offset, count));
+            _client.GetStream().Write(buffer.AsSpan().Slice(offset, count));
         }
     }
 }

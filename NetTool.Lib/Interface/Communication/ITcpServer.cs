@@ -9,9 +9,7 @@ public interface ITcpServer
     public ITcpServerReceiveOption TcpServerReceiveOption { get; }
 
     public ITcpServerSendOption TcpServerSendOption { get; }
-
-    public void Listen();
-
+    
     event EventHandler<Socket>? ClientConnected;
 
     event EventHandler<Socket>? ClientClosed;

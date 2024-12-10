@@ -28,7 +28,7 @@ public class SerialPortAdapter : AbstractCommunication<SerialPortMessage>, ISeri
     public ISerialReceiveOption SerialReceiveOption { get; }
     public ISerialSendOption SerialSendOption { get; }
 
-    public void Connect()
+    public override void Connect()
     {
         try
         {
@@ -46,15 +46,15 @@ public class SerialPortAdapter : AbstractCommunication<SerialPortMessage>, ISeri
             _serialPort.ReadBufferSize = 1024 * 1024;
             _serialPort.Open();
             OnConnected(new ConnectedArgs());
-
+            
             ReceiveTask = new SerialReceiveTask(_serialPort, SerialReceiveOption, Cts!);
             ReceiveTask.FrameReceive += HandleFrameReceive;
             Task.Run(() => ReceiveTask.StartTask(), Cts!.Token);
         }
         catch (Exception e)
         {
+            Console.WriteLine(e.Message);
             Close();
-            throw;
         }
     }
 

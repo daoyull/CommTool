@@ -27,4 +27,5 @@ public interface ICommunication<T> : IDisposable where T : IMessage
     public Task WriteAsync(byte[] buffer, int offset, int count);
 
     public void Close();
+    public void Connect();
 }

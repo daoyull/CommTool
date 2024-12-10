@@ -9,7 +9,7 @@ public partial class SerialPortView
     public SerialPortView()
     {
         InitializeComponent();
-        ViewModel!.Ui = CommunicationDataComponent;
+        ViewModel!.Ui = NetUiComponent;
     }
 
     private async void OnSendTextKeyDown(object sender, KeyEventArgs e)
@@ -43,7 +43,7 @@ public partial class SerialPortView
         {
             return;
         }
-        // if (ViewModel!.SendOption.HexSend && !"0123456789ABCDEFabcdef".Contains(e.Text))
+        // if (ViewModel!.UdpSendOption.HexSend && !"0123456789ABCDEFabcdef".Contains(e.Text))
         // {
         //     e.Handled = true;
         //     // todo 提示

@@ -63,6 +63,7 @@ public abstract class AbstractCommunication<T> : ICommunication<T> where T : IMe
     }
 
     public abstract void Close();
+    public abstract void Connect();
 
     protected ValueTask WriteMessage(T t)
     {

@@ -44,20 +44,7 @@ public partial class TcpServerViewModel : AbstractNetViewModel<TcpServerMessage>
     public TcpServerAdapter Server { get; }
 
     public override ICommunication<TcpServerMessage> Communication => Server;
-
-    protected override Task Connect()
-    {
-        if (IsConnect)
-        {
-            Server.Close();
-        }
-        else
-        {
-            Server.Listen();
-        }
-
-        return Task.CompletedTask;
-    }
+    
 
     protected override void HandleReceiveMessage(TcpServerMessage message, string strMessage)
     {
