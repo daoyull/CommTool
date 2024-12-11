@@ -8,7 +8,7 @@ public abstract class AbstractPipeHandle<T>(ICommunication<T> communication, Can
     : IPipeHandle<T> where T : IMessage
 {
     protected readonly Stopwatch Stopwatch = new();
-    protected CancellationTokenSource Cts { get; } = cts;
+    public CancellationTokenSource Cts { get; } = cts;
     private Pipe Pipe { get; } = new();
 
     protected PipeReader Reader => Pipe.Reader;

@@ -12,10 +12,23 @@
         <Authors>SerialPort</Authors>
         <Company>SerialPort</Company>
         <Product>SerialPort</Product>
+        <ApplicationIcon>serial.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\NetTool\NetTool.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="serial.png" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="serial.ico" />
+      <Content Include="serial.ico" />
+      <Resource Include="serial.ico">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
     </ItemGroup>
 
 </Project>

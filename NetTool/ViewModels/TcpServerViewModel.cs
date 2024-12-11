@@ -6,6 +6,7 @@ using NetTool.Abstracts;
 using NetTool.Lib.Interface;
 using NetTool.Module.IO;
 using NetTool.Module.Messages;
+using NetTool.Module.Share;
 
 namespace NetTool.ViewModels;
 
@@ -16,6 +17,14 @@ public partial class TcpServerViewModel : AbstractNetViewModel<SocketMessage>, I
         Server = tcpServerAdapter;
         tcpServerAdapter.ClientConnected += HandleClientConnected;
         tcpServerAdapter.ClientClosed += HandleClientClosed;
+        tcpServerAdapter.Connected += (sender, args) =>
+        {
+            Clients.Clear();
+        };
+        tcpServerAdapter.Closed += (sender, args) =>
+        {
+            Clients.Clear();
+        };
     }
 
     private void HandleClientClosed(object? sender, Socket e)
@@ -27,10 +36,11 @@ public partial class TcpServerViewModel : AbstractNetViewModel<SocketMessage>, I
         }
 
         Clients = new(_clientList);
+        Ui.Logger.Warning($"{e.ToRemoteIpStr()} 断开连接");
     }
 
 
-    [ObservableProperty] private ObservableCollection<ClientItem> _clients;
+    [ObservableProperty] private ObservableCollection<ClientItem> _clients = new();
 
     private List<ClientItem> _clientList = new();
 
@@ -48,35 +58,21 @@ public partial class TcpServerViewModel : AbstractNetViewModel<SocketMessage>, I
 
     protected override void HandleReceiveMessage(SocketMessage message, string strMessage)
     {
-        if (Ui == null)
-        {
-            return;
-        }
-
-        Ui.Logger.Info($"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [{message.RemoteIp}] [Receive]");
+        Ui.Logger.Info($"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [Receive:{message.RemoteIp}]");
         Ui.Logger.Success($"{strMessage}");
-        if (ReceiveOption.AutoNewLine)
-        {
-            Ui.Logger.Write(string.Empty, string.Empty);
-        }
     }
 
     protected override void HandleSendMessage(byte[] bytes,string message)
     {
-        if (Ui == null)
+        var clientItems = _clientList.Where(it => it.IsSelected).Select(it=>it.ShowName).ToList();
+        if (clientItems.Count == 0)
         {
             return;
         }
 
-        foreach (var clientItem in _clientList.Where(it => it.IsSelected))
-        {
-            Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [{clientItem.Socket.RemoteEndPoint}] [Send]");
-            Ui.Logger.Write($"{message}", "#1E6FFF");
-            if (ReceiveOption.AutoNewLine)
-            {
-                Ui.Logger.Write(string.Empty, string.Empty);
-            }
-        }
+        var sendStr = $"[{string.Join(',',clientItems)}]";
+        Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send] {sendStr}");
+        Ui.Logger.Write($"{message}", "#1E6FFF");
     }
 
     protected override async Task<bool> HandleSendBytes(byte[] buffer)
@@ -116,6 +112,6 @@ public partial class ClientItem : ObservableObject
     public ClientItem(Socket socket)
     {
         Socket = socket;
-        ShowName = socket.RemoteEndPoint?.ToString() ?? "Unknown";
+        ShowName = socket.ToRemoteIpStr();
     }
 }

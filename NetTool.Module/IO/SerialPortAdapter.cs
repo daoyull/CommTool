@@ -6,26 +6,30 @@ using NetTool.Module.Service;
 
 namespace NetTool.Module.IO;
 
-public class SerialPortAdapter : AbstractCommunication<SerialPortMessage>, ISerialPort
+public class SerialPortAdapter : AbstractCommunication<SerialMessage>, ISerialPort
 {
     public SerialPortAdapter(
-        INotify notify,
-        IGlobalOption globalOption,
         ISerialConnectOption serialConnectOption,
         ISerialReceiveOption receiveOption,
-        ISerialSendOption sendOption) : base(notify, globalOption)
+        ISerialSendOption sendOption) 
     {
         SerialConnectOption = serialConnectOption;
         SerialReceiveOption = receiveOption;
         SerialSendOption = sendOption;
     }
-
+    
     private SerialPort? _serialPort;
 
+    #region Option
 
+    public override IConnectOption ConnectOption => SerialConnectOption;
+    public override IReceiveOption ReceiveOption => SerialReceiveOption;
+    public override ISendOption SendOption => SerialSendOption;
     public ISerialConnectOption SerialConnectOption { get; }
     public ISerialReceiveOption SerialReceiveOption { get; }
     public ISerialSendOption SerialSendOption { get; }
+
+    #endregion
 
     public override void Connect()
     {
@@ -42,12 +46,12 @@ public class SerialPortAdapter : AbstractCommunication<SerialPortMessage>, ISeri
             _serialPort.Parity = SerialConnectOption.Parity!.Value;
             _serialPort.DataBits = SerialConnectOption.DataBits;
             _serialPort.StopBits = SerialConnectOption.StopBits!.Value;
-            _serialPort.ReadBufferSize = 1024 * 1024;
             _serialPort.Open();
+            Cts = new();
             OnConnected(new ConnectedArgs());
 
             var serialPipeHandle = new SerialPipeHandle(_serialPort, this, Cts);
-            Task.Run(() => serialPipeHandle.StartHandle());
+            Task.Run(() => serialPipeHandle.StartHandle(),Cts.Token);
         }
         catch (Exception e)
         {
@@ -55,26 +59,23 @@ public class SerialPortAdapter : AbstractCommunication<SerialPortMessage>, ISeri
             Close();
         }
     }
-
-    private void HandleFrameReceive(object? sender, byte[] e)
-    {
-        Console.WriteLine($"串口接收到{e.Length}字节数据");
-        WriteMessage(new SerialPortMessage(e));
-    }
+    
 
     public List<string> GetPortNames() => SerialPort.GetPortNames().ToList();
 
     public override void Close()
     {
+        Cts?.Cancel();
+        Cts?.Dispose();
+        Cts = null;
+        
         if (_serialPort != null)
         {
             _serialPort?.Close();
             _serialPort?.Dispose();
             _serialPort = null;
-            OnClosed(new ClosedArgs());
         }
-
-        IsConnect = false;
+        OnClosed(new ClosedArgs());
     }
 
     protected override void Dispose(bool isDispose)
@@ -82,22 +83,16 @@ public class SerialPortAdapter : AbstractCommunication<SerialPortMessage>, ISeri
         if (isDispose)
         {
             Close();
-            // 未消费的消息清理
         }
 
         base.Dispose(isDispose);
     }
 
-    public override IConnectOption ConnectOption => SerialConnectOption;
-    public override IReceiveOption ReceiveOption => SerialReceiveOption;
-    public override ISendOption SendOption => SerialSendOption;
-
-
+    
     public override void Write(byte[] buffer, int offset, int count)
     {
         if (!IsConnect || _serialPort == null)
         {
-            Notify.Warning("串口未连接");
             return;
         }
 

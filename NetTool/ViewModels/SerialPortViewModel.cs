@@ -11,10 +11,10 @@ using NetTool.Module.Messages;
 
 namespace NetTool.ViewModels;
 
-public partial class SerialPortViewModel : AbstractNetViewModel<SerialPortMessage>
+public partial class SerialPortViewModel : AbstractNetViewModel<SerialMessage>
 {
     public SerialPortAdapter Serial { get; }
-    public override ICommunication<SerialPortMessage> Communication { get; }
+    public override ICommunication<SerialMessage> Communication { get; }
     
     #region 数据源
 
@@ -65,7 +65,7 @@ public partial class SerialPortViewModel : AbstractNetViewModel<SerialPortMessag
     }
 
 
-    protected override void HandleReceiveMessage(SerialPortMessage message, string strMessage)
+    protected override void HandleReceiveMessage(SerialMessage message, string strMessage)
     {
         if (ReceiveOption.LogStyleShow)
         {
@@ -77,8 +77,8 @@ public partial class SerialPortViewModel : AbstractNetViewModel<SerialPortMessag
             Ui.Logger.Success($"{strMessage}");
         }
 
-        var plugin = (ReceiveScriptPlugin<SerialPortMessage>?)Plugins.FirstOrDefault(it =>
-            it.GetType() == typeof(ReceiveScriptPlugin<SerialPortMessage>));
+        var plugin = (ReceiveScriptPlugin<SerialMessage>?)Plugins.FirstOrDefault(it =>
+            it.GetType() == typeof(ReceiveScriptPlugin<SerialMessage>));
         plugin?.InvokeScript(engine => { engine.Script.receive(message.Data, message.Time, strMessage); });
     }
 
@@ -98,8 +98,8 @@ public partial class SerialPortViewModel : AbstractNetViewModel<SerialPortMessag
             Ui.Logger.Primary(message);
         }
 
-        var plugin = (SendScriptPlugin<SerialPortMessage>?)Plugins.FirstOrDefault(it =>
-            it.GetType() == typeof(SendScriptPlugin<SerialPortMessage>));
+        var plugin = (SendScriptPlugin<SerialMessage>?)Plugins.FirstOrDefault(it =>
+            it.GetType() == typeof(SendScriptPlugin<SerialMessage>));
         plugin?.InvokeScript(engine => { engine.Script.send(bytes, time, message); });
     }
 

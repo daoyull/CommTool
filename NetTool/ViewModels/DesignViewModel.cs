@@ -4,15 +4,15 @@ using NetTool.Module.Messages;
 
 namespace NetTool.ViewModels
 {
-    internal class DesignViewModel : AbstractNetViewModel<SerialPortMessage>
+    internal class DesignViewModel : AbstractNetViewModel<SerialMessage>
     {
-        public override ICommunication<SerialPortMessage> Communication { get; }
+        public override ICommunication<SerialMessage> Communication { get; }
         protected override Task Connect()
         {
             throw new NotImplementedException();
         }
 
-        protected override void HandleReceiveMessage(SerialPortMessage message, string strMessage)
+        protected override void HandleReceiveMessage(SerialMessage message, string strMessage)
         {
             throw new NotImplementedException();
         }

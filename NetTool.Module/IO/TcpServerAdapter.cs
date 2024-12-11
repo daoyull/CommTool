@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using NetTool.Lib.Args;
 using NetTool.Lib.Interface;
 using NetTool.Module.Messages;
+using NetTool.Module.Service;
 
 namespace NetTool.Module.IO;
 
@@ -10,45 +11,58 @@ public class TcpServerAdapter : AbstractCommunication<SocketMessage>, ITcpServer
 {
     private TcpListener? _listener;
 
-    public TcpServerAdapter(INotify notify, IGlobalOption globalOption, ITcpServerConnectOption tcpServerConnectOption,
-        ITcpServerReceiveOption tcpServerReceiveOption, ITcpServerSendOption tcpServerSendOption) : base(notify,
-        globalOption)
+    public TcpServerAdapter(ITcpServerConnectOption tcpServerConnectOption,
+        ITcpServerReceiveOption tcpServerReceiveOption, ITcpServerSendOption tcpServerSendOption) 
     {
         TcpServerConnectOption = tcpServerConnectOption;
         TcpServerReceiveOption = tcpServerReceiveOption;
         TcpServerSendOption = tcpServerSendOption;
     }
-
+    
+    #region Option
 
     public override IConnectOption ConnectOption => TcpServerConnectOption;
     public override IReceiveOption ReceiveOption => TcpServerReceiveOption;
     public override ISendOption SendOption => TcpServerSendOption;
-
-    private List<Socket> _clients = new();
-
-
-    public override void Write(byte[] buffer, int offset, int count)
-    {
-        foreach (var client in _clients)
-        {
-            client.Send(buffer.AsSpan().Slice(offset, count));
-        }
-    }
-
+    
     public ITcpServerConnectOption TcpServerConnectOption { get; }
     public ITcpServerReceiveOption TcpServerReceiveOption { get; }
     public ITcpServerSendOption TcpServerSendOption { get; }
 
-    private CancellationTokenSource? _connectCts;
+    #endregion
 
+    private List<SocketPipeHandle> _clients = new();
+
+    /// <summary>
+    /// 向所有客户端发送数据
+    /// </summary>
+    public override void Write(byte[] buffer, int offset, int count)
+    {
+        foreach (var client in _clients)
+        {
+            client.Socket.Send(buffer.AsSpan().Slice(offset, count));
+        }
+    }
+    
     public override void Connect()
     {
-        _connectCts = new();
-        _listener = new TcpListener(IPAddress.Any, TcpServerConnectOption.Port);
-        _listener.Start();
-        IsConnect = true;
-        OnConnected(new ConnectedArgs());
-        Task.Run(StartListen, _connectCts.Token);
+        try
+        {
+            if (IsConnect)
+            {
+                Close();
+            }
+
+            _listener = new TcpListener(IPAddress.Any, TcpServerConnectOption.Port);
+            _listener.Start();
+            Cts = new();
+            OnConnected(new ConnectedArgs());
+            Task.Run(StartListen, Cts.Token);
+        }
+        catch (Exception e)
+        {
+            Close();
+        }
     }
 
     public event EventHandler<Socket>? ClientConnected;
@@ -71,27 +85,27 @@ public class TcpServerAdapter : AbstractCommunication<SocketMessage>, ITcpServer
             return;
         }
 
-        while (_connectCts is { IsCancellationRequested: false })
+        while (Cts is { IsCancellationRequested: false })
         {
             try
             {
                 var socket = _listener.AcceptSocket();
                 if (socket.Connected)
                 {
-                    _clients.Add(socket);
-                    // var tcpClientItem = new TcpClientItem();
-                    // tcpClientItem.ReceiveSocket = new ReceiveSocket(socket,
-                    //     bytes => WriteMessage(new(socket, bytes)),
-                    //     () =>
-                    //     {
-                    //         ClientClosed?.Invoke(this, socket);
-                    //         tcpClientItem.Cts.Cancel();
-                    //         tcpClientItem.Cts.Dispose();
-                    //         socket.Dispose();
-                    //         _clients.Remove(socket);
-                    //     }, TcpServerReceiveOption, GlobalOption, tcpClientItem.Cts);
-                    // ClientConnected?.Invoke(this, socket);
-                    // Task.Run(() => tcpClientItem.ReceiveSocket.ReceiveTask(), _connectCts.Token);
+                    ClientConnected?.Invoke(this,socket);
+                    var pipeHandle = new SocketPipeHandle(this, socket, new CancellationTokenSource());
+                    _clients.Add(pipeHandle);
+                    Task.Run(pipeHandle.StartHandle, pipeHandle.Cts.Token);
+                    pipeHandle.CloseEvent += (sender, clientSocket) =>
+                    {
+                        if (sender is SocketPipeHandle closeSocketHandle)
+                        {
+                            _clients.Remove(closeSocketHandle);
+                            closeSocketHandle.Cts.Cancel();
+                            closeSocketHandle.Cts.Dispose();
+                            ClientClosed?.Invoke(this, clientSocket);
+                        }
+                    };
                 }
             }
             catch (SocketException e)
@@ -111,11 +125,12 @@ public class TcpServerAdapter : AbstractCommunication<SocketMessage>, ITcpServer
 
     public override void Close()
     {
+        Cts?.Cancel();
+        Cts?.Dispose();
+        Cts = null;
+        
         OnClosed(new ClosedArgs());
-        IsConnect = false;
-        _connectCts?.Cancel();
-        _connectCts?.Dispose();
-        _connectCts = null;
+        
         _clients.Clear();
         _listener?.Stop();
         _listener?.Dispose();

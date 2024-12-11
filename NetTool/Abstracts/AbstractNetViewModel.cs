@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Threading;
-using System.Threading.Tasks;
 using Common.Lib.Ioc;
-using Common.Lib.Service;
 using Common.Mvvm.Abstracts;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -13,7 +8,6 @@ using NetTool.Abstracts.Plugins;
 using NetTool.Common;
 using NetTool.Lib.Args;
 using NetTool.Lib.Interface;
-using NetTool.Models;
 using NetTool.Module.Share;
 
 namespace NetTool.Abstracts;
@@ -194,11 +188,10 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
                 {
                     Ui.Logger.Write(string.Empty, string.Empty);
                 }
-
-                // 执行脚本
+                
             }
         }
-        catch (OperationCanceledException _)
+        catch (OperationCanceledException)
         {
         }
     }
@@ -269,8 +262,8 @@ public abstract partial class AbstractNetViewModel<T> : BaseViewModel where T : 
     protected virtual async Task<bool> HandleSendBytes(byte[] buffer)
     {
         await Communication.WriteAsync(buffer, 0, buffer.Length);
-        Ui?.AddSendFrame(1);
-        Ui?.AddSendBytes((uint)buffer.Length);
+        Ui.AddSendFrame(1);
+        Ui.AddSendBytes((uint)buffer.Length);
         return true;
     }
 }

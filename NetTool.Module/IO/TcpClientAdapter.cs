@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Net.Sockets;
 using NetTool.Lib.Interface;
 using NetTool.Module.Messages;
@@ -8,8 +7,8 @@ namespace NetTool.Module.IO;
 
 public class TcpClientAdapter : AbstractCommunication<SocketMessage>, ITcpClient
 {
-    public TcpClientAdapter(INotify notify, IGlobalOption globalOption, ITcpClientConnectOption clientConnectOption,
-        ITcpClientReceiveOption clientReceiveOption, ITcpClientSendOption clientSendOption) : base(notify, globalOption)
+    public TcpClientAdapter(ITcpClientConnectOption clientConnectOption,
+        ITcpClientReceiveOption clientReceiveOption, ITcpClientSendOption clientSendOption) 
     {
         TcpClientConnectOption = clientConnectOption;
         TcpClientReceiveOption = clientReceiveOption;
@@ -17,6 +16,7 @@ public class TcpClientAdapter : AbstractCommunication<SocketMessage>, ITcpClient
     }
 
     private TcpClient? _client;
+    private SocketPipeHandle? _pipeHandle;
 
     #region Option
 
@@ -46,36 +46,37 @@ public class TcpClientAdapter : AbstractCommunication<SocketMessage>, ITcpClient
             }
 
             _client = new(); _client.Connect(TcpClientConnectOption.Ip, TcpClientConnectOption.Port);
+            Cts = new();
             OnConnected(new());
             
-            // ReceiveTask = new SocketReceiveTask(_client.Client, TcpClientReceiveOption, Cts!);
-            // ReceiveTask.FrameReceive += HandleFrameReceive;
-            // Task.Run(() => ReceiveTask.StartTask(), Cts!.Token);
-
-            var socketPipeHandle = new SocketPipeHandle(this, _client!.Client, Cts);
-            socketPipeHandle.CloseEvent += (sender, socket) =>
-            {
-                Ui.Logger.Warning("连接已断开");
-                Close();
-                Cts?.Dispose();
-            };
-            Task.Run(() => socketPipeHandle.StartHandle());
+            _pipeHandle = new SocketPipeHandle(this, _client!.Client, Cts);
+            _pipeHandle.CloseEvent += OnPipeHandleOnCloseEvent;
+            Task.Run(_pipeHandle.StartHandle,Cts.Token);
         }
         catch (Exception e)
         {
             Close();
+            Console.WriteLine(e.Message);
         }
     }
-
-    private void HandleFrameReceive(object? sender, byte[] e)
+    
+    void OnPipeHandleOnCloseEvent(object? sender, Socket socket)
     {
-        Console.WriteLine($"Tcp Client接收到{e.Length}字节数据");
-        WriteMessage(new (e,""));
+        Ui.Logger.Warning("连接已断开");
+        Close();
+        Cts?.Dispose();
     }
+    
 
     public override void Close()
     {
-       
+        if (_pipeHandle != null)
+        {
+            _pipeHandle.CloseEvent -= OnPipeHandleOnCloseEvent;
+        }
+        Cts?.Cancel();
+        Cts?.Dispose();
+        Cts = null;
         if (_client != null)
         {
             _client.Close();
@@ -99,7 +100,7 @@ public class TcpClientAdapter : AbstractCommunication<SocketMessage>, ITcpClient
     
     public override void Write(byte[] buffer, int offset, int count)
     {
-        if (_client != null && IsConnect)
+        if (IsConnect && _client != null)
         {
             _client.GetStream().Write(buffer.AsSpan().Slice(offset, count));
         }

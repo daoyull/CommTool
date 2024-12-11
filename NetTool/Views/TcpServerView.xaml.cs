@@ -7,6 +7,6 @@ public partial class TcpServerView
     public TcpServerView()
     {
         InitializeComponent();
-        ViewModel!.Ui = ViewModel.Communication.Ui = ComCompenent;
+        ViewModel!.Ui = ViewModel.Communication.Ui = NetUiComponent;
     }
 }

@@ -4,19 +4,20 @@ using System.Net.Sockets;
 using NetTool.Lib.Interface;
 using NetTool.Module.IO;
 using NetTool.Module.Messages;
+using NetTool.Module.Share;
 
 namespace NetTool.Module.Service;
 
 public class SocketPipeHandle(ICommunication<SocketMessage> communication, Socket socket, CancellationTokenSource cts)
     : AbstractPipeHandle<SocketMessage>(communication, cts)
 {
-    public override async Task StartHandle()
+    public Socket Socket { get; } = socket;
+    public override  Task StartHandle()
     {
-        // 接收线程
-        Task writing = ReceiveTask();
-        Task handle = HandleTask();
-        // 处理线程
-        await Task.WhenAll(writing, handle);
+        // 启动接收和消费任务
+        Task.Run(ReceiveTask, Cts.Token);
+        Task.Run(HandleTask, Cts.Token);
+        return Task.CompletedTask;
     }
 
     public event EventHandler<Socket>? CloseEvent;
@@ -30,21 +31,14 @@ public class SocketPipeHandle(ICommunication<SocketMessage> communication, Socke
             while (!Cts.IsCancellationRequested)
             {
                 Memory<byte> memory = Writer.GetMemory(minimumBufferSize);
-                try
+                int bytesRead = await Socket.ReceiveAsync(memory, SocketFlags.None);
+                if (bytesRead == 0)
                 {
-                    int bytesRead = await socket.ReceiveAsync(memory, SocketFlags.None);
-                    if (bytesRead == 0)
-                    {
-                        OnCloseEvent(socket);
-                        return;
-                    }
+                    OnCloseEvent(Socket);
+                    return;
+                }
 
-                    Writer.Advance(bytesRead);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.StackTrace);
-                }
+                Writer.Advance(bytesRead);
 
                 FlushResult result = await Writer.FlushAsync();
 
@@ -56,10 +50,8 @@ public class SocketPipeHandle(ICommunication<SocketMessage> communication, Socke
 
             await Writer.CompleteAsync();
         }
-        catch (Exception e)
+        catch (OperationCanceledException)
         {
-            Console.WriteLine(e);
-            throw;
         }
     }
 
@@ -77,58 +69,61 @@ public class SocketPipeHandle(ICommunication<SocketMessage> communication, Socke
                     continue;
                 }
 
-                SocketMessage message;
+                SocketMessage? message;
                 // 判断截取方式
                 message = ReceiveOption.IsMaxFrameTime
-                    ? await HandleMaxTime(ReceiveOption.MaxFrameTime)
-                    : await HandleMaxByteSize(ReceiveOption.MaxFrameSize);
+                    ?  HandleMaxTime(ReceiveOption.MaxFrameTime)
+                    :  HandleMaxByteSize(ReceiveOption.MaxFrameSize);
 
-                if (Communication is AbstractCommunication<SocketMessage> socketCommunication)
+                if (message !=null && Communication is AbstractCommunication<SocketMessage> socketCommunication)
                 {
-                    await socketCommunication.WriteMessage(message);
+                    await socketCommunication.WriteMessage(message.Value);
                 }
             }
         }
-        catch (Exception e)
+        catch (OperationCanceledException)
         {
-            Console.WriteLine(e);
-            throw;
         }
     }
 
-    private async Task<SocketMessage> HandleMaxByteSize(int maxSize)
+    private  SocketMessage? HandleMaxByteSize(int maxSize)
     {
-        Reader.TryRead(out var result);
-        ReadOnlySequence<byte> line;
+        var canRead = Reader.TryRead(out var result);
         var buffer = result.Buffer;
-        if (buffer.Length > maxSize)
+        if (!canRead)
         {
-            line = buffer.Slice(0, maxSize);
+            return null;
         }
-        else
-        {
-            line = buffer.Slice(0, buffer.Length);
-        }
-
-        buffer = buffer.Slice(line.Length, buffer.Length - line.Length);
-        Reader.AdvanceTo(line.End);
-        return new SocketMessage(line.ToArray(), "");
+        
+        var array = buffer.Length > maxSize ?
+            buffer.Slice(0, maxSize).ToArray() 
+            : buffer.Slice(0, buffer.Length).ToArray();
+        var consumed = buffer.GetPosition(array.Length);
+        Reader.AdvanceTo(consumed);
+        return new SocketMessage(array, Socket.ToRemoteIpStr());
     }
 
-    private async Task<SocketMessage> HandleMaxTime(int maxTime)
+    private readonly List<byte> _list = new();
+    private SocketMessage? HandleMaxTime(int maxTime)
     {
         Stopwatch.Restart();
-        var list = new List<byte>();
-        while (Stopwatch.ElapsedMilliseconds <= maxTime && Reader.TryRead(out var result))
+        _list.Clear();
+        while (Stopwatch.ElapsedMilliseconds <= maxTime)
         {
+            var canRead = Reader.TryRead(out var result);
             var buffer = result.Buffer;
+            if (!canRead)
+            {
+                Reader.AdvanceTo(buffer.Start);
+                break;
+            }
             ReadOnlySequence<byte> item = buffer.Slice(0, buffer.Length);
-            list.AddRange(item.ToArray());
+            _list.AddRange(item.ToArray());
             Reader.AdvanceTo(item.End);
             Stopwatch.Restart();
         }
 
-        return new SocketMessage(list.ToArray(), socket.RemoteEndPoint?.ToString() ?? "Undefine");
+        return new SocketMessage(_list.ToArray(), Socket.ToRemoteIpStr());
     }
 
     protected virtual void OnCloseEvent(Socket e)

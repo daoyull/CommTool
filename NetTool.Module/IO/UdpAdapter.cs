@@ -8,8 +8,7 @@ namespace NetTool.Module.IO;
 public class UdpAdapter : AbstractCommunication<SocketMessage>, IUdp
 {
     public UdpAdapter(INotify notify, IGlobalOption globalOption,
-        IUdpConnectOption udpConnectOption, IUdpReceiveOption receiveOption, IUdpSendOption sendOption) : base(notify,
-        globalOption)
+        IUdpConnectOption udpConnectOption, IUdpReceiveOption receiveOption, IUdpSendOption sendOption) 
     {
         UdpConnectOption = udpConnectOption;
         UdpReceiveOption = receiveOption;

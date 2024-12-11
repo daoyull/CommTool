@@ -2,7 +2,10 @@
 
 namespace NetTool.Module.Messages;
 
-public readonly struct SerialPortMessage(byte[] data) : IMessage
+/// <summary>
+/// 串口信息
+/// </summary>
+public readonly struct SerialMessage(byte[] data) : IMessage
 {
     /// <summary>
     /// 接收时间

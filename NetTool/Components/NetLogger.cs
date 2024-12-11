@@ -166,7 +166,9 @@ public class NetLogger : TextEditor, IUiLogger
     public void ClearArea()
     {
         _lineColorTransformer.Clear();
-        Text = "";
+        Clear();
+        GC.Collect();
+        GC.WaitForFullGCComplete();
     }
 
     public Action TickUpdate { get; set; }

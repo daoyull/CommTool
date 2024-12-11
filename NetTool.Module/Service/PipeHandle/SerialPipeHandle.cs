@@ -10,51 +10,37 @@ namespace NetTool.Module.Service;
 
 public class SerialPipeHandle(
     SerialPort serialPort,
-    ICommunication<SerialPortMessage> communication,
-    CancellationTokenSource cts) : AbstractPipeHandle<SerialPortMessage>(communication, cts)
+    ICommunication<SerialMessage> communication,
+    CancellationTokenSource cts) : AbstractPipeHandle<SerialMessage>(communication, cts)
 {
     public SerialPort SerialPort { get; } = serialPort;
 
-    public async override Task StartHandle()
+    public override Task StartHandle()
     {
-        // 接收线程
-        Task writing = ReceiveTask();
-        Task handle = HandleTask();
-        // 处理线程
-        await Task.WhenAll(writing, handle);
+        // 启动接收和消费任务
+        Task.Run(ReceiveTask, Cts.Token);
+        Task.Run(HandleTask, Cts.Token);
+        return Task.CompletedTask;
     }
-
-    public event EventHandler<SerialPort>? CloseEvent;
+    
 
     private async Task ReceiveTask()
     {
         try
         {
             const int minimumBufferSize = 1024;
-
+            byte[] memory = new byte[minimumBufferSize];
             while (!Cts.IsCancellationRequested)
             {
-                byte[] memory = new byte[minimumBufferSize];
-                try
+                if (SerialPort.BytesToRead <= 0)
                 {
-                    if (serialPort.BytesToRead <= 0)
-                    {
-                        await Task.Delay(1);
-                        continue;
-                    }
-
-                    var read = SerialPort.Read(memory, 0, memory.Length);
-
-                    await Writer.WriteAsync(memory.AsSpan().Slice(0, read).ToArray());
-                    // Writer.Advance(read);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.StackTrace);
+                    await Task.Delay(1);
+                    continue;
                 }
 
+                var read = SerialPort.Read(memory, 0, minimumBufferSize);
+                await Writer.WriteAsync(memory.AsSpan().Slice(0, read).ToArray());
                 FlushResult result = await Writer.FlushAsync();
-
                 if (result.IsCompleted)
                 {
                     break;
@@ -63,10 +49,9 @@ public class SerialPipeHandle(
 
             await Writer.CompleteAsync();
         }
-        catch (Exception e)
+        catch (OperationCanceledException e)
         {
             Console.WriteLine(e);
-            throw;
         }
     }
 
@@ -89,19 +74,19 @@ public class SerialPipeHandle(
                     ? HandleMaxTime(ReceiveOption.MaxFrameTime)
                     : HandleMaxByteSize(ReceiveOption.MaxFrameSize);
 
-                if (message != null && Communication is AbstractCommunication<SerialPortMessage> socketCommunication)
+                if (message != null && Communication is AbstractCommunication<SerialMessage> serialCommunication)
                 {
-                    await socketCommunication.WriteMessage(message.Value);
+                    await serialCommunication.WriteMessage(message.Value);
                 }
             }
         }
-        catch (Exception e)
+        catch (OperationCanceledException e)
         {
             Console.WriteLine(e);
         }
     }
 
-    private SerialPortMessage? HandleMaxByteSize(int maxSize)
+    private SerialMessage? HandleMaxByteSize(int maxSize)
     {
         var canRead = Reader.TryRead(out var result);
         var buffer = result.Buffer;
@@ -117,13 +102,14 @@ public class SerialPipeHandle(
         var consumed = buffer.GetPosition(array.Length);
         Reader.AdvanceTo(consumed);
 
-        return new SerialPortMessage(array);
+        return new SerialMessage(array);
     }
 
-    private SerialPortMessage? HandleMaxTime(int maxTime)
+    private readonly List<byte> _list = new();
+    private SerialMessage? HandleMaxTime(int maxTime)
     {
         Stopwatch.Restart();
-        var list = new List<byte>();
+        _list.Clear();
         while (Stopwatch.ElapsedMilliseconds <= maxTime)
         {
             var canRead = Reader.TryRead(out var result);
@@ -135,16 +121,12 @@ public class SerialPipeHandle(
             }
 
             ReadOnlySequence<byte> item = buffer.Slice(0, buffer.Length);
-            list.AddRange(item.ToArray());
+            _list.AddRange(item.ToArray());
             Reader.AdvanceTo(item.End);
             Stopwatch.Restart();
         }
 
-        return new SerialPortMessage(list.ToArray());
+        return new SerialMessage(_list.ToArray());
     }
-
-    protected virtual void OnCloseEvent(SerialPort e)
-    {
-        CloseEvent?.Invoke(this, e);
-    }
+    
 }

@@ -1,3 +1,4 @@
+using System.Net.Sockets;
 using Common.Lib.Ioc;
 using NetTool.Lib.Interface;
 using NetTool.Module.Components;
@@ -54,6 +55,11 @@ public static partial class Extensions
     {
         var bytes = encodingStr.StringToBytes();
         return bytes.BytesToHexString();
+    }
+
+    public static string ToRemoteIpStr(this Socket socket)
+    {
+        return socket.RemoteEndPoint?.ToString() ?? "Unknown Ip";
     }
 }
 
