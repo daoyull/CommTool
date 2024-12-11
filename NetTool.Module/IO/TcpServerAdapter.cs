@@ -1,13 +1,12 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-using NetTool.Lib.Abstracts;
 using NetTool.Lib.Args;
 using NetTool.Lib.Interface;
 using NetTool.Module.Messages;
 
 namespace NetTool.Module.IO;
 
-public class TcpServerAdapter : AbstractCommunication<TcpServerMessage>, ITcpServer
+public class TcpServerAdapter : AbstractCommunication<SocketMessage>, ITcpServer
 {
     private TcpListener? _listener;
 

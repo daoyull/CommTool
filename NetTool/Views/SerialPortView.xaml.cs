@@ -9,7 +9,7 @@ public partial class SerialPortView
     public SerialPortView()
     {
         InitializeComponent();
-        ViewModel!.Ui = NetUiComponent;
+        ViewModel!.Ui = ViewModel.Communication.Ui = NetUiComponent;
     }
 
     private async void OnSendTextKeyDown(object sender, KeyEventArgs e)

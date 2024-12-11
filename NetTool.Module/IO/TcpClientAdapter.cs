@@ -1,13 +1,12 @@
 using System.Diagnostics;
 using System.Net.Sockets;
-using NetTool.Lib.Abstracts;
 using NetTool.Lib.Interface;
 using NetTool.Module.Messages;
 using NetTool.Module.Service;
 
 namespace NetTool.Module.IO;
 
-public class TcpClientAdapter : AbstractCommunication<TcpClientMessage>, ITcpClient
+public class TcpClientAdapter : AbstractCommunication<SocketMessage>, ITcpClient
 {
     public TcpClientAdapter(INotify notify, IGlobalOption globalOption, ITcpClientConnectOption clientConnectOption,
         ITcpClientReceiveOption clientReceiveOption, ITcpClientSendOption clientSendOption) : base(notify, globalOption)
@@ -49,9 +48,18 @@ public class TcpClientAdapter : AbstractCommunication<TcpClientMessage>, ITcpCli
             _client = new(); _client.Connect(TcpClientConnectOption.Ip, TcpClientConnectOption.Port);
             OnConnected(new());
             
-            ReceiveTask = new SocketReceiveTask(_client.Client, TcpClientReceiveOption, Cts!);
-            ReceiveTask.FrameReceive += HandleFrameReceive;
-            Task.Run(() => ReceiveTask.StartTask(), Cts!.Token);
+            // ReceiveTask = new SocketReceiveTask(_client.Client, TcpClientReceiveOption, Cts!);
+            // ReceiveTask.FrameReceive += HandleFrameReceive;
+            // Task.Run(() => ReceiveTask.StartTask(), Cts!.Token);
+
+            var socketPipeHandle = new SocketPipeHandle(this, _client!.Client, Cts);
+            socketPipeHandle.CloseEvent += (sender, socket) =>
+            {
+                Ui.Logger.Warning("连接已断开");
+                Close();
+                Cts?.Dispose();
+            };
+            Task.Run(() => socketPipeHandle.StartHandle());
         }
         catch (Exception e)
         {
@@ -62,7 +70,7 @@ public class TcpClientAdapter : AbstractCommunication<TcpClientMessage>, ITcpCli
     private void HandleFrameReceive(object? sender, byte[] e)
     {
         Console.WriteLine($"Tcp Client接收到{e.Length}字节数据");
-        WriteMessage(new (e));
+        WriteMessage(new (e,""));
     }
 
     public override void Close()

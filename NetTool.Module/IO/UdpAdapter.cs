@@ -1,12 +1,11 @@
 using System.Net.Sockets;
-using NetTool.Lib.Abstracts;
 using NetTool.Lib.Interface;
 using NetTool.Module.Messages;
 using NetTool.Module.Service;
 
 namespace NetTool.Module.IO;
 
-public class UdpAdapter : AbstractCommunication<UdpMessage>, IUdp
+public class UdpAdapter : AbstractCommunication<SocketMessage>, IUdp
 {
     public UdpAdapter(INotify notify, IGlobalOption globalOption,
         IUdpConnectOption udpConnectOption, IUdpReceiveOption receiveOption, IUdpSendOption sendOption) : base(notify,
@@ -80,10 +79,7 @@ public class UdpAdapter : AbstractCommunication<UdpMessage>, IUdp
             _client = new UdpClient();
             _client.Connect(UdpConnectOption.Ip, UdpConnectOption.Port);
             OnConnected(new());
-
-            ReceiveTask = new SocketReceiveTask(_client.Client, UdpReceiveOption, Cts!);
-            ReceiveTask.FrameReceive += HandleFrameReceive;
-            Task.Run(() => ReceiveTask.StartTask(), Cts!.Token);
+            
         }
         catch (Exception e)
         {
@@ -95,6 +91,6 @@ public class UdpAdapter : AbstractCommunication<UdpMessage>, IUdp
     private void HandleFrameReceive(object? sender, byte[] e)
     {
         Console.WriteLine($"Udp接收到{e.Length}字节数据");
-        WriteMessage(new UdpMessage(e));
+        WriteMessage(new(e, ""));
     }
 }

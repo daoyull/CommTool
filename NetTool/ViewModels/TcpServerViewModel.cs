@@ -9,7 +9,7 @@ using NetTool.Module.Messages;
 
 namespace NetTool.ViewModels;
 
-public partial class TcpServerViewModel : AbstractNetViewModel<TcpServerMessage>, IDisposable
+public partial class TcpServerViewModel : AbstractNetViewModel<SocketMessage>, IDisposable
 {
     public TcpServerViewModel(TcpServerAdapter tcpServerAdapter)
     {
@@ -43,10 +43,10 @@ public partial class TcpServerViewModel : AbstractNetViewModel<TcpServerMessage>
 
     public TcpServerAdapter Server { get; }
 
-    public override ICommunication<TcpServerMessage> Communication => Server;
+    public override ICommunication<SocketMessage> Communication => Server;
     
 
-    protected override void HandleReceiveMessage(TcpServerMessage message, string strMessage)
+    protected override void HandleReceiveMessage(SocketMessage message, string strMessage)
     {
         if (Ui == null)
         {

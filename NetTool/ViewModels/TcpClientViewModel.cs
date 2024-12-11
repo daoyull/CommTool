@@ -6,7 +6,7 @@ using NetTool.Module.Messages;
 
 namespace NetTool.ViewModels;
 
-public partial class TcpClientViewModel : AbstractNetViewModel<TcpClientMessage>, IDisposable
+public partial class TcpClientViewModel : AbstractNetViewModel<SocketMessage>, IDisposable
 {
     public TcpClientViewModel(TcpClientAdapter tcpClient) 
     {
@@ -15,17 +15,17 @@ public partial class TcpClientViewModel : AbstractNetViewModel<TcpClientMessage>
 
 
     public TcpClientAdapter Client { get; }
-    public override ICommunication<TcpClientMessage> Communication => Client;
+    public override ICommunication<SocketMessage> Communication => Client;
     
     
-    protected override void HandleReceiveMessage(TcpClientMessage message, string strMessage)
+    protected override void HandleReceiveMessage(SocketMessage message, string strMessage)
     {
         Ui.Logger.Info($"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [Receive]");
         Ui.Logger.Success($"{strMessage}");
        
         // 脚本
-        var plugin = (ReceiveScriptPlugin<TcpClientMessage>?)Plugins.FirstOrDefault(it =>
-            it.GetType() == typeof(ReceiveScriptPlugin<TcpClientMessage>));
+        var plugin = (ReceiveScriptPlugin<SocketMessage>?)Plugins.FirstOrDefault(it =>
+            it.GetType() == typeof(ReceiveScriptPlugin<SocketMessage>));
         plugin?.InvokeScript(engine => { engine.Script.receive(message.Data, message.Time, strMessage); });
     }
 
@@ -36,8 +36,8 @@ public partial class TcpClientViewModel : AbstractNetViewModel<TcpClientMessage>
         Ui.Logger.Write($"{message}", "#1E6FFF");
         
         // 脚本
-        var plugin = (SendScriptPlugin<TcpClientMessage>?)Plugins.FirstOrDefault(it =>
-            it.GetType() == typeof(SendScriptPlugin<TcpClientMessage>));
+        var plugin = (SendScriptPlugin<SocketMessage>?)Plugins.FirstOrDefault(it =>
+            it.GetType() == typeof(SendScriptPlugin<SocketMessage>));
         plugin?.InvokeScript(engine => { engine.Script.send(bytes, time, message); });
     }
 

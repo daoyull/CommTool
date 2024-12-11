@@ -1,5 +1,4 @@
 ﻿using System.IO.Ports;
-using NetTool.Lib.Abstracts;
 using NetTool.Lib.Args;
 using NetTool.Lib.Interface;
 using NetTool.Module.Messages;
@@ -46,10 +45,9 @@ public class SerialPortAdapter : AbstractCommunication<SerialPortMessage>, ISeri
             _serialPort.ReadBufferSize = 1024 * 1024;
             _serialPort.Open();
             OnConnected(new ConnectedArgs());
-            
-            ReceiveTask = new SerialReceiveTask(_serialPort, SerialReceiveOption, Cts!);
-            ReceiveTask.FrameReceive += HandleFrameReceive;
-            Task.Run(() => ReceiveTask.StartTask(), Cts!.Token);
+
+            var serialPipeHandle = new SerialPipeHandle(_serialPort, this, Cts);
+            Task.Run(() => serialPipeHandle.StartHandle());
         }
         catch (Exception e)
         {
@@ -68,12 +66,6 @@ public class SerialPortAdapter : AbstractCommunication<SerialPortMessage>, ISeri
 
     public override void Close()
     {
-        if (ReceiveTask != null)
-        {
-            ReceiveTask.FrameReceive -= HandleFrameReceive;
-            ReceiveTask = null;
-        }
-
         if (_serialPort != null)
         {
             _serialPort?.Close();

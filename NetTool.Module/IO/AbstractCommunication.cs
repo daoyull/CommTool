@@ -1,18 +1,15 @@
-﻿using System.Diagnostics;
-using System.Threading.Channels;
+﻿using System.Threading.Channels;
 using NetTool.Lib.Args;
 using NetTool.Lib.Interface;
 
-namespace NetTool.Lib.Abstracts;
+namespace NetTool.Module.IO;
 
 public abstract class AbstractCommunication<T> : ICommunication<T> where T : IMessage
 {
-    protected IReceiveTask? ReceiveTask { get; set; }
 
     protected CancellationTokenSource? Cts { get; set; }
     public INotify Notify { get; }
 
-    public IUiLogger? UiLogger { get; set; }
     public IGlobalOption GlobalOption { get; }
 
     public AbstractCommunication(INotify notify, IGlobalOption globalOption)
@@ -33,6 +30,8 @@ public abstract class AbstractCommunication<T> : ICommunication<T> where T : IMe
     public event EventHandler<ClosedArgs>? Closed;
 
     public event EventHandler<ConnectedArgs>? Connected;
+
+    public INetUi Ui { get; set; }
     public abstract IConnectOption ConnectOption { get; }
     public abstract IReceiveOption ReceiveOption { get; }
     public abstract ISendOption SendOption { get; }
@@ -65,7 +64,7 @@ public abstract class AbstractCommunication<T> : ICommunication<T> where T : IMe
     public abstract void Close();
     public abstract void Connect();
 
-    protected ValueTask WriteMessage(T t)
+    internal ValueTask WriteMessage(T t)
     {
         return _channel.Writer.WriteAsync(t);
     }

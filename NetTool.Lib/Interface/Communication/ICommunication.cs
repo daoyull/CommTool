@@ -15,7 +15,9 @@ public interface ICommunication<T> : IDisposable where T : IMessage
 
     #endregion
 
-    public IConnectOption ConnectOption { get;  }
+    public INetUi Ui { get; set; } 
+
+    public IConnectOption ConnectOption { get; }
 
     public IReceiveOption ReceiveOption { get; }
     public ISendOption SendOption { get; }
