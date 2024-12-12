@@ -4,11 +4,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        xmlns:views="clr-namespace:NetTool.Views;assembly=NetTool"
+        xmlns:views="clr-namespace:Comm.WPF.Views;assembly=Comm.WPF"
         mc:Ignorable="d"
-        Title="MainWindow"
+        Title="Serial Assist"
         Width="1000"
         Height="800"
+        Icon="./serial.ico"
         WindowStartupLocation="CenterScreen">
     <materialDesign:DialogHost DialogTheme="Inherit" Identifier="RootDialog">
         <Grid>

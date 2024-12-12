@@ -5,9 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TcpServer"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        xmlns:views="clr-namespace:NetTool.Views;assembly=NetTool"
+        xmlns:views="clr-namespace:Comm.WPF.Views;assembly=Comm.WPF"
         mc:Ignorable="d"
-        Title="MainWindow"
+        Icon="server.ico"
+        Title="TCP Server"
         Width="1000"
         Height="800"
         WindowStartupLocation="CenterScreen">

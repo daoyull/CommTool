@@ -1,0 +1,44 @@
+﻿@using Microsoft.JSInterop
+@using Comm.WPF.Servcice
+@inject IJSRuntime Js
+@inject BlazorService BlazorService
+<body>
+<StandaloneCodeEditor ConstructionOptions="EditorConstructionOptions" Id="my-editor-instance-id"/>
+</body>
+
+<style>
+       
+    #my-editor-instance-id {
+    	height: 95vh;
+    }
+   
+</style>
+
+
+@code {
+
+    private StandaloneCodeEditor Editor;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            BlazorService.JsRuntime = Js;
+            await Js.InvokeVoidAsync("registerTip");
+        }
+    }
+
+
+    private StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor)
+    {
+        BlazorService.Editor = editor;
+        return new StandaloneEditorConstructionOptions
+        {
+            AutomaticLayout = true,
+            Theme = "vs-dark",
+            Language = "javascript",
+        };
+    }
+
+
+}

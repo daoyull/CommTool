@@ -4,10 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TcpClient"
-        xmlns:views="clr-namespace:NetTool.Views;assembly=NetTool"
+        xmlns:views="clr-namespace:Comm.WPF.Views;assembly=Comm.WPF"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="MainWindow"
+        Icon="client.ico"
+        Title="TCP Client"
         Width="1000"
         Height="800"
         WindowStartupLocation="CenterScreen">

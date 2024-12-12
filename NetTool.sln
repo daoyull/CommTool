@@ -1,18 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetTool.Lib", "NetTool.Lib\NetTool.Lib.csproj", "{E05751F1-BF1B-4F6B-A93A-7D1721D6A844}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Comm.Lib", "Comm.Lib\Comm.Lib.csproj", "{E05751F1-BF1B-4F6B-A93A-7D1721D6A844}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetTool.Module", "NetTool.Module\NetTool.Module.csproj", "{12BA4F63-1277-4F14-ACC0-8D547995B00C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Comm.Service", "Comm.Service\Comm.Service.csproj", "{12BA4F63-1277-4F14-ACC0-8D547995B00C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetTool", "NetTool\NetTool.csproj", "{13907143-A6FD-4329-859E-6755B29A24A9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Comm.WPF", "Comm.WPF\Comm.WPF.csproj", "{13907143-A6FD-4329-859E-6755B29A24A9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{BAEAEC7D-46BD-4765-917A-DBA6DD2B74A3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Lib", "Common\src\Common.Lib\Common.Lib.csproj", "{0A19FD1B-EE65-4CBE-B09B-666AC948F191}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Mvvm", "Common\src\Common.Mvvm\Common.Mvvm.csproj", "{E4F2B0CC-80CD-4B4F-9B02-B4E8B11416D2}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetTool.Unit", "NetTool.Unit\NetTool.Unit.csproj", "{51D1E671-F176-4437-9855-AA236F323AF8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.WPF", "Common\src\Common.WPF\Common.WPF.csproj", "{3FFE634B-6726-4BEC-952A-78EE0F6FB2CC}"
 EndProject
@@ -50,10 +48,6 @@ Global
 		{E4F2B0CC-80CD-4B4F-9B02-B4E8B11416D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E4F2B0CC-80CD-4B4F-9B02-B4E8B11416D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E4F2B0CC-80CD-4B4F-9B02-B4E8B11416D2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{51D1E671-F176-4437-9855-AA236F323AF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{51D1E671-F176-4437-9855-AA236F323AF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{51D1E671-F176-4437-9855-AA236F323AF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{51D1E671-F176-4437-9855-AA236F323AF8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3FFE634B-6726-4BEC-952A-78EE0F6FB2CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3FFE634B-6726-4BEC-952A-78EE0F6FB2CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3FFE634B-6726-4BEC-952A-78EE0F6FB2CC}.Release|Any CPU.ActiveCfg = Release|Any CPU

@@ -6,10 +6,18 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UseWPF>true</UseWPF>
+        <ApplicationIcon>server.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\NetTool\NetTool.csproj" />
+      <ProjectReference Include="..\Comm.WPF\Comm.WPF.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="server.ico" />
+      <Resource Include="server.ico">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
     </ItemGroup>
 
 </Project>

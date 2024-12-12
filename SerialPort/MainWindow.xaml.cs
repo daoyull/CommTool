@@ -1,8 +1,9 @@
 ﻿using System.Windows;
+using Comm.Lib.Interface;
 using Common.Lib.Ioc;
-using NetTool.Common;
-using NetTool.Components;
-using NetTool.Lib.Interface;
+using Comm.WPF.Common;
+using Comm.WPF.Components;
+
 
 namespace SerialPort;
 

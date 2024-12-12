@@ -6,10 +6,18 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UseWPF>true</UseWPF>
+        <ApplicationIcon>udp.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\NetTool\NetTool.csproj" />
+      <ProjectReference Include="..\Comm.WPF\Comm.WPF.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="udpico.ico" />
+      <Resource Include="udp.ico">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
     </ItemGroup>
 
 </Project>

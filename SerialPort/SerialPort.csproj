@@ -16,7 +16,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\NetTool\NetTool.csproj" />
+      <ProjectReference Include="..\Comm.WPF\Comm.WPF.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -25,7 +25,10 @@
 
     <ItemGroup>
       <None Remove="serial.ico" />
-      <Content Include="serial.ico" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="serial_.ico" />
       <Resource Include="serial.ico">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Resource>

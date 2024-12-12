@@ -1,24 +1,15 @@
-﻿using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows;
+using Comm.Lib.Interface;
 using Common.Lib.Ioc;
-using NetTool.Common;
-using NetTool.Components;
-using NetTool.Lib.Interface;
+using Comm.WPF.Common;
+using Comm.WPF.Components;
 
 namespace Udp;
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml
 /// </summary>
-public partial class MainWindow : Window
+public partial class MainWindow
 {
     public MainWindow()
     {

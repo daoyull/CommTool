@@ -1,7 +1,7 @@
 ﻿using System.Configuration;
 using System.Data;
 using System.Windows;
-using NetTool.Common;
+using Comm.WPF.Common;
 
 namespace Udp;
 
