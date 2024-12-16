@@ -69,7 +69,7 @@ public partial class SerialPortViewModel : AbstractCommViewModel<SerialMessage>
     {
         if (ReceiveOption.LogStyleShow)
         {
-            Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] Receive");
+            Ui.Logger.Info($"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] Receive");
             Ui.Logger.Success($"{strMessage}");
         }
         else

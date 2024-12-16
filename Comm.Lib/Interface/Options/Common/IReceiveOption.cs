@@ -3,7 +3,7 @@ namespace Comm.Lib.Interface;
 /// <summary>
 /// 接收选项
 /// </summary>
-public interface IReceiveOption : IOption
+public interface IReceiveOption : IScriptOption
 {
     /// <summary>
     /// 是否16进制显示
@@ -30,20 +30,6 @@ public interface IReceiveOption : IOption
     /// </summary>
     public bool AutoNewLine { get; set; }
 
-    /// <summary>
-    /// 是否启用脚本
-    /// </summary>
-    public bool IsEnableScript { get; set; }
-
-    /// <summary>
-    /// 是否启用脚本调试
-    /// </summary>
-    public bool IsEnableScriptDebug { get; set; }
-
-    /// <summary>
-    /// 脚本名称
-    /// </summary>
-    public string? ScriptName { get; set; }
 
     /// <summary>
     /// 最大分包时间 ms

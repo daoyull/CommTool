@@ -1,30 +1,9 @@
 /*
-* @function 
-* @param message {SocketMessage} 
-*   message.time --> js.Date 
-*   message.data --> js.Uint8Array 
-*   message.Socket --> .net Socket 
-* @param client {TcpClient} 客户端 
-*   client.send(string message)
-*   client.sendBuffer(Uint8Array array)
-* */
-// function receive(message, client) {
-//     // debugger
-//     // client.sendBuffer(message.data)
-//     // ui.logInfo(`脚本自动回发: ${utils.bufferToString(message.data)}`)
-//
-//     return {
-//         logHandle: true,
-//         frameHandle: true,
-//     }
-// }
-
-/*
 * 自动回发
 * */
 function receive(message, serial) {
     let timeFormat = "yyyy-MM-dd HH:mm:ss.fff";
-    // 日志输出到界面
+    // 接收日志输出到界面
     ui.logInfo(`[${utils.formatDate(message.time, timeFormat)}] Receive`);
     ui.logSuccess(serial.bufferToString(message.data));
 
@@ -48,6 +27,3 @@ function receive(message, serial) {
         frameHandle: true
     }
 }
-
-
-

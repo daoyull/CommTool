@@ -41,12 +41,11 @@ function registerTip() {
         comm: {
             send: function (message) {
             },
-            sendBuffer: function (bytes) {
-            }
         },
         utils: {
             bufferToString: function (array) {
-            }
+            },
+            formatDate: function (date,format){}
         }
     });
     ShowAutocompletion({

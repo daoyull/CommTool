@@ -1,8 +1,5 @@
 using System.ComponentModel;
 using System.IO;
-using System.Runtime.InteropServices.JavaScript;
-using System.Windows.Forms;
-using System.Windows.Shapes;
 using Common.Lib.Ioc;
 using Common.Mvvm.Abstracts;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -11,24 +8,14 @@ using Microsoft.ClearScript.V8;
 using Comm.Lib.Args;
 using Comm.Lib.Interface;
 using Comm.Service.Share;
-using Comm.WPF.Abstracts.Plugins;
 using Comm.WPF.Common;
 using Comm.WPF.Servcice;
-using Microsoft.ClearScript;
-using Microsoft.ClearScript.JavaScript;
-using Path = System.IO.Path;
 
 namespace Comm.WPF.Abstracts;
 
 public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T : IMessage
 {
-    public AbstractCommViewModel()
-    {
-        RefreshScriptSource();
-        AddPlugin<EventRegisterPlugin<T>>();
-        AddPlugin<ReceiveScriptPlugin<T>>();
-        AddPlugin<SendScriptPlugin<T>>();
-    }
+    #region 属性
 
     protected INotify Notify => Ioc.Resolve<INotify>();
 
@@ -38,6 +25,7 @@ public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T :
 
     [ObservableProperty] private bool _isConnect;
 
+
     public ISendOption SendOption => Communication.SendOption;
 
     public IReceiveOption ReceiveOption => Communication.ReceiveOption;
@@ -46,6 +34,15 @@ public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T :
 
 
     public abstract ICommunication<T> Communication { get; }
+
+    #endregion
+
+
+    public AbstractCommViewModel()
+    {
+        // ReSharper disable once VirtualMemberCallInConstructor
+        InitCommunication();
+    }
 
 
     [RelayCommand]
@@ -74,6 +71,7 @@ public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T :
 
     protected internal virtual void InitCommunication()
     {
+        RefreshScriptSource();
         Communication.Connected += HandleConnected;
         Communication.Closed += HandleClosed;
         if (SendOption is ObservableObject observableSendOption)
@@ -170,8 +168,8 @@ public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T :
                 {
                     if (ReceiveOption.IsEnableScript)
                     {
-                        
                     }
+
                     // 收到数据帧和次数增加
                     Ui.AddReceiveFrame(1);
                     Ui.AddReceiveBytes((uint)message.Data.Length);
@@ -255,7 +253,7 @@ public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T :
 
         return buffer;
     }
-    
+
     public string BufferToString(byte[] buffer)
     {
         if (SendOption.IsHex)
@@ -385,6 +383,4 @@ public abstract partial class AbstractCommViewModel<T>
         engine.AddHostObject("comm", new JsComm<T>(this));
         engine.AddHostObject("area", Ui.Logger);
     }
-
-   
 }

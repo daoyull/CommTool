@@ -3,7 +3,7 @@ namespace Comm.Lib.Interface;
 /// <summary>
 /// 发送选项
 /// </summary>
-public interface ISendOption
+public interface ISendOption : IScriptOption
 {
     /// <summary>
     /// 发送信息是否输出到界面
@@ -14,21 +14,6 @@ public interface ISendOption
     /// 是否16进制发送
     /// </summary>
     public bool IsHex { get; set; }
-
-    /// <summary>
-    /// 是否启用脚本
-    /// </summary>
-    public bool IsEnableScript { get; set; }
-
-    /// <summary>
-    /// 是否启用脚本调试
-    /// </summary>
-    public bool IsEnableScriptDebug { get; set; }
-
-    /// <summary>
-    /// 脚本名称
-    /// </summary>    
-    public string? ScriptName { get; set; }
 
     /// <summary>
     /// 是否自动发送
