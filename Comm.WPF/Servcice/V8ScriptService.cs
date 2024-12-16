@@ -13,14 +13,14 @@ public class V8ScriptService
 
     private readonly string _type;
     public bool IsLoad { get; private set; }
-    
+
     private readonly object _scriptLock = new();
 
     public Action<V8ScriptEngine>? LoadEngine { get; set; }
 
     private INotify Notify { get; } = Ioc.Resolve<INotify>();
     private IScriptManager ScriptManager => Ioc.Resolve<IScriptManager>();
-    private V8ScriptEngine? Engine { get; set; }
+    public V8ScriptEngine? Engine { get; private set; }
     private IGlobalOption GlobalOption => Ioc.Resolve<IGlobalOption>();
 
     public V8ScriptService(IScriptOption scriptOption, string type)

@@ -7,7 +7,6 @@ using Comm.Lib.Interface;
 using Comm.Service.IO;
 using Comm.Service.Messages;
 using Comm.WPF.Abstracts;
-using Comm.WPF.Abstracts.Plugins;
 
 namespace Comm.WPF.ViewModels;
 
@@ -51,9 +50,10 @@ public partial class SerialPortViewModel : AbstractCommViewModel<SerialMessage>
     public SerialPortViewModel(SerialPortAdapter serialPortAdapter)
     {
         Communication = Serial = serialPortAdapter;
+        InitCommunication();
     }
 
-    protected internal override void InitCommunication()
+    protected sealed override void InitCommunication()
     {
         base.InitCommunication();
         ComPortList = Serial.GetPortNames();
@@ -65,7 +65,7 @@ public partial class SerialPortViewModel : AbstractCommViewModel<SerialMessage>
     }
 
 
-    protected override void HandleReceiveMessage(SerialMessage message, string strMessage)
+    protected override void LogReceiveMessage(SerialMessage message, string strMessage)
     {
         if (ReceiveOption.LogStyleShow)
         {
@@ -97,26 +97,15 @@ public partial class SerialPortViewModel : AbstractCommViewModel<SerialMessage>
 
     protected override void OnSendScript(byte[] buffer, string uiMessage)
     {
-        var plugin = (SendScriptPlugin<SerialMessage>?)Plugins.FirstOrDefault(it =>
-            it.GetType() == typeof(SendScriptPlugin<SerialMessage>));
-        plugin?.InvokeScript(engine =>
-        {
-            var array = engine.Script.arrayToUint8Array(buffer);
-            engine.Script.send(array, DateTime.Now, uiMessage);
-        });
+        
     }
 
-    protected override void OnReceiveScript(SerialMessage message, string uiMessage)
+    protected override object InvokeReceiveScript(SerialMessage message)
     {
-        var plugin = (ReceiveScriptPlugin<SerialMessage>?)Plugins.FirstOrDefault(it =>
-            it.GetType() == typeof(ReceiveScriptPlugin<SerialMessage>));
-        plugin?.InvokeScript(engine =>
-        {
-            var array = engine.Script.arrayToUint8Array(message.Data);
-            engine.Script.receive(array, message.Time, uiMessage);
-        });
+        return 1;
     }
 
+   
 
-    public override string ScriptType => "Serial";
+    protected override string ScriptType => "Serial";
 }

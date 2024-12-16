@@ -2,7 +2,6 @@
 using Comm.Service.IO;
 using Comm.Service.Messages;
 using Comm.WPF.Abstracts;
-using Comm.WPF.Abstracts.Plugins;
 
 namespace Comm.WPF.ViewModels;
 
@@ -15,11 +14,11 @@ public class UdpViewModel : AbstractCommViewModel<SocketMessage>
         Communication = UdpAdapter = udpAdapter;
     }
 
-    public override string ScriptType => "Udp";
+    protected override string ScriptType => "Udp";
 
     public override ICommunication<SocketMessage> Communication { get; }
 
-    protected override void HandleReceiveMessage(SocketMessage message, string strMessage)
+    protected override void LogReceiveMessage(SocketMessage message, string strMessage)
     {
         Ui.Logger.Info($"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [Receive:{message.RemoteIp}]");
         Ui.Logger.Success($"{strMessage}");
@@ -33,25 +32,10 @@ public class UdpViewModel : AbstractCommViewModel<SocketMessage>
 
     protected override void OnSendScript(byte[] buffer, string uiMessage)
     {
-        // 脚本
-        var plugin = (SendScriptPlugin<SocketMessage>?)Plugins.FirstOrDefault(it =>
-            it.GetType() == typeof(SendScriptPlugin<SocketMessage>));
-        plugin?.InvokeScript(engine =>
-        {
-            var array = engine.Script.arrayToUint8Array(buffer);
-            engine.Script.send(array, DateTime.Now, uiMessage);
-        });
     }
 
-    protected override void OnReceiveScript(SocketMessage message, string uiMessage)
+    protected override object InvokeReceiveScript(SocketMessage message)
     {
-        // 脚本
-        var plugin = (ReceiveScriptPlugin<SocketMessage>?)Plugins.FirstOrDefault(it =>
-            it.GetType() == typeof(ReceiveScriptPlugin<SocketMessage>));
-        plugin?.InvokeScript(engine =>
-        {
-            var array = engine.Script.arrayToUint8Array(message.Data);
-            engine.Script.receive(array, message.Time, uiMessage);
-        });
+        throw new NotImplementedException();
     }
 }

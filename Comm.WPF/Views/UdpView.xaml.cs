@@ -1,4 +1,5 @@
-using System.Windows.Controls;
+using Comm.WPF.ViewModels;
+using Common.Lib.Ioc;
 
 namespace Comm.WPF.Views;
 
@@ -7,6 +8,8 @@ public partial class UdpView
     public UdpView()
     {
         InitializeComponent();
-        ViewModel!.Ui = ViewModel.Communication.Ui = CommUi;
+        var viewModel = Ioc.ResolveOptional<UdpViewModel>();
+        DataContext = viewModel;
+        viewModel!.Ui = viewModel.Communication.Ui = CommUi;
     }
 }

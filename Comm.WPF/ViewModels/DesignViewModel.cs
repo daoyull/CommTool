@@ -12,7 +12,7 @@ namespace Comm.WPF.ViewModels
             throw new NotImplementedException();
         }
 
-        protected override void HandleReceiveMessage(SerialMessage message, string strMessage)
+        protected override void LogReceiveMessage(SerialMessage message, string strMessage)
         {
             throw new NotImplementedException();
         }
@@ -27,11 +27,13 @@ namespace Comm.WPF.ViewModels
             throw new NotImplementedException();
         }
 
-        protected override void OnReceiveScript(SerialMessage message, string uiMessage)
+        protected override object InvokeReceiveScript(SerialMessage message)
         {
             throw new NotImplementedException();
         }
 
-        public override string ScriptType { get; }
+      
+
+        protected override string ScriptType { get; }
     }
 }

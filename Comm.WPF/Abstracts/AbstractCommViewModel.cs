@@ -1,14 +1,11 @@
 using System.ComponentModel;
-using System.IO;
 using Common.Lib.Ioc;
 using Common.Mvvm.Abstracts;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.ClearScript.V8;
 using Comm.Lib.Args;
 using Comm.Lib.Interface;
 using Comm.Service.Share;
-using Comm.WPF.Common;
 using Comm.WPF.Servcice;
 
 namespace Comm.WPF.Abstracts;
@@ -21,7 +18,11 @@ public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T :
 
     protected IGlobalOption GlobalOption => Ioc.Resolve<IGlobalOption>();
 
-    protected IScriptManager ScriptManager => Ioc.Resolve<IScriptManager>();
+    public AbstractCommViewModel()
+    {
+        V8Receive = new V8ScriptService(ReceiveOption, ReceiveScriptType);
+        V8Send = new V8ScriptService(SendOption, SendScriptType);
+    }
 
     [ObservableProperty] private bool _isConnect;
 
@@ -36,14 +37,6 @@ public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T :
     public abstract ICommunication<T> Communication { get; }
 
     #endregion
-
-
-    public AbstractCommViewModel()
-    {
-        // ReSharper disable once VirtualMemberCallInConstructor
-        InitCommunication();
-    }
-
 
     [RelayCommand]
     protected virtual Task Connect()
@@ -68,19 +61,17 @@ public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T :
         return Task.CompletedTask;
     }
 
-
-    protected internal virtual void InitCommunication()
+    protected virtual void InitCommunication()
     {
         RefreshScriptSource();
-        Communication.Connected += HandleConnected;
-        Communication.Closed += HandleClosed;
+        InitScript();
+        InitConnectState();
         if (SendOption is ObservableObject observableSendOption)
         {
             observableSendOption.PropertyChanged += HandleSendOptionChanged;
         }
     }
 
-    private CancellationTokenSource? _autoSendCts;
 
     private void HandleSendOptionChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -124,98 +115,11 @@ public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T :
         }
     }
 
-    protected virtual async Task? AutoSendMethod()
-    {
-        while (IsConnect && SendOption.AutoSend && _autoSendCts is { IsCancellationRequested: false })
-        {
-            if (Ui != null)
-            {
-                var message = Ui.SendMessage;
-                await SendMessage(message);
-            }
 
-            await Task.Delay(SendOption.AutoSendTime);
-        }
-    }
-
-    private void HandleClosed(object? sender, ClosedArgs e)
-    {
-        IsConnect = false;
-        // 关闭消息处理清空已存在的消息
-        _receiveCts?.Cancel();
-        _receiveCts?.Dispose();
-        _receiveCts = null;
-    }
-
-    private CancellationTokenSource? _receiveCts;
-
-    private void HandleConnected(object? sender, ConnectedArgs e)
-    {
-        IsConnect = true;
-        // 开启消息处理
-        _receiveCts = new();
-        Task.Run(StartHandleReceive, _receiveCts.Token);
-    }
-
-    protected virtual async void StartHandleReceive()
-    {
-        try
-        {
-            while (IsConnect && _receiveCts is { IsCancellationRequested: false })
-            {
-                var message = await Communication.MessageReadAsync(_receiveCts.Token);
-                try
-                {
-                    if (ReceiveOption.IsEnableScript)
-                    {
-                    }
-
-                    // 收到数据帧和次数增加
-                    Ui.AddReceiveFrame(1);
-                    Ui.AddReceiveBytes((uint)message.Data.Length);
-
-                    // 解析收到的数据
-                    string receiveMessage;
-                    if (ReceiveOption.IsHex)
-                    {
-                        receiveMessage = message.Data.BytesToHexString();
-                    }
-                    else
-                    {
-                        receiveMessage = message.Data.BytesToString();
-                    }
-
-                    // 不输出到界面
-                    if (!ReceiveOption.DefaultWriteUi)
-                    {
-                        continue;
-                    }
-
-                    HandleReceiveMessage(message, receiveMessage);
-                    OnReceiveScript(message, receiveMessage);
-                    // 自动换行
-                    if (ReceiveOption.AutoNewLine)
-                    {
-                        Ui.Logger.Write(string.Empty, string.Empty);
-                    }
-                }
-                catch (Exception e)
-                {
-                    Ui.Logger.Error(e.Message);
-                }
-            }
-        }
-        catch (OperationCanceledException)
-        {
-        }
-    }
-
-
-    protected abstract void HandleReceiveMessage(T message, string strMessage);
+    protected abstract void LogReceiveMessage(T message, string strMessage);
     protected abstract void HandleSendMessage(byte[] bytes, string message);
-
     protected abstract void OnSendScript(byte[] buffer, string uiMessage);
-    protected abstract void OnReceiveScript(T message, string uiMessage);
+    protected abstract object InvokeReceiveScript(T message);
 
     protected virtual bool SendCheck(string message)
     {
@@ -301,86 +205,5 @@ public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T :
         Ui.AddSendFrame(1);
         Ui.AddSendBytes((uint)buffer.Length);
         return true;
-    }
-}
-
-/// <summary>
-/// 脚本部分
-/// </summary>
-/// <typeparam name="T"></typeparam>
-public abstract partial class AbstractCommViewModel<T>
-{
-    public abstract string ScriptType { get; }
-
-    public string ReceiveScriptType => ScriptType + "Receive";
-    public string SendScriptType => ScriptType + "Send";
-
-    [ObservableProperty] private List<string>? _receiveScriptSource;
-    [ObservableProperty] private List<string>? _sendScriptSource;
-    [ObservableProperty] private string? _selectedReceiveScript;
-    [ObservableProperty] private string? _selectedSendScript;
-
-
-    public void RefreshScriptSource()
-    {
-        ReceiveScriptSource = ScriptManager.GetScriptNames(ReceiveScriptType);
-        SendScriptSource = ScriptManager.GetScriptNames(SendScriptType);
-        if (!string.IsNullOrEmpty(SelectedReceiveScript) && !ReceiveScriptSource.Contains(SelectedReceiveScript))
-        {
-            SelectedReceiveScript = null;
-        }
-
-        if (!string.IsNullOrEmpty(SelectedSendScript) && !SendScriptSource.Contains(SelectedSendScript))
-        {
-            SelectedSendScript = null;
-        }
-    }
-
-    protected virtual string InitReceiveScript =>
-        $@"function receive(buffer,time,message){{
-    debugger;
-    area.Info(`Receive Script Console: ${{message}}`)
-}}";
-
-    protected virtual string InitSendScript =>
-        $@"function send(buffer,time,message){{
-    debugger;
-    area.Info(`Send Script Console: ${{message}}`)
-}}";
-
-    [RelayCommand]
-    private void ShowReceiveScriptManager()
-    {
-        ScriptDialogHelper.ShowDialog(ReceiveScriptType, InitReceiveScript, this);
-        RefreshScriptSource();
-    }
-
-    [RelayCommand]
-    private void ShowSendScriptManager()
-    {
-        ScriptDialogHelper.ShowDialog(SendScriptType, InitSendScript, this);
-        RefreshScriptSource();
-    }
-
-
-    internal virtual void LoadEngine(V8ScriptEngine engine)
-    {
-        // 加载common目录下的所有脚本
-        var commonPath = Path.Combine(GlobalOption.ScriptPath, "common");
-        if (Directory.Exists(commonPath))
-        {
-            foreach (var file in Directory.GetFiles(commonPath))
-            {
-                if (file.EndsWith(".js"))
-                {
-                    string scriptContent = File.ReadAllText(file);
-                    engine.Execute(scriptContent);
-                }
-            }
-        }
-
-        engine.AddHostObject("notify", Notify);
-        engine.AddHostObject("comm", new JsComm<T>(this));
-        engine.AddHostObject("area", Ui.Logger);
     }
 }

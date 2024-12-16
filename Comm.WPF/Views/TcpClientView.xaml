@@ -1,21 +1,18 @@
-﻿<commonWpf:UserComponent
+﻿<UserControl
     x:Class="Comm.WPF.Views.TcpClientView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:commonWpf="clr-namespace:CommonWpf;assembly=Common.WPF"
     xmlns:components="clr-namespace:Comm.WPF.Components"
     xmlns:converts="clr-namespace:Comm.WPF.Converts"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:Comm.WPF.ViewModels"
     d:DataContext="{d:DesignInstance viewModels:TcpClientViewModel}"
     d:DesignHeight="600"
     d:DesignWidth="1000"
-    x:TypeArguments="viewModels:TcpClientViewModel"
     Background="White"
     mc:Ignorable="d" >
-    <commonWpf:UserComponent.Resources>
+    <UserControl.Resources>
         <ResourceDictionary>
             <converts:InverseBooleanConverter x:Key="InverseBooleanConverter" />
             <converts:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
@@ -23,7 +20,7 @@
         </ResourceDictionary>
 
 
-    </commonWpf:UserComponent.Resources>
+    </UserControl.Resources>
     <Grid>
 
         <Grid.ColumnDefinitions>
@@ -90,4 +87,4 @@
             SendCommand="{Binding SendCommand}" />
 
     </Grid>
-</commonWpf:UserComponent>
+</UserControl>

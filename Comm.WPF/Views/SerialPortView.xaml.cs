@@ -1,6 +1,5 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
+﻿using Comm.WPF.ViewModels;
+using Common.Lib.Ioc;
 
 namespace Comm.WPF.Views;
 
@@ -9,6 +8,8 @@ public partial class SerialPortView
     public SerialPortView()
     {
         InitializeComponent();
-        ViewModel!.Ui = ViewModel.Communication.Ui = CommUi;
+        var viewModel = Ioc.ResolveOptional<SerialPortViewModel>();
+        DataContext = viewModel;
+        viewModel!.Ui = viewModel.Communication.Ui = CommUi;
     }
 }

@@ -1,13 +1,11 @@
 using System.Collections.ObjectModel;
 using System.Net.Sockets;
-using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Comm.Lib.Interface;
 using Comm.Service.IO;
 using Comm.Service.Messages;
 using Comm.Service.Share;
 using Comm.WPF.Abstracts;
-using Comm.WPF.Abstracts.Plugins;
 
 namespace Comm.WPF.ViewModels;
 
@@ -51,7 +49,7 @@ public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, 
     public override ICommunication<SocketMessage> Communication => Server;
 
 
-    protected override void HandleReceiveMessage(SocketMessage message, string strMessage)
+    protected override void LogReceiveMessage(SocketMessage message, string strMessage)
     {
         Ui.Logger.Info($"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [Receive:{message.RemoteIp}]");
         Ui.Logger.Success($"{strMessage}");
@@ -72,27 +70,14 @@ public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, 
 
     protected override void OnSendScript(byte[] buffer, string uiMessage)
     {
-        // 脚本
-        var plugin = (SendScriptPlugin<SocketMessage>?)Plugins.FirstOrDefault(it =>
-            it.GetType() == typeof(SendScriptPlugin<SocketMessage>));
-        plugin?.InvokeScript(engine =>
-        {
-            var array = engine.Script.arrayToUint8Array(buffer);
-            engine.Script.send(array, DateTime.Now, uiMessage);
-        });
+       
     }
 
-    protected override void OnReceiveScript(SocketMessage message, string uiMessage)
+    protected override object InvokeReceiveScript(SocketMessage message)
     {
-        // 脚本
-        var plugin = (ReceiveScriptPlugin<SocketMessage>?)Plugins.FirstOrDefault(it =>
-            it.GetType() == typeof(ReceiveScriptPlugin<SocketMessage>));
-        plugin?.InvokeScript(engine =>
-        {
-            var array = engine.Script.arrayToUint8Array(message.Data);
-            engine.Script.receive(array, message.Time, uiMessage);
-        });
+        throw new NotImplementedException();
     }
+
 
     protected override async Task<bool> HandleSendBytes(byte[] buffer)
     {
@@ -112,7 +97,7 @@ public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, 
         return true;
     }
 
-    public override string ScriptType => "TcpServer";
+    protected override string ScriptType => "TcpServer";
 
     public void Dispose()
     {

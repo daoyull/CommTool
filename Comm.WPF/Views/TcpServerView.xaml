@@ -1,20 +1,17 @@
-<commonWpf:UserComponent
+<UserControl
     x:Class="Comm.WPF.Views.TcpServerView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:commonWpf="clr-namespace:CommonWpf;assembly=Common.WPF"
     xmlns:components="clr-namespace:Comm.WPF.Components"
     xmlns:converts="clr-namespace:Comm.WPF.Converts"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="clr-namespace:Comm.WPF.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:Comm.WPF.ViewModels"
     d:DataContext="{d:DesignInstance viewModels:TcpServerViewModel}"
     d:DesignHeight="300"
     d:DesignWidth="300"
-    x:TypeArguments="viewModels:TcpServerViewModel"
     mc:Ignorable="d">
-    <commonWpf:UserComponent.Resources>
+    <UserControl.Resources>
         <ResourceDictionary>
             <converts:InverseBooleanConverter x:Key="InverseBooleanConverter" />
             <converts:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
@@ -22,7 +19,7 @@
         </ResourceDictionary>
 
 
-    </commonWpf:UserComponent.Resources>
+    </UserControl.Resources>
     <Grid>
 
         <Grid.ColumnDefinitions>
@@ -114,4 +111,4 @@
             SendOption="{Binding SendOption}" />
 
     </Grid>
-</commonWpf:UserComponent>
+</UserControl>
