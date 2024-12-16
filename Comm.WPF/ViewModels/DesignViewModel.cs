@@ -22,6 +22,16 @@ namespace Comm.WPF.ViewModels
             throw new NotImplementedException();
         }
 
+        protected override void OnSendScript(byte[] buffer, string uiMessage)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void OnReceiveScript(SerialMessage message, string uiMessage)
+        {
+            throw new NotImplementedException();
+        }
+
         public override string ScriptType { get; }
     }
 }

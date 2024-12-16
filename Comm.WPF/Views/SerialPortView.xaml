@@ -41,21 +41,27 @@
                 <StackPanel>
                     <StackPanel IsEnabled="{Binding IsConnect, Converter={StaticResource InverseBooleanConverter}}">
                         <DockPanel>
-                            <TextBlock 
+                            <TextBlock
                                 DockPanel.Dock="Left"
                                 Style="{StaticResource ConfigItemKey}"
-                                Text="端口号:"/>
+                                Text="端口号:" />
                             <ComboBox
+                                Margin="3,0,0,0"
                                 DockPanel.Dock="Right"
                                 ItemsSource="{Binding ComPortList}"
                                 SelectedValue="{Binding Serial.SerialConnectOption.SerialPortName}"
                                 Style="{DynamicResource ConfigComboBox}" />
                             <Button
+                                Width="30"
+                                Height="30"
                                 HorizontalAlignment="Right"
-                                DockPanel.Dock="Right"
                                 Command="{Binding RefreshSerialPortCommand}"
-                                Style="{StaticResource ConfigButton}">
-                                <materialDesign:PackIcon Kind="Refresh" />
+                                DockPanel.Dock="Right"
+                                Style="{StaticResource MaterialDesignIconButton}">
+                                <materialDesign:PackIcon
+                                    Width="20"
+                                    Height="20"
+                                    Kind="Refresh" />
                             </Button>
                         </DockPanel>
                         <DockPanel>
@@ -77,6 +83,8 @@
                                 Visibility="{Binding CanEditBaudRate, Converter={StaticResource BooleanToVisibilityConverter}}" />
                             <ToggleButton
                                 HorizontalAlignment="Right"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
                                 Content="{materialDesign:PackIcon Kind=Pencil}"
                                 DockPanel.Dock="Right"
                                 IsChecked="{Binding CanEditBaudRate}"
@@ -145,11 +153,11 @@
 
         <components:CommUiComponent
             x:Name="CommUi"
-            ReceiveOption="{Binding ReceiveOption}"
-            SendOption="{Binding SendOption}"
             Grid.Column="1"
             Margin="3"
-            SendCommand="{Binding SendCommand}" />
+            ReceiveOption="{Binding ReceiveOption}"
+            SendCommand="{Binding SendCommand}"
+            SendOption="{Binding SendOption}" />
 
     </Grid>
 </commonWpf:UserComponent>

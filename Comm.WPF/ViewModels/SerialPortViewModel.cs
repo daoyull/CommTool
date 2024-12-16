@@ -15,7 +15,7 @@ public partial class SerialPortViewModel : AbstractCommViewModel<SerialMessage>
 {
     public SerialPortAdapter Serial { get; }
     public override ICommunication<SerialMessage> Communication { get; }
-    
+
     #region 数据源
 
     [ObservableProperty] private bool _canEditBaudRate;
@@ -76,10 +76,6 @@ public partial class SerialPortViewModel : AbstractCommViewModel<SerialMessage>
         {
             Ui.Logger.Success($"{strMessage}");
         }
-
-        var plugin = (ReceiveScriptPlugin<SerialMessage>?)Plugins.FirstOrDefault(it =>
-            it.GetType() == typeof(ReceiveScriptPlugin<SerialMessage>));
-        plugin?.InvokeScript(engine => { engine.Script.receive(message.Data, message.Time, strMessage); });
     }
 
 
@@ -97,10 +93,28 @@ public partial class SerialPortViewModel : AbstractCommViewModel<SerialMessage>
             Ui.Logger.Info($"[{time:yyyy-MM-dd HH:mm:ss.fff}] Send");
             Ui.Logger.Primary(message);
         }
+    }
 
+    protected override void OnSendScript(byte[] buffer, string uiMessage)
+    {
         var plugin = (SendScriptPlugin<SerialMessage>?)Plugins.FirstOrDefault(it =>
             it.GetType() == typeof(SendScriptPlugin<SerialMessage>));
-        plugin?.InvokeScript(engine => { engine.Script.send(bytes, time, message); });
+        plugin?.InvokeScript(engine =>
+        {
+            var array = engine.Script.arrayToUint8Array(buffer);
+            engine.Script.send(array, DateTime.Now, uiMessage);
+        });
+    }
+
+    protected override void OnReceiveScript(SerialMessage message, string uiMessage)
+    {
+        var plugin = (ReceiveScriptPlugin<SerialMessage>?)Plugins.FirstOrDefault(it =>
+            it.GetType() == typeof(ReceiveScriptPlugin<SerialMessage>));
+        plugin?.InvokeScript(engine =>
+        {
+            var array = engine.Script.arrayToUint8Array(message.Data);
+            engine.Script.receive(array, message.Time, uiMessage);
+        });
     }
 
 

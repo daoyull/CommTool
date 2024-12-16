@@ -24,5 +24,19 @@ namespace Comm.WPF.Components
         {
             InitializeComponent();
         }
+
+
+
+        public bool IsShowSplitPackage
+        {
+            get { return (bool)GetValue(IsShowSplitPackageProperty); }
+            set { SetValue(IsShowSplitPackageProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for IsShowSplitPackage.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty IsShowSplitPackageProperty =
+            DependencyProperty.Register("IsShowSplitPackage", typeof(bool), typeof(ReceiveOptionView), new PropertyMetadata(true));
+
+
     }
 }

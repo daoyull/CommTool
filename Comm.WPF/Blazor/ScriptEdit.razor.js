@@ -1,30 +1,58 @@
 function registerTip() {
     ShowAutocompletion({
         notify: {
-            Info: function (message) {
+            info: function (message) {
             },
-            Success: function (message) {
+            success: function (message) {
             },
-            Warning: function (message) {
+            warning: function (message) {
             },
-            Error: function (message) {
+            error: function (message) {
             },
         },
-        receiveArea: {
-            ClearArea: function () {
+        ui: {
+            logInfo: function (message) {
             },
-            Write: function (message, color) {
+            logPrimary: function (message) {
+            },
+            logSuccess: function (message) {
+            },
+            logWaring: function (message) {
+            },
+            logError: function (message) {
+            },
+            log: function (message, color) {
+            },
+            clearLog: function () {
+            },
+            addSendFrame: function (num) {
+            },
+            addReceiveFrame: function (num) {
+            },
+            addSendBytes: function (num) {
+            },
+            addReceiveBytes: function (num) {
+            },
+            resetNumber: function () {
+            },
+            scrollToEnd: function () {
+            },
+        },
+        comm: {
+            send: function (message) {
+            },
+            sendBuffer: function (bytes) {
             }
         },
-        net: {
-            sendStr: function (message) {
-            },
-            sendBytes: function (bytes) {
-            }
-        }
     });
-
+    ShowAutocompletion({
+        test:{
+            test01 : function (){}
+        }
+    })
 }
+
+
 
 function ShowAutocompletion(obj) {
     // Disable default autocompletion for javascript

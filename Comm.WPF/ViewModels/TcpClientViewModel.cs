@@ -20,11 +20,6 @@ public partial class TcpClientViewModel : AbstractCommViewModel<SocketMessage>, 
     {
         Ui.Logger.Info($"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [Receive]");
         Ui.Logger.Success($"{strMessage}");
-
-        // 脚本
-        var plugin = (ReceiveScriptPlugin<SocketMessage>?)Plugins.FirstOrDefault(it =>
-            it.GetType() == typeof(ReceiveScriptPlugin<SocketMessage>));
-        plugin?.InvokeScript(engine => { engine.Script.receive(message.Data, message.Time, strMessage); });
     }
 
     protected override void HandleSendMessage(byte[] bytes, string message)
@@ -32,11 +27,30 @@ public partial class TcpClientViewModel : AbstractCommViewModel<SocketMessage>, 
         var time = DateTime.Now;
         Ui.Logger.Info($"[{time:yyyy-MM-dd HH:mm:ss.fff}] [Send]");
         Ui.Logger.Write($"{message}", "#1E6FFF");
+    }
 
+    protected override void OnSendScript(byte[] buffer, string uiMessage)
+    {
         // 脚本
         var plugin = (SendScriptPlugin<SocketMessage>?)Plugins.FirstOrDefault(it =>
             it.GetType() == typeof(SendScriptPlugin<SocketMessage>));
-        plugin?.InvokeScript(engine => { engine.Script.send(bytes, time, message); });
+        plugin?.InvokeScript(engine =>
+        {
+            var array = engine.Script.arrayToUint8Array(buffer);
+            engine.Script.send(array, DateTime.Now, uiMessage);
+        });
+    }
+
+    protected override void OnReceiveScript(SocketMessage message, string uiMessage)
+    {
+        // 脚本
+        var plugin = (ReceiveScriptPlugin<SocketMessage>?)Plugins.FirstOrDefault(it =>
+            it.GetType() == typeof(ReceiveScriptPlugin<SocketMessage>));
+        plugin?.InvokeScript(engine =>
+        {
+            var array = engine.Script.arrayToUint8Array(message.Data);
+            engine.Script.receive(array, message.Time, uiMessage);
+        });
     }
 
     public override string ScriptType => "TcpClient";

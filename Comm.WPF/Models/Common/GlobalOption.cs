@@ -15,13 +15,13 @@ public partial class GlobalOption : ObservableObject, IGlobalOption
     /// <summary>
     /// 脚本默认地址
     /// </summary>
-    [ObservableProperty] private string _scriptPath = Path.Combine(AppContext.BaseDirectory, "script");
+    [ObservableProperty] private string _scriptPath = Path.Combine(AppContext.BaseDirectory, "scripts");
 
     /// <summary>
     /// 默认编码
     /// </summary>
     [ObservableProperty] private Encoding _encoding = Encoding.ASCII;
-
+    
     [ObservableProperty] private int _receiveScriptDebugPort = 9901;
     [ObservableProperty] private int _sendScriptDebugPort = 9902;
 }

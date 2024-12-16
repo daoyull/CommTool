@@ -42,7 +42,7 @@ public class BlazorService
                 await Editor.SetValue(Content);
                 Content = null;
             }
-        }catch(Exception)
+        }catch(OperationCanceledException)
         {
             // ignore
         }

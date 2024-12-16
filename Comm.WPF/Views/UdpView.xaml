@@ -74,7 +74,7 @@
                 </StackPanel>
             </Border>
 
-            <components:ReceiveOptionView Grid.Row="1" />
+            <components:ReceiveOptionView Grid.Row="1" IsShowSplitPackage="False" />
             <components:SendOptionView Grid.Row="2" />
 
             <StackPanel Grid.Row="3">
@@ -86,8 +86,28 @@
 
             </StackPanel>
             <StackPanel Grid.Row="4">
-                <TextBox Text="{Binding UdpAdapter.UdpSendOption.SendIp}"></TextBox>
-                <TextBox Text="{Binding UdpAdapter.UdpSendOption.SendPort}"></TextBox>
+                <DockPanel>
+                    <TextBlock
+                        DockPanel.Dock="Left"
+                        Style="{StaticResource ConfigItemKey}"
+                        Text="远程主机地址:" />
+                    <TextBox
+                        HorizontalAlignment="Right"
+                        DockPanel.Dock="Right"
+                        Style="{StaticResource ConfigTextBox}"
+                        Text="{Binding UdpAdapter.UdpSendOption.SendIp}" />
+                </DockPanel>
+                <DockPanel>
+                    <TextBlock
+                        DockPanel.Dock="Left"
+                        Style="{DynamicResource ConfigItemKey}"
+                        Text="远程主机端口:" />
+                    <TextBox
+                        HorizontalAlignment="Right"
+                        DockPanel.Dock="Right"
+                        Style="{StaticResource ConfigTextBox}"
+                        Text="{Binding UdpAdapter.UdpSendOption.SendPort}" />
+                </DockPanel>
             </StackPanel>
         </Grid>
 

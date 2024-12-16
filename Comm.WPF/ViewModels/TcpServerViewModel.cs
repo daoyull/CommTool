@@ -7,11 +7,12 @@ using Comm.Service.IO;
 using Comm.Service.Messages;
 using Comm.Service.Share;
 using Comm.WPF.Abstracts;
+using Comm.WPF.Abstracts.Plugins;
 
 namespace Comm.WPF.ViewModels;
 
 public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, IDisposable
-{
+{  
     public TcpServerViewModel(TcpServerAdapter tcpServerAdapter)
     {
         Server = tcpServerAdapter;
@@ -67,6 +68,30 @@ public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, 
         var sendStr = $"[{string.Join(',', clientItems)}]";
         Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send] {sendStr}");
         Ui.Logger.Write($"{message}", "#1E6FFF");
+    }
+
+    protected override void OnSendScript(byte[] buffer, string uiMessage)
+    {
+        // 脚本
+        var plugin = (SendScriptPlugin<SocketMessage>?)Plugins.FirstOrDefault(it =>
+            it.GetType() == typeof(SendScriptPlugin<SocketMessage>));
+        plugin?.InvokeScript(engine =>
+        {
+            var array = engine.Script.arrayToUint8Array(buffer);
+            engine.Script.send(array, DateTime.Now, uiMessage);
+        });
+    }
+
+    protected override void OnReceiveScript(SocketMessage message, string uiMessage)
+    {
+        // 脚本
+        var plugin = (ReceiveScriptPlugin<SocketMessage>?)Plugins.FirstOrDefault(it =>
+            it.GetType() == typeof(ReceiveScriptPlugin<SocketMessage>));
+        plugin?.InvokeScript(engine =>
+        {
+            var array = engine.Script.arrayToUint8Array(message.Data);
+            engine.Script.receive(array, message.Time, uiMessage);
+        });
     }
 
     protected override async Task<bool> HandleSendBytes(byte[] buffer)

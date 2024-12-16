@@ -24,7 +24,15 @@
             BorderBrush="Gainsboro"
             BorderThickness="1"
             CornerRadius="6 6 0 0">
-            <local:CommLogger x:Name="CommLogger" FontFamily="Cascadia Code,Consolas,Menlo,Monospace" />
+            <local:CommLogger x:Name="CommLogger" FontFamily="Cascadia Code,Consolas,Menlo,Monospace">
+                <local:CommLogger.Resources>
+                    <ResourceDictionary>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="Transparent" />
+                        </Style>
+                    </ResourceDictionary>
+                </local:CommLogger.Resources>
+            </local:CommLogger>
         </Border>
         <GridSplitter
             Grid.Row="1"
@@ -56,7 +64,7 @@
                     VerticalScrollBarVisibility="Auto" />
                 <Button
                     Grid.Column="1"
-                    Height="{Binding}"
+                    Height="{Binding ElementName=SendTextBox, Path=ActualHeight}"
                     Click="SendClick"
                     Content="发送" />
             </Grid>

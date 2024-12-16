@@ -1,4 +1,8 @@
 using System.ComponentModel;
+using System.IO;
+using System.Runtime.InteropServices.JavaScript;
+using System.Windows.Forms;
+using System.Windows.Shapes;
 using Common.Lib.Ioc;
 using Common.Mvvm.Abstracts;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -9,6 +13,10 @@ using Comm.Lib.Interface;
 using Comm.Service.Share;
 using Comm.WPF.Abstracts.Plugins;
 using Comm.WPF.Common;
+using Comm.WPF.Servcice;
+using Microsoft.ClearScript;
+using Microsoft.ClearScript.JavaScript;
+using Path = System.IO.Path;
 
 namespace Comm.WPF.Abstracts;
 
@@ -158,33 +166,40 @@ public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T :
             while (IsConnect && _receiveCts is { IsCancellationRequested: false })
             {
                 var message = await Communication.MessageReadAsync(_receiveCts.Token);
-                // 收到数据帧和次数增加
-                Ui.AddReceiveFrame(1);
-                Ui.AddReceiveBytes((uint)message.Data.Length);
-
-                // 解析收到的数据
-                string receiveMessage;
-                if (ReceiveOption.IsHex)
+                try
                 {
-                    receiveMessage = message.Data.BytesToHexString();
+                    // 收到数据帧和次数增加
+                    Ui.AddReceiveFrame(1);
+                    Ui.AddReceiveBytes((uint)message.Data.Length);
+
+                    // 解析收到的数据
+                    string receiveMessage;
+                    if (ReceiveOption.IsHex)
+                    {
+                        receiveMessage = message.Data.BytesToHexString();
+                    }
+                    else
+                    {
+                        receiveMessage = message.Data.BytesToString();
+                    }
+
+                    // 不输出到界面
+                    if (!ReceiveOption.DefaultWriteUi)
+                    {
+                        continue;
+                    }
+
+                    HandleReceiveMessage(message, receiveMessage);
+                    OnReceiveScript(message, receiveMessage);
+                    // 自动换行
+                    if (ReceiveOption.AutoNewLine)
+                    {
+                        Ui.Logger.Write(string.Empty, string.Empty);
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    receiveMessage = message.Data.BytesToString();
-                }
-
-                // 不输出到界面
-                if (!ReceiveOption.DefaultWriteUi)
-                {
-                    continue;
-                }
-
-                HandleReceiveMessage(message, receiveMessage);
-
-                // 自动换行
-                if (ReceiveOption.AutoNewLine)
-                {
-                    Ui.Logger.Write(string.Empty, string.Empty);
+                    Ui.Logger.Error(e.Message);
                 }
             }
         }
@@ -196,6 +211,9 @@ public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T :
 
     protected abstract void HandleReceiveMessage(T message, string strMessage);
     protected abstract void HandleSendMessage(byte[] bytes, string message);
+
+    protected abstract void OnSendScript(byte[] buffer, string uiMessage);
+    protected abstract void OnReceiveScript(T message, string uiMessage);
 
     protected virtual bool SendCheck(string message)
     {
@@ -219,7 +237,7 @@ public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T :
         await SendMessage(message);
     }
 
-    private async Task SendMessage(string message)
+    public byte[] GetSendBuffer(string message)
     {
         byte[] buffer;
         if (SendOption.IsHex)
@@ -231,24 +249,38 @@ public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T :
             buffer = GlobalOption.Encoding.GetBytes(message);
         }
 
-        string uiMessage;
-        if (SendOption.IsHex)
-        {
-            uiMessage = buffer.BytesToHexString();
-        }
-        else
-        {
-            uiMessage = buffer.BytesToString();
-        }
+        return buffer;
+    }
 
-        HandleSendMessage(buffer, uiMessage);
-        // 自动换行
-        if (ReceiveOption.AutoNewLine)
+    private async Task SendMessage(string message)
+    {
+        try
         {
-            Ui.Logger.Write(string.Empty, string.Empty);
-        }
+            var buffer = GetSendBuffer(message);
+            string uiMessage;
+            if (SendOption.IsHex)
+            {
+                uiMessage = buffer.BytesToHexString();
+            }
+            else
+            {
+                uiMessage = buffer.BytesToString();
+            }
 
-        await HandleSendBytes(buffer);
+            HandleSendMessage(buffer, uiMessage);
+            OnSendScript(buffer, uiMessage);
+            // 自动换行
+            if (ReceiveOption.AutoNewLine)
+            {
+                Ui.Logger.Write(string.Empty, string.Empty);
+            }
+
+            await HandleSendBytes(buffer);
+        }
+        catch (Exception e)
+        {
+            Ui.Logger.Error(e.Message);
+        }
     }
 
     protected virtual async Task<bool> HandleSendBytes(byte[] buffer)
@@ -321,8 +353,22 @@ public abstract partial class AbstractCommViewModel<T>
 
     internal virtual void LoadEngine(V8ScriptEngine engine)
     {
+        // 加载common目录下的所有脚本
+        var commonPath = Path.Combine(GlobalOption.ScriptPath, "common");
+        if (Directory.Exists(commonPath))
+        {
+            foreach (var file in Directory.GetFiles(commonPath))
+            {
+                if (file.EndsWith(".js"))
+                {
+                    string scriptContent = File.ReadAllText(file);
+                    engine.Execute(scriptContent);
+                }
+            }
+        }
+
         engine.AddHostObject("notify", Notify);
-        engine.AddHostObject("Communication", this);
+        engine.AddHostObject("comm", new JsComm<T>(this));
         engine.AddHostObject("area", Ui.Logger);
     }
 }

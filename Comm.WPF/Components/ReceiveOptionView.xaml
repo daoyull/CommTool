@@ -8,6 +8,7 @@
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="clr-namespace:Comm.WPF.ViewModels"
+    x:Name="ReceiveView"
     d:DataContext="{d:DesignInstance viewmodels:DesignViewModel}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -45,7 +46,7 @@
                     Content="自动滚屏"
                     IsChecked="{Binding ReceiveOption.AutoScroll}" />
             </StackPanel>
-            <StackPanel Style="{StaticResource ConfigStackPanel}">
+            <StackPanel Style="{StaticResource ConfigStackPanel}" Visibility="{Binding ElementName=ReceiveView, Path=IsShowSplitPackage, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <CheckBox Content="分包时间" IsChecked="{Binding ReceiveOption.IsMaxFrameTime}" />
                 <TextBox
                     Width="70"
@@ -54,7 +55,7 @@
                     Text="{Binding ReceiveOption.MaxFrameTime}" />
                 <TextBlock Style="{StaticResource ConfigItemKey}" Text=" (ms)" />
             </StackPanel>
-            <StackPanel Style="{StaticResource ConfigStackPanel}">
+            <StackPanel Style="{StaticResource ConfigStackPanel}" Visibility="{Binding ElementName=ReceiveView, Path=IsShowSplitPackage, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <CheckBox Content="最大包长" IsChecked="{Binding ReceiveOption.IsMaxFrameTime, Converter={StaticResource InverseBooleanConverter}}" />
                 <TextBox
                     Width="70"

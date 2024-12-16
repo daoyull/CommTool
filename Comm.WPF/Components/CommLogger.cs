@@ -1,11 +1,14 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Rendering;
 using Comm.Lib.Interface;
 using Comm.WPF.Common;
 using Comm.WPF.Entity;
+using ICSharpCode.AvalonEdit.Search;
 
 namespace Comm.WPF.Components;
 
@@ -31,6 +34,12 @@ public class CommLogger : TextEditor, IUiLogger
         Unloaded += (_, _) => { _cts.Dispose(); };
 
         Task.Run(StartWriteMessageToUi, _cts.Token);
+        this.Loaded += Loadedd;
+    }
+
+    private void Loadedd(object sender, RoutedEventArgs e)
+    {
+       
     }
 
     private async Task? StartWriteMessageToUi()
@@ -52,13 +61,17 @@ public class CommLogger : TextEditor, IUiLogger
                         }
 
                         var lineList = item.Item1.Split(Environment.NewLine).ToList();
-                        Dispatcher.InvokeAsync(() =>
+                        _ = Dispatcher.InvokeAsync(() =>
                         {
                             foreach (var message in lineList)
                             {
                                 AppendLine(message, item.Item2);
                             }
-                            // Document.UndoStack.ClearAll();
+                            var children = this.FindVisualChildren<SearchPanel>().FirstOrDefault();
+                            if (children != null)
+                            {
+                               
+                            }
                         });
                         canInvoke = true;
                     }
