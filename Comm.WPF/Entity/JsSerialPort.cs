@@ -1,15 +1,13 @@
-using Comm.Lib.Interface;
-using Comm.WPF.Abstracts;
+﻿using Comm.WPF.ViewModels;
 using Microsoft.ClearScript.JavaScript;
 
 namespace Comm.WPF.Servcice;
 
-public class JsComm<T> where T : IMessage
+public class JsSerialPort
 {
-    public AbstractCommViewModel<T> ViewModel { get; }
+    public SerialPortViewModel ViewModel { get; }
 
-
-    public JsComm(AbstractCommViewModel<T> viewModel)
+    public JsSerialPort(SerialPortViewModel viewModel)
     {
         ViewModel = viewModel;
     }
@@ -33,7 +31,7 @@ public class JsComm<T> where T : IMessage
 
     public void send(string message)
     {
-        var buffer = ViewModel.GetSendBuffer(message);
+        var buffer = ViewModel.StringToBuffer(message);
         sendBuffer(buffer, 0, buffer.Length);
     }
 }

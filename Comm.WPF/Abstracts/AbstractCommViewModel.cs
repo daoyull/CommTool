@@ -168,6 +168,10 @@ public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T :
                 var message = await Communication.MessageReadAsync(_receiveCts.Token);
                 try
                 {
+                    if (ReceiveOption.IsEnableScript)
+                    {
+                        
+                    }
                     // 收到数据帧和次数增加
                     Ui.AddReceiveFrame(1);
                     Ui.AddReceiveBytes((uint)message.Data.Length);
@@ -237,7 +241,7 @@ public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T :
         await SendMessage(message);
     }
 
-    public byte[] GetSendBuffer(string message)
+    public byte[] StringToBuffer(string message)
     {
         byte[] buffer;
         if (SendOption.IsHex)
@@ -251,12 +255,22 @@ public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T :
 
         return buffer;
     }
+    
+    public string BufferToString(byte[] buffer)
+    {
+        if (SendOption.IsHex)
+        {
+            return buffer.BytesToHexString();
+        }
+
+        return buffer.BytesToString();
+    }
 
     private async Task SendMessage(string message)
     {
         try
         {
-            var buffer = GetSendBuffer(message);
+            var buffer = StringToBuffer(message);
             string uiMessage;
             if (SendOption.IsHex)
             {
@@ -371,4 +385,6 @@ public abstract partial class AbstractCommViewModel<T>
         engine.AddHostObject("comm", new JsComm<T>(this));
         engine.AddHostObject("area", Ui.Logger);
     }
+
+   
 }

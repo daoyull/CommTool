@@ -44,14 +44,18 @@ function registerTip() {
             sendBuffer: function (bytes) {
             }
         },
+        utils: {
+            bufferToString: function (array) {
+            }
+        }
     });
     ShowAutocompletion({
-        test:{
-            test01 : function (){}
+        test: {
+            test01: function () {
+            }
         }
     })
 }
-
 
 
 function ShowAutocompletion(obj) {
