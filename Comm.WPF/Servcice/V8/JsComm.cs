@@ -1,17 +1,19 @@
-﻿using Comm.WPF.ViewModels;
+using Comm.Lib.Interface;
+using Comm.WPF.Abstracts;
 using Microsoft.ClearScript.JavaScript;
 
-namespace Comm.WPF.Servcice;
+namespace Comm.WPF.Servcice.V8;
 
-public class JsTcpClient
+public class JsComm<T> where T : IMessage
 {
-    public TcpClientViewModel ViewModel { get; }
+    public AbstractCommViewModel<T> ViewModel { get; }
 
-    public JsTcpClient(TcpClientViewModel viewModel)
+
+    public JsComm(AbstractCommViewModel<T> viewModel)
     {
         ViewModel = viewModel;
     }
-    
+
     public void sendBuffer(byte[] buffer, int offset, int size) => ViewModel.Communication.Write(buffer, offset, size);
     
     public void sendBuffer(byte[] buffer) => ViewModel.Communication.Write(buffer, 0, buffer.Length);

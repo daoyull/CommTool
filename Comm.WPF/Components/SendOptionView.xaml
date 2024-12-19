@@ -70,6 +70,9 @@
             <ToggleButton IsChecked="{Binding SendOption.IsEnableScript}" Style="{StaticResource MaterialDesignSwitchSecondaryToggleButton}" />
             <TextBlock VerticalAlignment="Center" Text="启用脚本" />
         </StackPanel>
+        <StackPanel>
+            <Button Content="Debug" Click="DebugClick"></Button>
+        </StackPanel>
 
       
         <!-- <StackPanel Style="{StaticResource ConfigStackPanel}"> -->

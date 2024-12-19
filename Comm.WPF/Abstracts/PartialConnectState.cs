@@ -31,7 +31,7 @@ public abstract partial class AbstractCommViewModel<T>
         _receiveCts = null;
     }
 
-    protected async void StartHandleReceive()
+    private async void StartHandleReceive()
     {
         try
         {
@@ -40,9 +40,12 @@ public abstract partial class AbstractCommViewModel<T>
                 var message = await Communication.MessageReadAsync(_receiveCts.Token);
                 try
                 {
+                    // 调用脚本
                     bool logHandle = false;
                     bool frameHandle = false;
                     OnReceiveScript(message, ref logHandle, ref frameHandle);
+                    
+                    // 接收帧/字节增加操作
                     if (!frameHandle)
                     {
                         // 收到数据帧和次数增加
@@ -50,6 +53,7 @@ public abstract partial class AbstractCommViewModel<T>
                         Ui.AddReceiveBytes((uint)message.Data.Length);
                     }
 
+                    // 是否输出到界面
                     if (ReceiveOption.DefaultWriteUi && !logHandle)
                     {
                         // 解析收到的数据
@@ -61,7 +65,7 @@ public abstract partial class AbstractCommViewModel<T>
                         // 自动换行
                         if (ReceiveOption.AutoNewLine)
                         {
-                            Ui.Logger.Write(string.Empty, string.Empty);
+                            Ui.Logger.WriteEmptyLine();
                         }
                     }
                 }

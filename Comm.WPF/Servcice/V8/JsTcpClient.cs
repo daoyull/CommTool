@@ -1,17 +1,17 @@
 ﻿using Comm.WPF.ViewModels;
 using Microsoft.ClearScript.JavaScript;
 
-namespace Comm.WPF.Servcice;
+namespace Comm.WPF.Servcice.V8;
 
-public class JsSerialPort
+public class JsTcpClient
 {
-    public SerialPortViewModel ViewModel { get; }
+    public TcpClientViewModel ViewModel { get; }
 
-    public JsSerialPort(SerialPortViewModel viewModel)
+    public JsTcpClient(TcpClientViewModel viewModel)
     {
         ViewModel = viewModel;
     }
-
+    
     public void sendBuffer(byte[] buffer, int offset, int size) => ViewModel.Communication.Write(buffer, offset, size);
     
     public void sendBuffer(byte[] buffer) => ViewModel.Communication.Write(buffer, 0, buffer.Length);

@@ -24,7 +24,7 @@
         if (firstRender)
         {
             BlazorService.JsRuntime = Js;
-            await Js.InvokeVoidAsync("registerTip");
+            await BlazorService.Load(Js);
         }
     }
 

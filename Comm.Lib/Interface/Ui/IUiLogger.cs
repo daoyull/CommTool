@@ -11,6 +11,7 @@ public interface IUiLogger
     /// <param name="message">消息</param>
     /// <param name="color">颜色</param>
     public void Write(string message, string color);
+    public void WriteEmptyLine();
 
     /// <summary>
     /// 普通消息

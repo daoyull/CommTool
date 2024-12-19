@@ -1,7 +1,7 @@
 using Comm.Lib.Interface;
 using Comm.WPF.Abstracts;
 
-namespace Comm.WPF.Servcice;
+namespace Comm.WPF.Servcice.V8;
 
 public class JsNotify<T> where T : IMessage
 {

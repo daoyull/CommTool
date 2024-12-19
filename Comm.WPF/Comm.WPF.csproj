@@ -62,10 +62,22 @@
       <Resource Include="js.ico">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Resource>
-      <None Update="scripts\common\common.js">
+      <None Update="scripts\common\utils.js">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
       <None Update="scripts\TcpClientReceive\auto_back.js">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="scripts\SerialReceive\auto_back.js">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="scripts\common\tip.js">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="scripts\common\common.js">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="scripts\common\SerialReceiveTip.js">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>

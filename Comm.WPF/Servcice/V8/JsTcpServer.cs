@@ -2,7 +2,7 @@
 using Comm.WPF.ViewModels;
 using Microsoft.ClearScript.JavaScript;
 
-namespace Comm.WPF.Servcice;
+namespace Comm.WPF.Servcice.V8;
 
 public class JsTcpServer
 {

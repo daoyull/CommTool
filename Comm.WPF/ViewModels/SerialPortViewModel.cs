@@ -7,6 +7,10 @@ using Comm.Lib.Interface;
 using Comm.Service.IO;
 using Comm.Service.Messages;
 using Comm.WPF.Abstracts;
+using Comm.WPF.Entity;
+using Comm.WPF.Servcice;
+using Comm.WPF.Servcice.V8;
+using Microsoft.ClearScript.JavaScript;
 
 namespace Comm.WPF.ViewModels;
 
@@ -62,6 +66,8 @@ public partial class SerialPortViewModel : AbstractCommViewModel<SerialMessage>
         Serial.SerialConnectOption.SerialPortName = ComPortList.FirstOrDefault();
         Serial.SerialConnectOption.BaudRate = 9600;
         Serial.SerialConnectOption.DataBits = 8;
+        V8Receive.LoadEngine += engine => { engine.AddHostObject("serial", new JsSerial(this, engine)); };
+        V8Send.LoadEngine += engine => { engine.AddHostObject("serial", new JsSerial(this, engine)); };
     }
 
 
@@ -84,8 +90,9 @@ public partial class SerialPortViewModel : AbstractCommViewModel<SerialMessage>
     {
         ComPortList = Serial.GetPortNames();
     }
+    
 
-    protected override void HandleSendMessage(byte[] bytes, string message)
+    protected override void LogSendMessage(byte[] bytes, string message)
     {
         var time = DateTime.Now;
         if (SendOption.DefaultWriteUi)
@@ -95,17 +102,17 @@ public partial class SerialPortViewModel : AbstractCommViewModel<SerialMessage>
         }
     }
 
-    protected override void OnSendScript(byte[] buffer, string uiMessage)
+    protected override void InvokeSendScript(byte[] buffer, string uiMessage)
     {
-        
     }
 
     protected override object InvokeReceiveScript(SerialMessage message)
     {
-        return 1;
+        var array = (ITypedArray<byte>)V8Receive.Engine!.Invoke("arrayToUint8Array", message.Data);
+        var jsMessage = new JsMessage(array);
+        return V8Receive.Engine.Invoke("receive", jsMessage);
     }
 
-   
 
     protected override string ScriptType => "Serial";
 }

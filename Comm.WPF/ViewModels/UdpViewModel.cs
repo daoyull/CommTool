@@ -24,13 +24,13 @@ public class UdpViewModel : AbstractCommViewModel<SocketMessage>
         Ui.Logger.Success($"{strMessage}");
     }
 
-    protected override void HandleSendMessage(byte[] bytes, string message)
+    protected override void LogSendMessage(byte[] bytes, string message)
     {
         Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send:{UdpAdapter.UdpSendOption.SendIp}]");
         Ui.Logger.Primary($"{message}");
     }
 
-    protected override void OnSendScript(byte[] buffer, string uiMessage)
+    protected override void InvokeSendScript(byte[] buffer, string uiMessage)
     {
     }
 

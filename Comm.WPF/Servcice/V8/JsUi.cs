@@ -1,8 +1,7 @@
-using System.Windows.Forms;
 using Comm.Lib.Interface;
 using Comm.WPF.Abstracts;
 
-namespace Comm.WPF.Servcice;
+namespace Comm.WPF.Servcice.V8;
 
 public class JsUi<T> where T : IMessage
 {
@@ -44,6 +43,11 @@ public class JsUi<T> where T : IMessage
         ViewModel.Ui.Logger.Write(message, color);
     }
 
+    public void logEmptyLine()
+    {
+        ViewModel.Ui.Logger.WriteEmptyLine();
+    }
+
     public void clearLog()
     {
         ViewModel.Ui.Logger.ClearArea();
@@ -66,7 +70,7 @@ public class JsUi<T> where T : IMessage
 
     public void addReceiveBytes(int num)
     {
-        ViewModel.Ui.AddSendFrame((uint)num);
+        ViewModel.Ui.AddReceiveBytes((uint)num);
     }
 
     public void resetNumber()

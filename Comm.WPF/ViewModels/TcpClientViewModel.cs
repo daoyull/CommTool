@@ -21,14 +21,14 @@ public partial class TcpClientViewModel : AbstractCommViewModel<SocketMessage>, 
         Ui.Logger.Success($"{strMessage}");
     }
 
-    protected override void HandleSendMessage(byte[] bytes, string message)
+    protected override void LogSendMessage(byte[] bytes, string message)
     {
         var time = DateTime.Now;
         Ui.Logger.Info($"[{time:yyyy-MM-dd HH:mm:ss.fff}] [Send]");
         Ui.Logger.Write($"{message}", "#1E6FFF");
     }
 
-    protected override void OnSendScript(byte[] buffer, string uiMessage)
+    protected override void InvokeSendScript(byte[] buffer, string uiMessage)
     {
         
     }

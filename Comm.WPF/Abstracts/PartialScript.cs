@@ -1,7 +1,9 @@
 ﻿using System.IO;
 using Comm.Lib.Interface;
 using Comm.WPF.Common;
+using Comm.WPF.Entity;
 using Comm.WPF.Servcice;
+using Comm.WPF.Servcice.V8;
 using Common.Lib.Ioc;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -14,8 +16,8 @@ public abstract partial class AbstractCommViewModel<T>
 {
     protected abstract string ScriptType { get; }
 
-    protected V8ScriptService V8Receive { get; }
-    protected V8ScriptService V8Send { get; }
+    protected V8ScriptService V8Receive { get; private set; } = null!;
+    protected V8ScriptService V8Send { get; private set; } = null!;
 
     private IScriptManager ScriptManager { get; } = Ioc.Resolve<IScriptManager>();
 
@@ -71,29 +73,28 @@ public abstract partial class AbstractCommViewModel<T>
     private void LoadEngine(V8ScriptEngine engine)
     {
         // 加载common目录下的所有脚本
-        var commonPath = Path.Combine(GlobalOption.ScriptPath, "common");
-        if (Directory.Exists(commonPath))
+        var commonPath = Path.Combine(GlobalOption.ScriptPath, "common", "common.js");
+        if (File.Exists(commonPath))
         {
-            foreach (var file in Directory.GetFiles(commonPath))
-            {
-                if (file.EndsWith(".js"))
-                {
-                    string scriptContent = File.ReadAllText(file);
-                    engine.Execute(scriptContent);
-                }
-            }
+            string scriptContent = File.ReadAllText(commonPath);
+            engine.Execute(scriptContent);
         }
 
-        engine.AddHostObject("notify", Notify);
+        engine.AddHostObject("notify", new JsNotify<T>(this));
         engine.AddHostObject("comm", new JsComm<T>(this));
-        engine.AddHostObject("area", Ui.Logger);
+        engine.AddHostObject("ui", new JsUi<T>(this));
+        engine.AddHostObject("util", new JsUtil(engine));
     }
 
     protected virtual void InitScript()
     {
+        V8Receive = new V8ScriptService(ReceiveOption, ReceiveScriptType);
+        V8Send = new V8ScriptService(SendOption, SendScriptType);
         V8Receive.LoadEngine += LoadEngine;
         V8Send.LoadEngine += LoadEngine;
     }
+
+    protected abstract object InvokeReceiveScript(T message);
 
     private void OnReceiveScript(T message, ref bool logHandle, ref bool frameHandle)
     {
@@ -103,17 +104,17 @@ public abstract partial class AbstractCommViewModel<T>
         }
 
         dynamic result = InvokeReceiveScript(message);
-        if (result == Undefined.Value)
+        if (Undefined.Value.Equals(result))
         {
             return;
         }
 
-        if (result.logHandle != Undefined.Value)
+        if (!Undefined.Value.Equals(result.logHandle))
         {
             bool.TryParse((string)result.logHandle.ToString(), out logHandle);
         }
 
-        if (result.frameHandle != Undefined.Value)
+        if (!Undefined.Value.Equals(result.frameHandle))
         {
             bool.TryParse((string)result.frameHandle.ToString(), out frameHandle);
         }

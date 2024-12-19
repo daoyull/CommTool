@@ -1,3 +1,4 @@
+using System.IO;
 using BlazorMonaco.Editor;
 using Microsoft.JSInterop;
 
@@ -24,6 +25,20 @@ public class BlazorService
         Editor = null;
     }
 
+    public string? ExtendTip { get; set; }
+
+    public async Task Load(IJSRuntime js)
+    {
+        // common tip
+        var commonTip =
+            await File.ReadAllTextAsync(Path.Combine(Directory.GetCurrentDirectory(), "scripts", "common", "tip.js"));
+        await js.InvokeVoidAsync("registerTip", commonTip, "commonTip.js");
+        if (!string.IsNullOrEmpty(ExtendTip))
+        {
+            await js.InvokeVoidAsync("registerTip", ExtendTip, "extendTip.js");
+        }
+    }
+
     private CancellationTokenSource? _cts;
 
     public async Task StartSetValue()
@@ -42,7 +57,8 @@ public class BlazorService
                 await Editor.SetValue(Content);
                 Content = null;
             }
-        }catch(OperationCanceledException)
+        }
+        catch (OperationCanceledException)
         {
             // ignore
         }

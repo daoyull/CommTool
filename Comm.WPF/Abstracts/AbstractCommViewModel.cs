@@ -17,12 +17,7 @@ public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T :
     protected INotify Notify => Ioc.Resolve<INotify>();
 
     protected IGlobalOption GlobalOption => Ioc.Resolve<IGlobalOption>();
-
-    public AbstractCommViewModel()
-    {
-        V8Receive = new V8ScriptService(ReceiveOption, ReceiveScriptType);
-        V8Send = new V8ScriptService(SendOption, SendScriptType);
-    }
+    
 
     [ObservableProperty] private bool _isConnect;
 
@@ -117,9 +112,9 @@ public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T :
 
 
     protected abstract void LogReceiveMessage(T message, string strMessage);
-    protected abstract void HandleSendMessage(byte[] bytes, string message);
-    protected abstract void OnSendScript(byte[] buffer, string uiMessage);
-    protected abstract object InvokeReceiveScript(T message);
+    protected abstract void LogSendMessage(byte[] bytes, string message);
+    protected abstract void InvokeSendScript(byte[] buffer, string uiMessage);
+
 
     protected virtual bool SendCheck(string message)
     {
@@ -183,8 +178,8 @@ public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T :
                 uiMessage = buffer.BytesToString();
             }
 
-            HandleSendMessage(buffer, uiMessage);
-            OnSendScript(buffer, uiMessage);
+            LogSendMessage(buffer, uiMessage);
+            InvokeSendScript(buffer, uiMessage);
             // 自动换行
             if (ReceiveOption.AutoNewLine)
             {

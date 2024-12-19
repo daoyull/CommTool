@@ -39,7 +39,6 @@ public class CommLogger : TextEditor, IUiLogger
 
     private void Loadedd(object sender, RoutedEventArgs e)
     {
-       
     }
 
     private async Task? StartWriteMessageToUi()
@@ -67,10 +66,10 @@ public class CommLogger : TextEditor, IUiLogger
                             {
                                 AppendLine(message, item.Item2);
                             }
+
                             var children = this.FindVisualChildren<SearchPanel>().FirstOrDefault();
                             if (children != null)
                             {
-                               
                             }
                         });
                         canInvoke = true;
@@ -117,7 +116,7 @@ public class CommLogger : TextEditor, IUiLogger
     private const int Tick = 1000 / 60;
 
     readonly LineColorTransformer _lineColorTransformer = new();
-    
+
 
     private void AppendLine(string message, string color)
     {
@@ -146,6 +145,11 @@ public class CommLogger : TextEditor, IUiLogger
     public void Write(string message, string color)
     {
         _writeQueue.Enqueue((message, color));
+    }
+
+    public void WriteEmptyLine()
+    {
+        Write(string.Empty, string.Empty);
     }
 
     private readonly Queue<(string, string)> _writeQueue = new();
@@ -177,7 +181,6 @@ public class CommLogger : TextEditor, IUiLogger
 
     public void ClearArea()
     {
-      
         _lineColorTransformer.Clear();
         Clear();
     }

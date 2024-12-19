@@ -17,12 +17,12 @@ namespace Comm.WPF.ViewModels
             throw new NotImplementedException();
         }
 
-        protected override void HandleSendMessage(byte[] bytes,string message)
+        protected override void LogSendMessage(byte[] bytes,string message)
         {
             throw new NotImplementedException();
         }
 
-        protected override void OnSendScript(byte[] buffer, string uiMessage)
+        protected override void InvokeSendScript(byte[] buffer, string uiMessage)
         {
             throw new NotImplementedException();
         }

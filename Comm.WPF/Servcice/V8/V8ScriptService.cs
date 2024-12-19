@@ -5,7 +5,7 @@ using Common.Lib.Ioc;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.ClearScript.V8;
 
-namespace Comm.WPF.Servcice;
+namespace Comm.WPF.Servcice.V8;
 
 public class V8ScriptService
 {
@@ -41,14 +41,15 @@ public class V8ScriptService
         {
             if (_scriptOption.IsEnableScript)
             {
-                StopScript();
+                await StartScript();
             }
             else
             {
-                await StartScript();
+                StopScript();
             }
         }
     }
+    
 
     private async Task StartScript()
     {
@@ -60,10 +61,12 @@ public class V8ScriptService
             _scriptOption.IsEnableScript = false;
             return;
         }
+        
 
+      
         var scriptContent =
             await ScriptManager.GetScriptContent(_type, _scriptOption.ScriptName!);
-
+      
         if (string.IsNullOrEmpty(scriptContent))
         {
             Notify.Warning("脚本内容为空");

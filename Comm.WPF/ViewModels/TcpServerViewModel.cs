@@ -55,7 +55,7 @@ public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, 
         Ui.Logger.Success($"{strMessage}");
     }
 
-    protected override void HandleSendMessage(byte[] bytes, string message)
+    protected override void LogSendMessage(byte[] bytes, string message)
     {
         var clientItems = _clientList.Where(it => it.IsSelected).Select(it => it.ShowName).ToList();
         if (clientItems.Count == 0)
@@ -68,7 +68,7 @@ public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, 
         Ui.Logger.Write($"{message}", "#1E6FFF");
     }
 
-    protected override void OnSendScript(byte[] buffer, string uiMessage)
+    protected override void InvokeSendScript(byte[] buffer, string uiMessage)
     {
        
     }

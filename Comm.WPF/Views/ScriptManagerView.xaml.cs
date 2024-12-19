@@ -22,15 +22,15 @@ public partial class ScriptManagerView : Window
         this.DataContext = ScriptManagerViewModel = Ioc.Resolve<ScriptManagerViewModel>();
     }
 
-    public void ShowDialog(string type, string initScriptContent)
+    public void ShowDialog(string type, string initScriptContent,string extendTip)
     {
         if (DataContext is ScriptManagerViewModel viewModel)
         {
             viewModel.Type = type;
             viewModel.InitScriptContent = initScriptContent;
             viewModel.Refresh();
+            BlazorService.ExtendTip = extendTip;
         }
-
         var showDialog = ShowDialog();
     }
 
