@@ -18,20 +18,21 @@ public class UdpViewModel : AbstractCommViewModel<SocketMessage>
 
     public override ICommunication<SocketMessage> Communication { get; }
 
-    protected override void LogReceiveMessage(SocketMessage message, string strMessage)
+    protected override void LogReceiveMessage(SocketMessage message)
     {
-        Ui.Logger.Info($"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [Receive:{message.RemoteIp}]");
-        Ui.Logger.Success($"{strMessage}");
+        // Ui.Logger.Info($"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [Receive:{message.RemoteIp}]");
+        // Ui.Logger.Success($"{strMessage}");
     }
 
-    protected override void LogSendMessage(byte[] bytes, string message)
+    protected override void LogSendMessage(byte[] bytes)
     {
-        Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send:{UdpAdapter.UdpSendOption.SendIp}]");
-        Ui.Logger.Primary($"{message}");
+        // Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send:{UdpAdapter.UdpSendOption.SendIp}]");
+        // Ui.Logger.Primary($"{message}");
     }
 
-    protected override void InvokeSendScript(byte[] buffer, string uiMessage)
+    protected override object InvokeSendScript(byte[] buffer)
     {
+        return null;
     }
 
     protected override object InvokeReceiveScript(SocketMessage message)

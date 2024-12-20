@@ -5,6 +5,7 @@ namespace Comm.Service.Service;
 public class ScriptManager : IScriptManager
 {
     public string RootPath => Path.Combine(Directory.GetCurrentDirectory(), "scripts");
+    public string CommonPath => Path.Combine(RootPath, "common");
 
     public async Task<string> GetScriptContent(string type, string name)
     {
@@ -31,6 +32,12 @@ public class ScriptManager : IScriptManager
         var path = GetPathByScriptType(type);
         var filePath = Path.Combine(path, name + ".js");
         File.Delete(filePath);
+    }
+
+    public string GetTemplate(string type)
+    {
+        var fileName = Path.Combine(CommonPath, type + "Template.js");
+        return File.Exists(fileName) ? File.ReadAllText(fileName) : "";
     }
 
     public string GetPathByScriptType(string type)

@@ -23,13 +23,13 @@ public class JsNotify<T> where T : IMessage
         ViewModel.Ui.Notify.Success(message);
     }
     
-    public void waring(string message)
+    public void warning(string message)
     {
         ViewModel.Ui.Notify.Warning(message);
     }
     
     public void error(string message)
     {
-        ViewModel.Ui.Notify.Info(message);
+        ViewModel.Ui.Notify.Error(message);
     }
 }

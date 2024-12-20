@@ -1,38 +1,47 @@
-using System.ComponentModel;
+using System.IO;
+using Comm.Lib.Args;
 using Common.Lib.Ioc;
 using Common.Mvvm.Abstracts;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Comm.Lib.Args;
 using Comm.Lib.Interface;
-using Comm.Service.Share;
-using Comm.WPF.Servcice;
+using Comm.WPF.Servcice.V8;
+using Microsoft.ClearScript.V8;
 
 namespace Comm.WPF.Abstracts;
 
 public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T : IMessage
 {
+    #region 字段
+
+    private CancellationTokenSource? _receiveCts;
+
+    [ObservableProperty] private bool _isConnect;
+
+    #endregion
+
     #region 属性
+
+    protected abstract string ScriptType { get; }
+
+    protected IScriptManager ScriptManager { get; } = Ioc.Resolve<IScriptManager>();
 
     protected INotify Notify => Ioc.Resolve<INotify>();
 
     protected IGlobalOption GlobalOption => Ioc.Resolve<IGlobalOption>();
-    
-
-    [ObservableProperty] private bool _isConnect;
-
-
-    public ISendOption SendOption => Communication.SendOption;
-
-    public IReceiveOption ReceiveOption => Communication.ReceiveOption;
 
     public ICommUi Ui { get; set; } = null!;
-
 
     public abstract ICommunication<T> Communication { get; }
 
     #endregion
 
+    #region Command
+
+    /// <summary>
+    /// 连接
+    /// </summary>
+    /// <returns></returns>
     [RelayCommand]
     protected virtual Task Connect()
     {
@@ -56,6 +65,25 @@ public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T :
         return Task.CompletedTask;
     }
 
+    #endregion
+
+    #region Method
+
+    /// <summary>
+    /// 日志输出接收到信息
+    /// </summary>
+    /// <param name="message"></param>
+    protected abstract void LogReceiveMessage(T message);
+
+    /// <summary>
+    /// 日志输出发送信息
+    /// </summary>
+    /// <param name="bytes"></param>
+    protected abstract void LogSendMessage(byte[] bytes);
+
+    /// <summary>
+    /// 初始化方法
+    /// </summary>
     protected virtual void InitCommunication()
     {
         RefreshScriptSource();
@@ -67,138 +95,90 @@ public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T :
         }
     }
 
-
-    private void HandleSendOptionChanged(object? sender, PropertyChangedEventArgs e)
+    /// <summary>
+    /// 刷新脚本列表
+    /// </summary>
+    public void RefreshScriptSource()
     {
-        if (e.PropertyName == nameof(SendOption.AutoSend))
+        ReceiveScriptSource = ScriptManager.GetScriptNames(ReceiveScriptType);
+        SendScriptSource = ScriptManager.GetScriptNames(SendScriptType);
+        if (!string.IsNullOrEmpty(ReceiveOption.ScriptName) && !ReceiveScriptSource.Contains(ReceiveOption.ScriptName))
         {
-            if (SendOption.AutoSend)
-            {
-                _autoSendCts = new();
-                Task.Run(AutoSendMethod, _autoSendCts.Token);
-            }
-            else
-            {
-                _autoSendCts?.Cancel();
-                _autoSendCts?.Dispose();
-                _autoSendCts = null;
-            }
+            ReceiveOption.ScriptName = null;
         }
 
-        if (e.PropertyName == nameof(SendOption.IsHex))
+        if (!string.IsNullOrEmpty(SendOption.ScriptName) && !SendScriptSource.Contains(SendOption.ScriptName))
         {
-            if (e.PropertyName == nameof(SendOption.IsHex))
-            {
-                var message = Ui.SendMessage;
-                if (string.IsNullOrEmpty(message))
-                {
-                    return;
-                }
-
-                string msg;
-                if (SendOption.IsHex)
-                {
-                    msg = message.StringToHexString();
-                }
-                else
-                {
-                    msg = message.HexStringToString();
-                }
-
-                Ui.SendMessage = msg;
-            }
+            SendOption.ScriptName = null;
         }
     }
 
-
-    protected abstract void LogReceiveMessage(T message, string strMessage);
-    protected abstract void LogSendMessage(byte[] bytes, string message);
-    protected abstract void InvokeSendScript(byte[] buffer, string uiMessage);
-
-
-    protected virtual bool SendCheck(string message)
+    /// <summary>
+    /// 加载脚本基础对象和方法
+    /// </summary>
+    /// <param name="engine"></param>
+    private void LoadEngine(V8ScriptEngine engine)
     {
-        if (string.IsNullOrEmpty(message))
+        // 加载common目录下的所有脚本
+        var commonPath = Path.Combine(GlobalOption.ScriptPath, "common", "common.js");
+        if (File.Exists(commonPath))
         {
-            Notify.Warning("发送内容不可为空");
-            return false;
+            string scriptContent = File.ReadAllText(commonPath);
+            engine.Execute(scriptContent);
         }
 
-        return true;
+        engine.AddHostObject("notify", new JsNotify<T>(this));
+        engine.AddHostObject("comm", new JsComm<T>(this));
+        engine.AddHostObject("ui", new JsUi<T>(this));
+        engine.AddHostObject("util", new JsUtil(engine));
     }
 
-    [RelayCommand]
-    private async Task Send(string message)
+    /// <summary>
+    /// 初始化脚本方法
+    /// </summary>
+    protected virtual void InitScript()
     {
-        if (!SendCheck(message))
-        {
-            return;
-        }
-
-        await SendMessage(message);
+        V8Receive = new V8ScriptService(ReceiveOption, ReceiveScriptType);
+        V8Send = new V8ScriptService(SendOption, SendScriptType);
+        V8Receive.LoadEngine += LoadEngine;
+        V8Send.LoadEngine += LoadEngine;
     }
 
-    public byte[] StringToBuffer(string message)
+    /// <summary>
+    /// 初始化连接状态
+    /// </summary>
+    protected virtual void InitConnectState()
     {
-        byte[] buffer;
-        if (SendOption.IsHex)
-        {
-            buffer = message.HexStringToBytes();
-        }
-        else
-        {
-            buffer = GlobalOption.Encoding.GetBytes(message);
-        }
-
-        return buffer;
+        Communication.Connected += HandleConnected;
+        Communication.Closed += HandleClosed;
     }
 
-    public string BufferToString(byte[] buffer)
+    /// <summary>
+    /// 处理连胜成功
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void HandleConnected(object? sender, ConnectedArgs e)
     {
-        if (SendOption.IsHex)
-        {
-            return buffer.BytesToHexString();
-        }
-
-        return buffer.BytesToString();
+        IsConnect = true;
+        // 开启消息处理
+        _receiveCts = new();
+        Task.Run(StartHandleReceive, _receiveCts.Token);
     }
 
-    private async Task SendMessage(string message)
+    /// <summary>
+    /// 处理关闭连接
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void HandleClosed(object? sender, ClosedArgs e)
     {
-        try
-        {
-            var buffer = StringToBuffer(message);
-            string uiMessage;
-            if (SendOption.IsHex)
-            {
-                uiMessage = buffer.BytesToHexString();
-            }
-            else
-            {
-                uiMessage = buffer.BytesToString();
-            }
-
-            LogSendMessage(buffer, uiMessage);
-            InvokeSendScript(buffer, uiMessage);
-            // 自动换行
-            if (ReceiveOption.AutoNewLine)
-            {
-                Ui.Logger.Write(string.Empty, string.Empty);
-            }
-
-            await HandleSendBytes(buffer);
-        }
-        catch (Exception e)
-        {
-            Ui.Logger.Error(e.Message);
-        }
+        IsConnect = false;
+        // 关闭消息处理清空已存在的消息
+        _receiveCts?.Cancel();
+        _receiveCts?.Dispose();
+        _receiveCts = null;
     }
 
-    protected virtual async Task<bool> HandleSendBytes(byte[] buffer)
-    {
-        await Communication.WriteAsync(buffer, 0, buffer.Length);
-        Ui.AddSendFrame(1);
-        Ui.AddSendBytes((uint)buffer.Length);
-        return true;
-    }
+    #endregion
 }

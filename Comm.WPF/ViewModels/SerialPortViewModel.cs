@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using Comm.Lib.Interface;
 using Comm.Service.IO;
 using Comm.Service.Messages;
+using Comm.Service.Share;
 using Comm.WPF.Abstracts;
 using Comm.WPF.Entity;
 using Comm.WPF.Servcice;
@@ -71,17 +72,14 @@ public partial class SerialPortViewModel : AbstractCommViewModel<SerialMessage>
     }
 
 
-    protected override void LogReceiveMessage(SerialMessage message, string strMessage)
+    protected override void LogReceiveMessage(SerialMessage message)
     {
         if (ReceiveOption.LogStyleShow)
         {
             Ui.Logger.Info($"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] Receive");
-            Ui.Logger.Success($"{strMessage}");
         }
-        else
-        {
-            Ui.Logger.Success($"{strMessage}");
-        }
+
+        Ui.Logger.Success($"{message.Data.BytesToString(ReceiveOption.IsHex)}");
     }
 
 
@@ -90,20 +88,23 @@ public partial class SerialPortViewModel : AbstractCommViewModel<SerialMessage>
     {
         ComPortList = Serial.GetPortNames();
     }
-    
 
-    protected override void LogSendMessage(byte[] bytes, string message)
+
+    protected override void LogSendMessage(byte[] bytes)
     {
         var time = DateTime.Now;
         if (SendOption.DefaultWriteUi)
         {
             Ui.Logger.Info($"[{time:yyyy-MM-dd HH:mm:ss.fff}] Send");
-            Ui.Logger.Primary(message);
+            Ui.Logger.Primary(bytes.BytesToString(SendOption.IsHex));
         }
     }
 
-    protected override void InvokeSendScript(byte[] buffer, string uiMessage)
+    protected override object InvokeSendScript(byte[] buffer)
     {
+        var array = (ITypedArray<byte>)V8Send.Engine!.Invoke("arrayToUint8Array", buffer);
+        var jsMessage = new JsMessage(array);
+        return V8Send.Engine.Invoke("send", jsMessage);
     }
 
     protected override object InvokeReceiveScript(SerialMessage message)

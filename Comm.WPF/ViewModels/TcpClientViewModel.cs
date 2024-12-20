@@ -15,22 +15,22 @@ public partial class TcpClientViewModel : AbstractCommViewModel<SocketMessage>, 
     public TcpClientAdapter Client { get; }
     public override ICommunication<SocketMessage> Communication => Client;
 
-    protected override void LogReceiveMessage(SocketMessage message, string strMessage)
+    protected override void LogReceiveMessage(SocketMessage message)
     {
-        Ui.Logger.Info($"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [Receive]");
-        Ui.Logger.Success($"{strMessage}");
+        // Ui.Logger.Info($"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [Receive]");
+        // Ui.Logger.Success($"{strMessage}");
     }
 
-    protected override void LogSendMessage(byte[] bytes, string message)
+    protected override void LogSendMessage(byte[] bytes)
     {
-        var time = DateTime.Now;
-        Ui.Logger.Info($"[{time:yyyy-MM-dd HH:mm:ss.fff}] [Send]");
-        Ui.Logger.Write($"{message}", "#1E6FFF");
+        // var time = DateTime.Now;
+        // Ui.Logger.Info($"[{time:yyyy-MM-dd HH:mm:ss.fff}] [Send]");
+        // Ui.Logger.Write($"{message}", "#1E6FFF");
     }
 
-    protected override void InvokeSendScript(byte[] buffer, string uiMessage)
+    protected override object InvokeSendScript(byte[] buffer)
     {
-        
+        return null;
     }
 
     protected override object InvokeReceiveScript(SocketMessage message)

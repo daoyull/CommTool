@@ -1,4 +1,5 @@
-﻿using Comm.WPF.ViewModels;
+﻿using Comm.Service.Share;
+using Comm.WPF.ViewModels;
 using Microsoft.ClearScript.JavaScript;
 using Microsoft.ClearScript.V8;
 
@@ -15,9 +16,9 @@ public class JsSerial
         ViewModel = viewModel;
     }
 
-    public void send(string message)
+    public void send(string message, bool isHexStr = false)
     {
-        var buffer = ViewModel.StringToBuffer(message);
+        var buffer = message.StringToBytes(isHexStr);
         sendBuffer(buffer);
     }
 
@@ -30,5 +31,4 @@ public class JsSerial
     {
         ViewModel.Communication.Write(buffer, 0, buffer.Length);
     }
-    
 }

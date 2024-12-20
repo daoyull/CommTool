@@ -10,7 +10,7 @@ using Comm.WPF.Abstracts;
 namespace Comm.WPF.ViewModels;
 
 public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, IDisposable
-{  
+{
     public TcpServerViewModel(TcpServerAdapter tcpServerAdapter)
     {
         Server = tcpServerAdapter;
@@ -49,13 +49,13 @@ public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, 
     public override ICommunication<SocketMessage> Communication => Server;
 
 
-    protected override void LogReceiveMessage(SocketMessage message, string strMessage)
+    protected override void LogReceiveMessage(SocketMessage message)
     {
-        Ui.Logger.Info($"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [Receive:{message.RemoteIp}]");
-        Ui.Logger.Success($"{strMessage}");
+        // Ui.Logger.Info($"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [Receive:{message.RemoteIp}]");
+        // Ui.Logger.Success($"{strMessage}");
     }
 
-    protected override void LogSendMessage(byte[] bytes, string message)
+    protected override void LogSendMessage(byte[] bytes)
     {
         var clientItems = _clientList.Where(it => it.IsSelected).Select(it => it.ShowName).ToList();
         if (clientItems.Count == 0)
@@ -63,14 +63,14 @@ public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, 
             return;
         }
 
-        var sendStr = $"[{string.Join(',', clientItems)}]";
-        Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send] {sendStr}");
-        Ui.Logger.Write($"{message}", "#1E6FFF");
+        // var sendStr = $"[{string.Join(',', clientItems)}]";
+        // Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send] {sendStr}");
+        // Ui.Logger.Write($"{message}", "#1E6FFF");
     }
 
-    protected override void InvokeSendScript(byte[] buffer, string uiMessage)
+    protected override object InvokeSendScript(byte[] buffer)
     {
-       
+        return null;
     }
 
     protected override object InvokeReceiveScript(SocketMessage message)
@@ -79,12 +79,12 @@ public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, 
     }
 
 
-    protected override async Task<bool> HandleSendBytes(byte[] buffer)
+    protected override async Task SendBytes(byte[] buffer)
     {
         var list = _clientList.Where(it => it.IsSelected).ToList();
         if (list.Count == 0)
         {
-            return false;
+            return;
         }
 
         foreach (var item in list)
@@ -93,8 +93,6 @@ public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, 
             Ui?.AddSendFrame(1);
             Ui?.AddSendBytes((uint)buffer.Length);
         }
-
-        return true;
     }
 
     protected override string ScriptType => "TcpServer";

@@ -1,4 +1,5 @@
-﻿using Comm.WPF.ViewModels;
+﻿using Comm.Service.Share;
+using Comm.WPF.ViewModels;
 using Microsoft.ClearScript.JavaScript;
 
 namespace Comm.WPF.Servcice.V8;
@@ -11,32 +12,22 @@ public class JsUdp
     {
         ViewModel = viewModel;
     }
-    
-    public void sendBuffer(string address, byte[] buffer, int offset, int size)
-    {
-        
-    }
 
-    public void sendBuffer(string address, byte[] buffer) => sendBuffer(address, buffer, 0, buffer.Length);
 
-    public void sendBuffer(string address, ITypedArray<byte> array, int offset, int size)
+    public void sendBuffer(string address, byte[] buffer)
     {
-        var buffer = array.ToArray();
-        sendBuffer(address, buffer, offset, size);
     }
 
     public void sendBuffer(string address, ITypedArray<byte> array)
     {
         var buffer = array.ToArray();
-        sendBuffer(address, buffer, 0, buffer.Length);
+        sendBuffer(address, buffer);
     }
 
 
-    public void send(string address, string message)
+    public void send(string address, string message, bool isHexStr = false)
     {
-        var buffer = ViewModel.StringToBuffer(message);
-        sendBuffer(address, buffer, 0, buffer.Length);
+        var buffer = message.StringToBytes(isHexStr);
+        sendBuffer(address, buffer);
     }
-    
-    
 }

@@ -45,6 +45,16 @@ public static partial class Extensions
         return Convert.FromHexString(filteredHexStr);
     }
 
+    public static byte[] StringToBytes(this string str, bool isHexStr)
+    {
+        return isHexStr ? HexStringToBytes(str) : StringToBytes(str);
+    }
+
+    public static string BytesToString(this byte[] bytes, bool isHexArray)
+    {
+        return isHexArray ? BytesToHexString(bytes) : BytesToString(bytes);
+    }
+
     public static string HexStringToString(this string hexStr)
     {
         var bytes = hexStr.HexStringToBytes();

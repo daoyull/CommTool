@@ -12,17 +12,17 @@ namespace Comm.WPF.ViewModels
             throw new NotImplementedException();
         }
 
-        protected override void LogReceiveMessage(SerialMessage message, string strMessage)
+        protected override void LogReceiveMessage(SerialMessage message)
         {
             throw new NotImplementedException();
         }
 
-        protected override void LogSendMessage(byte[] bytes,string message)
+        protected override void LogSendMessage(byte[] bytes)
         {
             throw new NotImplementedException();
         }
 
-        protected override void InvokeSendScript(byte[] buffer, string uiMessage)
+        protected override object InvokeSendScript(byte[] buffer)
         {
             throw new NotImplementedException();
         }

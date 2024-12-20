@@ -13,5 +13,5 @@ const serial = {
      */
     sendBuffer(array) {
     },
-    
+
 }

@@ -42,3 +42,37 @@ function formatDate(date, format = "yyyy-MM-dd HH:mm:ss:S") {
     }
     return format;
 }
+
+/**
+ * 计算并附加Modbus CRC16校验码到原始字节数组上。
+ * @param {Uint8Array} source - 原始字节数组
+ * @returns {Uint8Array} - 包含CRC16校验码的新字节数组
+ */
+function modbusCrc16(source) {
+    // 创建一个比原数组多两个元素的数组来存储CRC值
+    const newBuffer = new Uint8Array(source.length + 2);
+
+    // 复制原始数据到新数组
+    newBuffer.set(source);
+
+    // 初始化CRC寄存器
+    let crc = 0xFFFF;
+
+    // 计算CRC16
+    for (let i = 0; i < source.length; i++) {
+        crc ^= source[i];
+        for (let j = 0; j < 8; j++) {
+            if (crc & 0x01) {
+                crc = (crc >> 1) ^ 0xA001;
+            } else {
+                crc >>= 1;
+            }
+        }
+    }
+
+    // 将计算出的CRC添加到新数组末尾，注意字节顺序
+    newBuffer[source.length] = crc & 0xFF;     // Low byte
+    newBuffer[source.length + 1] = (crc >> 8); // High byte
+
+    return newBuffer;
+}

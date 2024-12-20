@@ -58,28 +58,28 @@ const ui = {
     },
 
     /**
-     * 增加发送帧
+     * 增加发送帧计数
      * @param {Number} num - 增加数
      */
     addSendFrame(num) {
     },
 
     /**
-     * 增加接收帧
+     * 增加接收帧计数
      * @param {Number} num - 增加数
      */
     addReceiveFrame(num) {
     },
 
     /**
-     * 增加发送字节
+     * 增加发送字节计数
      * @param {Number} num - 增加数
      */
     addSendBytes(num) {
     },
 
     /**
-     * 增加接收字节
+     * 增加接收字节计数
      * @param {Number} num - 增加数
      */
     addReceiveBytes(num) {
@@ -106,40 +106,52 @@ const notify = {
      * 普通信息提示。
      * @param {string} message - 要提示的信息内容。
      */
-    info: function (message) {
+    info(message) {
     },
 
     /**
-     * 提示普通信息。
+     * 成功信息提示。
      * @param {string} message - 要提示的信息内容。
      */
-    success: function (message) {
+    success(message) {
     },
 
     /**
-     * 提示普通信息。
+     * 警告信息提示。
      * @param {string} message - 要提示的信息内容。
      */
-    warning: function (message) {
+    warning(message) {
     },
 
     /**
-     * 提示普通信息。
+     * 错误信息提示。
      * @param {string} message - 要提示的信息内容。
      */
-    error: function (message) {
+    error(message) {
     },
+}
+
+/**
+ * 通讯
+ */
+const comm = {
+    /**
+     * 发送数据
+     * @param {string} message - 发送信息
+     */
+    send(message) {
+    }
 }
 
 /**
  * 工具
  */
 const util = {
-    
+
     /**
      * 把 Uint8Array 转为字符串
      * @param {Uint8Array} array - byte数组
-     * @param {Boolean} isHex - 是否16进制
+     * @param {Boolean} isHex - 是否转为16进制字符串
      * @returns {string} - byte数组对应的字符串
      */
     arrayToString(array, isHex = false) {
@@ -148,11 +160,20 @@ const util = {
     /**
      * 把 字符串 转为 Uint8Array
      * @param {string} message - 信息
-     * @param {Boolean} isHex - 是否16进制
+     * @param {Boolean} isHex - 是否16进制字符串
      * @returns {Uint8Array} - 字符串对应的byte数组
      */
     stringToArray(message, isHex = false) {
     }
+}
+
+
+/**
+ * .net数组转Uint8Array
+ * @param {.net byte[]} array - .net数组
+ * @returns {Uint8Array} - Uint8Array
+ */
+function arrayToUint8Array(array) {
 }
 
 /**
@@ -165,9 +186,11 @@ function formatDate(date, format = "yyyy-MM-dd HH:mm:ss:S") {
 }
 
 /**
- * .net数组转Uint8Array
- * @param {.net byte[]} array - .net数组
- * @returns {Uint8Array} - Uint8Array
+ * 计算并附加Modbus CRC16校验码到原始字节数组上。
+ * @param {Uint8Array} source - 原始字节数组
+ * @returns {Uint8Array} - 包含CRC16校验码的新字节数组
  */
-function arrayToUint8Array(array) {
+function modbusCrc16(source) {
 }
+
+

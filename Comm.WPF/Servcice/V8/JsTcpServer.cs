@@ -13,33 +13,25 @@ public class JsTcpServer
         ViewModel = viewModel;
     }
 
-    public void sendBuffer(string address, byte[] buffer, int offset, int size)
+    public void sendBuffer(string address, byte[] buffer)
     {
         var clientItem = ViewModel.Clients.FirstOrDefault(it => it.Socket.ToRemoteIpStr() == address);
         if (clientItem != null)
         {
-            ViewModel.Server.Write(clientItem.Socket, buffer, offset, size);
+            ViewModel.Server.Write(clientItem.Socket, buffer, 0, buffer.Length);
         }
-    }
-
-    public void sendBuffer(string address, byte[] buffer) => sendBuffer(address, buffer, 0, buffer.Length);
-
-    public void sendBuffer(string address, ITypedArray<byte> array, int offset, int size)
-    {
-        var buffer = array.ToArray();
-        sendBuffer(address, buffer, offset, size);
     }
 
     public void sendBuffer(string address, ITypedArray<byte> array)
     {
         var buffer = array.ToArray();
-        sendBuffer(address, buffer, 0, buffer.Length);
+        sendBuffer(address, buffer);
     }
 
 
-    public void send(string address, string message)
+    public void send(string address, string message, bool isHexStr = false)
     {
-        var buffer = ViewModel.StringToBuffer(message);
-        sendBuffer(address, buffer, 0, buffer.Length);
+        var buffer = message.StringToBytes(isHexStr);
+        sendBuffer(address, buffer);
     }
 }

@@ -6,6 +6,7 @@ public interface IScriptManager
     /// 脚本根目录
     /// </summary>
     public string RootPath { get; }
+    public string CommonPath { get; }
 
     /// <summary>
     /// 获取脚本内容
@@ -22,11 +23,18 @@ public interface IScriptManager
     public Task EditScript(string type, string name, string content);
 
     /// <summary>
-    /// 删除掉本
+    /// 删除脚本
     /// </summary>
     /// <param name="type"></param>
     /// <param name="name"></param>
     public void RemoveScript(string type, string name);
+
+    /// <summary>
+    /// 获取脚本模板
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    public string GetTemplate(string type);
 
     /// <summary>
     /// 获取对应类型的脚本目录地址
