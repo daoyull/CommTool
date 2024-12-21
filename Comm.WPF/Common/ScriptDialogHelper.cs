@@ -11,7 +11,7 @@ public class ScriptDialogHelper
     public static void ShowDialog<T>(string scriptType, string initContent, AbstractCommViewModel<T> viewModel)
         where T : IMessage
     {
-        var extendTipName = scriptType + "Tip.js";
+        var extendTipName = $"tip_{scriptType}.js";
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "scripts", "common", extendTipName);
         string extendTip = File.Exists(filePath) ? File.ReadAllText(filePath) : "";
         var scriptManagerView = new ScriptManagerView();

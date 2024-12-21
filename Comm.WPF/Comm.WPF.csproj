@@ -65,9 +65,6 @@
       <None Update="scripts\common\utils.js">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Update="scripts\TcpClientReceive\auto_back.js">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
       <None Update="scripts\SerialReceive\auto_back.js">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
@@ -77,16 +74,16 @@
       <None Update="scripts\common\common.js">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="scripts\common\SerialReceiveTip.js">
+      <None Update="scripts\common\tip_SerialReceive.js">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="scripts\common\SerialSendTip.js">
+      <None Update="scripts\common\tip_SerialSend.js">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="scripts\common\SerialReceiveTemplate.js">
+      <None Update="scripts\common\template_SerialReceive.js">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="scripts\common\SerialSendTemplate.js">
+      <None Update="scripts\common\template_SerialSend.js">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>

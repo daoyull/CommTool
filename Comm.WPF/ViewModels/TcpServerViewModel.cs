@@ -49,10 +49,15 @@ public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, 
     public override ICommunication<SocketMessage> Communication => Server;
 
 
-    protected override void LogReceiveMessage(SocketMessage message)
+    protected override void LogUiReceiveMessage(SocketMessage message)
     {
         // Ui.Logger.Info($"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [Receive:{message.RemoteIp}]");
         // Ui.Logger.Success($"{strMessage}");
+    }
+
+    protected override void LogFileReceiveMessage(SocketMessage message)
+    {
+        throw new NotImplementedException();
     }
 
     protected override void LogSendMessage(byte[] bytes)
@@ -66,6 +71,11 @@ public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, 
         // var sendStr = $"[{string.Join(',', clientItems)}]";
         // Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send] {sendStr}");
         // Ui.Logger.Write($"{message}", "#1E6FFF");
+    }
+
+    protected override void LogFileSendMessage(byte[] buffer)
+    {
+        throw new NotImplementedException();
     }
 
     protected override object InvokeSendScript(byte[] buffer)
@@ -95,7 +105,7 @@ public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, 
         }
     }
 
-    protected override string ScriptType => "TcpServer";
+    protected override string Type => "TcpServer";
 
     public void Dispose()
     {

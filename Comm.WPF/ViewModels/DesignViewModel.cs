@@ -12,12 +12,22 @@ namespace Comm.WPF.ViewModels
             throw new NotImplementedException();
         }
 
-        protected override void LogReceiveMessage(SerialMessage message)
+        protected override void LogUiReceiveMessage(SerialMessage message)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void LogFileReceiveMessage(SerialMessage message)
         {
             throw new NotImplementedException();
         }
 
         protected override void LogSendMessage(byte[] bytes)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void LogFileSendMessage(byte[] buffer)
         {
             throw new NotImplementedException();
         }
@@ -34,6 +44,6 @@ namespace Comm.WPF.ViewModels
 
       
 
-        protected override string ScriptType { get; }
+        protected override string Type { get; }
     }
 }

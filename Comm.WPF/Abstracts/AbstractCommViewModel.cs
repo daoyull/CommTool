@@ -22,7 +22,7 @@ public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T :
 
     #region 属性
 
-    protected abstract string ScriptType { get; }
+    protected abstract string Type { get; }
 
     protected IScriptManager ScriptManager { get; } = Ioc.Resolve<IScriptManager>();
 
@@ -73,7 +73,13 @@ public abstract partial class AbstractCommViewModel<T> : BaseViewModel where T :
     /// 日志输出接收到信息
     /// </summary>
     /// <param name="message"></param>
-    protected abstract void LogReceiveMessage(T message);
+    protected abstract void LogUiReceiveMessage(T message);
+
+    /// <summary>
+    /// 文件日志输出接收到信息
+    /// </summary>
+    /// <param name="message"></param>
+    protected abstract void LogFileReceiveMessage(T message);
 
     /// <summary>
     /// 日志输出发送信息

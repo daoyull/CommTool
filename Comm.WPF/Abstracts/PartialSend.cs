@@ -24,7 +24,7 @@ public abstract partial class AbstractCommViewModel<T>
     /// <summary>
     /// 发送脚本类型
     /// </summary>
-    private string SendScriptType => ScriptType + "Send";
+    private string SendScriptType => Type + "Send";
 
     /// <summary>
     /// 发送脚本模板
@@ -68,6 +68,12 @@ public abstract partial class AbstractCommViewModel<T>
     #endregion
 
     #region Method
+
+    /// <summary>
+    /// 文件日志输出
+    /// </summary>
+    /// <param name="buffer"></param>
+    protected abstract void LogFileSendMessage(byte[] buffer);
 
     /// <summary>
     /// 执行发送脚本
@@ -180,7 +186,13 @@ public abstract partial class AbstractCommViewModel<T>
                 return;
             }
 
+
             var buffer = message.StringToBytes(SendOption.IsHex);
+            if (ReceiveOption.SaveToFile)
+            {
+                LogFileSendMessage(buffer);
+            }
+
             // 调用脚本
             bool logHandle = false;
             bool frameHandle = false;
@@ -188,7 +200,7 @@ public abstract partial class AbstractCommViewModel<T>
 
             OnSendScript(buffer, ref logHandle, ref frameHandle, ref sendHandle);
 
-            if (!logHandle)
+            if (!logHandle && SendOption.DefaultWriteUi)
             {
                 LogSendMessage(buffer);
                 // 自动换行
@@ -213,6 +225,7 @@ public abstract partial class AbstractCommViewModel<T>
             Ui.Logger.Error(e.Message);
         }
     }
+
 
     /// <summary>
     /// 检查要发送的消息

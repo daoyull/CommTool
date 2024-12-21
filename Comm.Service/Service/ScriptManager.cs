@@ -36,7 +36,7 @@ public class ScriptManager : IScriptManager
 
     public string GetTemplate(string type)
     {
-        var fileName = Path.Combine(CommonPath, type + "Template.js");
+        var fileName = Path.Combine(CommonPath, $"template_{type}.js");
         return File.Exists(fileName) ? File.ReadAllText(fileName) : "";
     }
 

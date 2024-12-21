@@ -8,6 +8,7 @@ using Comm.Service.IO;
 using Comm.Service.Messages;
 using Comm.Service.Share;
 using Comm.WPF.Abstracts;
+using Comm.WPF.Common;
 using Comm.WPF.Entity;
 using Comm.WPF.Servcice;
 using Comm.WPF.Servcice.V8;
@@ -72,7 +73,7 @@ public partial class SerialPortViewModel : AbstractCommViewModel<SerialMessage>
     }
 
 
-    protected override void LogReceiveMessage(SerialMessage message)
+    protected override void LogUiReceiveMessage(SerialMessage message)
     {
         if (ReceiveOption.LogStyleShow)
         {
@@ -80,6 +81,12 @@ public partial class SerialPortViewModel : AbstractCommViewModel<SerialMessage>
         }
 
         Ui.Logger.Success($"{message.Data.BytesToString(ReceiveOption.IsHex)}");
+    }
+
+    protected override void LogFileReceiveMessage(SerialMessage message)
+    {
+        FileLog.WriteMessage(Type, $"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] Receive");
+        FileLog.WriteMessage(Type, $"{message.Data.BytesToString(ReceiveOption.IsHex)}");
     }
 
 
@@ -93,11 +100,14 @@ public partial class SerialPortViewModel : AbstractCommViewModel<SerialMessage>
     protected override void LogSendMessage(byte[] bytes)
     {
         var time = DateTime.Now;
-        if (SendOption.DefaultWriteUi)
-        {
-            Ui.Logger.Info($"[{time:yyyy-MM-dd HH:mm:ss.fff}] Send");
-            Ui.Logger.Primary(bytes.BytesToString(SendOption.IsHex));
-        }
+        Ui.Logger.Info($"[{time:yyyy-MM-dd HH:mm:ss.fff}] Send");
+        Ui.Logger.Primary(bytes.BytesToString(SendOption.IsHex));
+    }
+
+    protected override void LogFileSendMessage(byte[] buffer)
+    {
+        FileLog.WriteMessage(Type, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] Receive");
+        FileLog.WriteMessage(Type, $"{buffer.BytesToString(SendOption.IsHex)}");
     }
 
     protected override object InvokeSendScript(byte[] buffer)
@@ -115,5 +125,5 @@ public partial class SerialPortViewModel : AbstractCommViewModel<SerialMessage>
     }
 
 
-    protected override string ScriptType => "Serial";
+    protected override string Type => "Serial";
 }

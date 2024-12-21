@@ -26,7 +26,7 @@ public abstract partial class AbstractCommViewModel<T>
     /// <summary>
     /// 收到的脚本的类型
     /// </summary>
-    private string ReceiveScriptType => ScriptType + "Receive";
+    private string ReceiveScriptType => Type + "Receive";
 
     /// <summary>
     /// 获取接收脚本模板
@@ -77,6 +77,10 @@ public abstract partial class AbstractCommViewModel<T>
                 var message = await Communication.MessageReadAsync(_receiveCts.Token);
                 try
                 {
+                    if (ReceiveOption.SaveToFile)
+                    {
+                        LogFileReceiveMessage(message);
+                    }
                     // 调用脚本
                     bool logHandle = false;
                     bool frameHandle = false;
@@ -93,7 +97,7 @@ public abstract partial class AbstractCommViewModel<T>
                     // 是否输出到界面
                     if (ReceiveOption.DefaultWriteUi && !logHandle)
                     {
-                        LogReceiveMessage(message);
+                        LogUiReceiveMessage(message);
                         // 自动换行
                         if (ReceiveOption.AutoNewLine)
                         {
