@@ -5,7 +5,7 @@ using Comm.WPF.Abstracts;
 
 namespace Comm.WPF.ViewModels;
 
-public class UdpViewModel : AbstractCommViewModel<SocketMessage>
+public class UdpViewModel : AbstractCommViewModel<UdpMessage>
 {
     public UdpAdapter UdpAdapter { get; }
 
@@ -16,15 +16,15 @@ public class UdpViewModel : AbstractCommViewModel<SocketMessage>
 
     protected override string Type => "Udp";
 
-    public override ICommunication<SocketMessage> Communication { get; }
+    public override ICommunication<UdpMessage> Communication { get; }
 
-    protected override void LogUiReceiveMessage(SocketMessage message)
+    protected override void LogUiReceiveMessage(UdpMessage message)
     {
         // Ui.Logger.Info($"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [Receive:{message.RemoteIp}]");
         // Ui.Logger.Success($"{strMessage}");
     }
 
-    protected override void LogFileReceiveMessage(SocketMessage message)
+    protected override void LogFileReceiveMessage(UdpMessage message)
     {
         throw new NotImplementedException();
     }
@@ -45,7 +45,7 @@ public class UdpViewModel : AbstractCommViewModel<SocketMessage>
         return null;
     }
 
-    protected override object InvokeReceiveScript(SocketMessage message)
+    protected override object InvokeReceiveScript(UdpMessage message)
     {
         throw new NotImplementedException();
     }

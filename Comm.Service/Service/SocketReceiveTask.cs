@@ -1,5 +1,6 @@
 ﻿using System.Buffers;
 using System.IO.Pipelines;
+using System.Net;
 using System.Net.Sockets;
 using Comm.Lib.Interface;
 using Comm.Service.IO;
@@ -99,7 +100,8 @@ public class SocketPipeReceiveTask(ICommunication<SocketMessage> communication, 
             : buffer.Slice(0, buffer.Length).ToArray();
         var consumed = buffer.GetPosition(array.Length);
         Reader.AdvanceTo(consumed);
-        return new SocketMessage(array, Socket.ToRemoteIpStr());
+        var ipEndPoint = (IPEndPoint)Socket.LocalEndPoint!;
+        return new SocketMessage(array, socket);
     }
 
     private readonly List<byte> _list = new();
@@ -121,8 +123,8 @@ public class SocketPipeReceiveTask(ICommunication<SocketMessage> communication, 
             Reader.AdvanceTo(item.End);
             Stopwatch.Restart();
         }
-
-        return new SocketMessage(_list.ToArray(), Socket.ToRemoteIpStr());
+        var ipEndPoint = (IPEndPoint)Socket.LocalEndPoint!;
+        return new SocketMessage(_list.ToArray(), socket);
     }
 
     protected virtual void OnCloseEvent(Socket e)

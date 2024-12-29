@@ -9,8 +9,8 @@ using Comm.Service.Share;
 
 namespace Comm.Service.Service;
 
-public class UdpReceiveTask(ICommunication<SocketMessage> communication, UdpClient client, CancellationTokenSource cts)
-    : IReceiveTask<SocketMessage>
+public class UdpReceiveTask(ICommunication<UdpMessage> communication, UdpClient client, CancellationTokenSource cts)
+    : IReceiveTask<UdpMessage>
 {
     public UdpClient Client { get; } = client;
 
@@ -21,7 +21,7 @@ public class UdpReceiveTask(ICommunication<SocketMessage> communication, UdpClie
         return Task.CompletedTask;
     }
 
-    public ICommunication<SocketMessage> Communication { get; } = communication;
+    public ICommunication<UdpMessage> Communication { get; } = communication;
 
     private async Task ReceiveTask()
     {
@@ -31,9 +31,9 @@ public class UdpReceiveTask(ICommunication<SocketMessage> communication, UdpClie
             {
                 IPEndPoint? ipEndPoint = null;
                 var buffer = Client.Receive(ref ipEndPoint);
-                var socketMessage = new SocketMessage(buffer, ipEndPoint.ToString());
+                var socketMessage = new UdpMessage(buffer, ipEndPoint.Address.ToString(),ipEndPoint.Port);
 
-                if (Communication is AbstractCommunication<SocketMessage> socketCommunication)
+                if (Communication is AbstractCommunication<UdpMessage> socketCommunication)
                 {
                     await socketCommunication.WriteMessageAsync(socketMessage);
                 }

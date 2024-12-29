@@ -9,7 +9,7 @@ namespace Comm.Service.IO;
 
 public class TcpServerAdapter : AbstractCommunication<SocketMessage>, ITcpServer
 {
-    private TcpListener? _listener;
+    public TcpListener? Listener;
 
     public TcpServerAdapter(ITcpServerConnectOption tcpServerConnectOption,
         ITcpServerReceiveOption tcpServerReceiveOption, ITcpServerSendOption tcpServerSendOption)
@@ -53,8 +53,8 @@ public class TcpServerAdapter : AbstractCommunication<SocketMessage>, ITcpServer
                 Close();
             }
 
-            _listener = new TcpListener(IPAddress.Any, TcpServerConnectOption.Port);
-            _listener.Start();
+            Listener = new TcpListener(IPAddress.Any, TcpServerConnectOption.Port);
+            Listener.Start();
             Cts = new();
             OnConnected(new ConnectedArgs());
             Task.Run(StartListen, Cts.Token);
@@ -81,7 +81,7 @@ public class TcpServerAdapter : AbstractCommunication<SocketMessage>, ITcpServer
 
     private void StartListen()
     {
-        if (_listener == null)
+        if (Listener == null)
         {
             return;
         }
@@ -90,7 +90,7 @@ public class TcpServerAdapter : AbstractCommunication<SocketMessage>, ITcpServer
         {
             try
             {
-                var socket = _listener.AcceptSocket();
+                var socket = Listener.AcceptSocket();
                 if (socket.Connected)
                 {
                     ClientConnected?.Invoke(this, socket);
@@ -133,8 +133,8 @@ public class TcpServerAdapter : AbstractCommunication<SocketMessage>, ITcpServer
         OnClosed(new ClosedArgs());
 
         _clients.Clear();
-        _listener?.Stop();
-        _listener?.Dispose();
-        _listener = null;
+        Listener?.Stop();
+        Listener?.Dispose();
+        Listener = null;
     }
 }

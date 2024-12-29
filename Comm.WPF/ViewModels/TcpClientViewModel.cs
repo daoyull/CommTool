@@ -60,14 +60,14 @@ public  partial class TcpClientViewModel : AbstractCommViewModel<SocketMessage>,
     protected override object InvokeSendScript(byte[] buffer)
     {
         var array = (ITypedArray<byte>)V8Send.Engine!.Invoke("arrayToUint8Array", buffer);
-        var jsMessage = new JsMessage(array);
+        var jsMessage = new JsSocketMessage(array,Client.Client!.Client);
         return V8Send.Engine.Invoke("send", jsMessage);
     }
 
     protected override object InvokeReceiveScript(SocketMessage message)
     {
         var array = (ITypedArray<byte>)V8Receive.Engine!.Invoke("arrayToUint8Array", message.Data);
-        var jsMessage = new JsMessage(array);
+        var jsMessage = new JsSocketMessage(array,message.Socket);
         return V8Receive.Engine.Invoke("receive", jsMessage);
     }
 

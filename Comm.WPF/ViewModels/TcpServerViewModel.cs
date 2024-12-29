@@ -6,6 +6,10 @@ using Comm.Service.IO;
 using Comm.Service.Messages;
 using Comm.Service.Share;
 using Comm.WPF.Abstracts;
+using Comm.WPF.Common;
+using Comm.WPF.Entity;
+using Comm.WPF.Servcice.V8;
+using Microsoft.ClearScript.JavaScript;
 
 namespace Comm.WPF.ViewModels;
 
@@ -18,6 +22,14 @@ public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, 
         tcpServerAdapter.ClientClosed += HandleClientClosed;
         tcpServerAdapter.Connected += (_, _) => { Clients.Clear(); };
         tcpServerAdapter.Closed += (_, _) => { Clients.Clear(); };
+        InitCommunication();
+    }
+
+    protected sealed override void InitCommunication()
+    {
+        base.InitCommunication();
+        V8Receive.LoadEngine += engine => { engine.AddHostObject("client", new JsTcpServer(this, engine)); };
+        V8Send.LoadEngine += engine => { engine.AddHostObject("client", new JsTcpServer(this, engine)); };
     }
 
     private void HandleClientClosed(object? sender, Socket e)
@@ -51,13 +63,17 @@ public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, 
 
     protected override void LogUiReceiveMessage(SocketMessage message)
     {
-        // Ui.Logger.Info($"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [Receive:{message.RemoteIp}]");
-        // Ui.Logger.Success($"{strMessage}");
+        if (ReceiveOption.LogStyleShow)
+        {
+            Ui.Logger.Info($"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [Receive:{message.RemoteIp}]");
+        }
+        Ui.Logger.Success($"{message.Data.BytesToString(ReceiveOption.IsHex)}");
     }
 
     protected override void LogFileReceiveMessage(SocketMessage message)
     {
-        throw new NotImplementedException();
+            FileLog.WriteMessage(Type, $"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [Receive:{message.RemoteIp}]");
+            FileLog.WriteMessage(Type,$"{message.Data.BytesToString(ReceiveOption.IsHex)}");
     }
 
     protected override void LogSendMessage(byte[] bytes)
@@ -68,24 +84,35 @@ public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, 
             return;
         }
 
-        // var sendStr = $"[{string.Join(',', clientItems)}]";
-        // Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send] {sendStr}");
-        // Ui.Logger.Write($"{message}", "#1E6FFF");
+        var sendStr = $"[{string.Join(',', clientItems)}]";
+        Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send] {sendStr}");
+        Ui.Logger.Success($"{bytes.BytesToString(SendOption.IsHex)}");
     }
 
     protected override void LogFileSendMessage(byte[] buffer)
     {
-        throw new NotImplementedException();
+        var clientItems = _clientList.Where(it => it.IsSelected).Select(it => it.ShowName).ToList();
+        if (clientItems.Count == 0)
+        {
+            return;
+        }
+        var sendStr = $"[{string.Join(',', clientItems)}]";
+        FileLog.WriteMessage(Type,$"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send] {sendStr}");
+        FileLog.WriteMessage(Type,$"{buffer.BytesToString(SendOption.IsHex)}");
     }
 
     protected override object InvokeSendScript(byte[] buffer)
     {
-        return null;
+        var array = (ITypedArray<byte>)V8Send.Engine!.Invoke("arrayToUint8Array", buffer);
+        var jsMessage = new JsSocketMessage(array,Server.Listener!.Server);
+        return V8Send.Engine.Invoke("send", jsMessage);
     }
 
     protected override object InvokeReceiveScript(SocketMessage message)
     {
-        throw new NotImplementedException();
+        var array = (ITypedArray<byte>)V8Receive.Engine!.Invoke("arrayToUint8Array", message.Data);
+        var jsMessage = new JsSocketMessage(array,message.Socket);
+        return V8Receive.Engine.Invoke("receive", jsMessage);
     }
 
 

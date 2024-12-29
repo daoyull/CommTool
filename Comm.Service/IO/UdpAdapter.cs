@@ -6,7 +6,7 @@ using Comm.Service.Service;
 
 namespace Comm.Service.IO;
 
-public class UdpAdapter : AbstractCommunication<SocketMessage>, IUdp
+public class UdpAdapter : AbstractCommunication<UdpMessage>, IUdp
 {
     public UdpAdapter(IUdpConnectOption udpConnectOption, IUdpReceiveOption receiveOption, IUdpSendOption sendOption)
     {

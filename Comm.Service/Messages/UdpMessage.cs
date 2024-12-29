@@ -1,10 +1,8 @@
-﻿using System.Net;
-using System.Net.Sockets;
 using Comm.Lib.Interface;
 
 namespace Comm.Service.Messages;
 
-public readonly struct SocketMessage(byte[] data, Socket socket) : IMessage
+public readonly struct UdpMessage(byte[] data,string ip,int port) : IMessage
 {
     /// <summary>
     /// 接收时间
@@ -21,11 +19,7 @@ public readonly struct SocketMessage(byte[] data, Socket socket) : IMessage
     /// </summary>
     public string RemoteIp  => $"{Ip}:{Port}";
 
-    /// <summary>
-    /// Socket
-    /// </summary>
-    public Socket Socket { get; } = socket;
 
-    public string Ip => ((IPEndPoint)Socket.LocalEndPoint!).Address.ToString();
-    public int Port => ((IPEndPoint)Socket.LocalEndPoint!).Port;
+    public string Ip { get; } = ip;
+    public int Port { get; } = port;
 }

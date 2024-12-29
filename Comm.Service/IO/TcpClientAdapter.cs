@@ -15,7 +15,7 @@ public class TcpClientAdapter : AbstractCommunication<SocketMessage>, ITcpClient
         TcpClientSendOption = clientSendOption;
     }
 
-    private TcpClient? _client;
+    public TcpClient? Client;
     private SocketPipeReceiveTask? _pipeHandle;
 
     #region Option
@@ -43,12 +43,12 @@ public class TcpClientAdapter : AbstractCommunication<SocketMessage>, ITcpClient
                 throw new Exception("Ip or Port is null");
             }
 
-            _client = new();
-            _client.Connect(TcpClientConnectOption.Ip, TcpClientConnectOption.Port);
+            Client = new();
+            Client.Connect(TcpClientConnectOption.Ip, TcpClientConnectOption.Port);
             Cts = new();
             OnConnected(new());
 
-            _pipeHandle = new SocketPipeReceiveTask(this, _client!.Client, Cts);
+            _pipeHandle = new SocketPipeReceiveTask(this, Client!.Client, Cts);
             _pipeHandle.CloseEvent += OnPipeHandleOnCloseEvent;
             Task.Run(_pipeHandle.StartHandle, Cts.Token);
         }
@@ -77,11 +77,11 @@ public class TcpClientAdapter : AbstractCommunication<SocketMessage>, ITcpClient
         Cts?.Cancel();
         Cts?.Dispose();
         Cts = null;
-        if (_client != null)
+        if (Client != null)
         {
-            _client.Close();
-            _client.Dispose();
-            _client = null;
+            Client.Close();
+            Client.Dispose();
+            Client = null;
         }
 
         OnClosed(new());
@@ -100,9 +100,9 @@ public class TcpClientAdapter : AbstractCommunication<SocketMessage>, ITcpClient
 
     public override void Write(byte[] buffer, int offset, int count)
     {
-        if (IsConnect && _client != null)
+        if (IsConnect && Client != null)
         {
-            _client.GetStream().Write(buffer.AsSpan().Slice(offset, count));
+            Client.GetStream().Write(buffer.AsSpan().Slice(offset, count));
         }
     }
 }

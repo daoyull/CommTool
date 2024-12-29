@@ -1,9 +1,10 @@
-﻿using System.Net.Sockets;
+﻿using System.Net;
+using System.Net.Sockets;
 using Microsoft.ClearScript.JavaScript;
 
 namespace Comm.WPF.Entity;
 
-public readonly struct JsSocketMessage(Socket socket, ITypedArray<byte> data)
+public readonly struct JsSocketMessage( ITypedArray<byte> data,Socket socket)
 {
     /// <summary>
     /// 接收时间
@@ -19,4 +20,7 @@ public readonly struct JsSocketMessage(Socket socket, ITypedArray<byte> data)
     /// Socket
     /// </summary>
     public Socket Socket { get; } = socket;
+
+    public string Ip => ((IPEndPoint)Socket.LocalEndPoint!).Address.ToString();
+    public int Port => ((IPEndPoint)Socket.LocalEndPoint!).Port;
 }
