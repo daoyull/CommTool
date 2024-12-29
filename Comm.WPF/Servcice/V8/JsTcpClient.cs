@@ -1,6 +1,7 @@
 ﻿using Comm.Service.Share;
 using Comm.WPF.ViewModels;
 using Microsoft.ClearScript.JavaScript;
+using Microsoft.ClearScript.V8;
 
 namespace Comm.WPF.Servcice.V8;
 
@@ -8,7 +9,7 @@ public class JsTcpClient
 {
     public TcpClientViewModel ViewModel { get; }
 
-    public JsTcpClient(TcpClientViewModel viewModel)
+    public JsTcpClient(TcpClientViewModel viewModel, V8ScriptEngine engine)
     {
         ViewModel = viewModel;
     }

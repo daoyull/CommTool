@@ -29,16 +29,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Common\src\Common.WPF\Common.WPF.csproj" />
       <ProjectReference Include="..\Comm.Lib\Comm.Lib.csproj" />
       <ProjectReference Include="..\Comm.Service\Comm.Service.csproj" />
+      <ProjectReference Include="..\Common\src\Common.Mvvm\Common.Mvvm.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Reference Include="MaterialDesignThemes.Wpf">
-        <HintPath>C:\Users\DaoYu\.nuget\packages\materialdesignthemes\5.1.0\lib\net8.0\MaterialDesignThemes.Wpf.dll</HintPath>
-      </Reference>
-    </ItemGroup>
+    
 
     <ItemGroup>
       <Content Update="wwwroot\index.html">
@@ -84,6 +79,18 @@
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="scripts\common\template_SerialSend.js">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="scripts\common\tip_TcpClientReceive.js">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="scripts\common\tip_TcpClientSend.js">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="scripts\common\template_TcpClientReceive.js">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="scripts\common\template_TcpClientSend.js">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>
