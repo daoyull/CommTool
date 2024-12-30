@@ -10,7 +10,7 @@ using Microsoft.ClearScript.JavaScript;
 
 namespace Comm.WPF.ViewModels;
 
-public  partial class TcpClientViewModel : AbstractCommViewModel<SocketMessage>, IDisposable
+public partial class TcpClientViewModel : AbstractCommViewModel<SocketMessage>, IDisposable
 {
     public TcpClientViewModel(TcpClientAdapter tcpClient)
     {
@@ -60,14 +60,14 @@ public  partial class TcpClientViewModel : AbstractCommViewModel<SocketMessage>,
     protected override object InvokeSendScript(byte[] buffer)
     {
         var array = (ITypedArray<byte>)V8Send.Engine!.Invoke("arrayToUint8Array", buffer);
-        var jsMessage = new JsSocketMessage(array,Client.Client!.Client);
+        var jsMessage = new JsSocketMessage(array, DateTime.Now, Client.Client!.Client,true);
         return V8Send.Engine.Invoke("send", jsMessage);
     }
 
     protected override object InvokeReceiveScript(SocketMessage message)
     {
         var array = (ITypedArray<byte>)V8Receive.Engine!.Invoke("arrayToUint8Array", message.Data);
-        var jsMessage = new JsSocketMessage(array,message.Socket);
+        var jsMessage = new JsSocketMessage(array, message.Time, message.Socket,false);
         return V8Receive.Engine.Invoke("receive", jsMessage);
     }
 

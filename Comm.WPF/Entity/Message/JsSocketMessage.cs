@@ -4,23 +4,44 @@ using Microsoft.ClearScript.JavaScript;
 
 namespace Comm.WPF.Entity;
 
-public readonly struct JsSocketMessage( ITypedArray<byte> data,Socket socket)
+public readonly struct JsSocketMessage(ITypedArray<byte> data, DateTime time, Socket socket,bool isLocal)
 {
     /// <summary>
     /// 接收时间
     /// </summary>
-    public DateTime Time { get; } = DateTime.Now;
+    public DateTime time { get; } = time;
 
     /// <summary>
     /// 接收数据
     /// </summary>
-    public ITypedArray<byte> Data { get; } = data;
+    public ITypedArray<byte> data { get; } = data;
 
     /// <summary>
     /// Socket
     /// </summary>
     public Socket Socket { get; } = socket;
 
-    public string Ip => ((IPEndPoint)Socket.LocalEndPoint!).Address.ToString();
-    public int Port => ((IPEndPoint)Socket.LocalEndPoint!).Port;
+    public string ip
+    {
+        get
+        {
+            if (isLocal)
+            {
+                return ((IPEndPoint)Socket.LocalEndPoint!).Address.ToString();
+            }
+            return ((IPEndPoint)Socket.RemoteEndPoint!).Address.ToString();
+        }
+    }
+
+    public int port
+    {
+        get
+        {
+            if (isLocal)
+            {
+                return ((IPEndPoint)Socket.LocalEndPoint!).Port;
+            }
+            return ((IPEndPoint)Socket.RemoteEndPoint!).Port;
+        }
+    }
 }

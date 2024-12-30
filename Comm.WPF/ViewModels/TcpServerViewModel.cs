@@ -28,8 +28,8 @@ public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, 
     protected sealed override void InitCommunication()
     {
         base.InitCommunication();
-        V8Receive.LoadEngine += engine => { engine.AddHostObject("client", new JsTcpServer(this, engine)); };
-        V8Send.LoadEngine += engine => { engine.AddHostObject("client", new JsTcpServer(this, engine)); };
+        V8Receive.LoadEngine += engine => { engine.AddHostObject("server", new JsTcpServer(this, engine)); };
+        V8Send.LoadEngine += engine => { engine.AddHostObject("server", new JsTcpServer(this, engine)); };
     }
 
     private void HandleClientClosed(object? sender, Socket e)
@@ -67,13 +67,14 @@ public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, 
         {
             Ui.Logger.Info($"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [Receive:{message.RemoteIp}]");
         }
+
         Ui.Logger.Success($"{message.Data.BytesToString(ReceiveOption.IsHex)}");
     }
 
     protected override void LogFileReceiveMessage(SocketMessage message)
     {
-            FileLog.WriteMessage(Type, $"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [Receive:{message.RemoteIp}]");
-            FileLog.WriteMessage(Type,$"{message.Data.BytesToString(ReceiveOption.IsHex)}");
+        FileLog.WriteMessage(Type, $"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [Receive:{message.RemoteIp}]");
+        FileLog.WriteMessage(Type, $"{message.Data.BytesToString(ReceiveOption.IsHex)}");
     }
 
     protected override void LogSendMessage(byte[] bytes)
@@ -96,22 +97,23 @@ public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, 
         {
             return;
         }
+
         var sendStr = $"[{string.Join(',', clientItems)}]";
-        FileLog.WriteMessage(Type,$"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send] {sendStr}");
-        FileLog.WriteMessage(Type,$"{buffer.BytesToString(SendOption.IsHex)}");
+        FileLog.WriteMessage(Type, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send] {sendStr}");
+        FileLog.WriteMessage(Type, $"{buffer.BytesToString(SendOption.IsHex)}");
     }
 
     protected override object InvokeSendScript(byte[] buffer)
     {
         var array = (ITypedArray<byte>)V8Send.Engine!.Invoke("arrayToUint8Array", buffer);
-        var jsMessage = new JsSocketMessage(array,Server.Listener!.Server);
+        var jsMessage = new JsSocketMessage(array, DateTime.Now, Server.Listener!.Server,true);
         return V8Send.Engine.Invoke("send", jsMessage);
     }
 
     protected override object InvokeReceiveScript(SocketMessage message)
     {
         var array = (ITypedArray<byte>)V8Receive.Engine!.Invoke("arrayToUint8Array", message.Data);
-        var jsMessage = new JsSocketMessage(array,message.Socket);
+        var jsMessage = new JsSocketMessage(array, message.Time, message.Socket,false);
         return V8Receive.Engine.Invoke("receive", jsMessage);
     }
 

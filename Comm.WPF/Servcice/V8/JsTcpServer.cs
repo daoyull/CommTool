@@ -14,6 +14,10 @@ public class JsTcpServer
         ViewModel = viewModel;
     }
 
+    public string[] connectList => ViewModel.Clients.Select(it => it.ShowName).ToArray();
+    public string[] selectList => ViewModel.Clients.Where(it => it.IsSelected).Select(it => it.ShowName).ToArray();
+
+
     public void sendBuffer(string address, byte[] buffer)
     {
         var clientItem = ViewModel.Clients.FirstOrDefault(it => it.Socket.ToRemoteIpStr() == address);
