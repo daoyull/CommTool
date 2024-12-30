@@ -18,7 +18,7 @@ function send(message) {
     // 输出界面信息
     ui.addSendFrame(1);
     ui.addSendBytes(sendBuffer.length);
-    ui.logInfo(`[${formatDate(new Date())}] Send`)
+    ui.logInfo(`[${formatDate(new Date())}] [Send --> ${remoteIp}]`)
     ui.logPrimary(util.arrayToString(sendBuffer, true))
 
     // 发送数据

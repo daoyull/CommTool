@@ -17,7 +17,7 @@ function send(message) {
         // 输出界面信息
         ui.addSendFrame(1);
         ui.addSendBytes(sendBuffer.length);
-        ui.logInfo(`[${formatDate(new Date())}] Send --> ${address}`)
+        ui.logInfo(`[${formatDate(new Date())}] [Send --> ${address}]`)
         ui.logPrimary(util.arrayToString(sendBuffer, true))
         // 发送数据
         server.sendBuffer(address, sendBuffer)

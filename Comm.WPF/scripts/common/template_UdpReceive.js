@@ -16,11 +16,11 @@ function receive(message) {
     // 接收日志输出到界面
     var remoteIp = `${message.ip}:${message.port}`;
     ui.logInfo("-------Script Start-------")
-    ui.logInfo(`[${formatDate(message.time)}] Receive <-- [${remoteIp}] `);
+    ui.logInfo(`[${formatDate(message.time)}] [Receive <-- [{remoteIp}] `);
     ui.logSuccess(util.arrayToString(message.data));
 
     // 发送日志输出到界面
-    ui.logInfo(`[${formatDate(new Date())}] Send --> [${remoteIp}]`);
+    ui.logInfo(`[${formatDate(new Date())}] [Send --> ${remoteIp}]`);
     ui.logPrimary(util.arrayToString(message.data));
     ui.addSendFrame(1);
     ui.addSendBytes(message.data.length);

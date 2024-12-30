@@ -65,7 +65,7 @@ public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, 
     {
         if (ReceiveOption.LogStyleShow)
         {
-            Ui.Logger.Info($"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [Receive:{message.RemoteIp}]");
+            Ui.Logger.Info($"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [Receive <-- {message.RemoteIp}]");
         }
 
         Ui.Logger.Success($"{message.Data.BytesToString(ReceiveOption.IsHex)}");
@@ -73,7 +73,7 @@ public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, 
 
     protected override void LogFileReceiveMessage(SocketMessage message)
     {
-        FileLog.WriteMessage(Type, $"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [Receive:{message.RemoteIp}]");
+        FileLog.WriteMessage(Type, $"[{message.Time:yyyy-MM-dd HH:mm:ss.fff}] [Receive <-- {message.RemoteIp}]");
         FileLog.WriteMessage(Type, $"{message.Data.BytesToString(ReceiveOption.IsHex)}");
     }
 
@@ -86,7 +86,7 @@ public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, 
         }
 
         var sendStr = $"[{string.Join(',', clientItems)}]";
-        Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send] {sendStr}");
+        Ui.Logger.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send --> {sendStr}]");
         Ui.Logger.Success($"{bytes.BytesToString(SendOption.IsHex)}");
     }
 
@@ -99,7 +99,7 @@ public partial class TcpServerViewModel : AbstractCommViewModel<SocketMessage>, 
         }
 
         var sendStr = $"[{string.Join(',', clientItems)}]";
-        FileLog.WriteMessage(Type, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send] {sendStr}");
+        FileLog.WriteMessage(Type, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [Send --> {sendStr}]");
         FileLog.WriteMessage(Type, $"{buffer.BytesToString(SendOption.IsHex)}");
     }
 
