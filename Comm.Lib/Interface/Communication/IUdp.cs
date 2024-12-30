@@ -16,4 +16,8 @@ public interface IUdp
     /// Udp发送选项
     /// </summary>
     public IUdpSendOption UdpSendOption { get; set; }
+
+    public Task Write(string ip,int port, byte[] buffer);
+    
+    public Task Write(string address, byte[] buffer);
 }

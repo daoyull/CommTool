@@ -50,6 +50,7 @@
                 </Grid.ColumnDefinitions>
                 <TextBox
                     x:Name="SendTextBox"
+                    Text="Hello World!"
                     Padding="5"
                     HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Left"

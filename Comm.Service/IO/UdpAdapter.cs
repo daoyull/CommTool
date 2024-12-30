@@ -25,6 +25,28 @@ public class UdpAdapter : AbstractCommunication<UdpMessage>, IUdp
     public IUdpReceiveOption UdpReceiveOption { get; set; }
     public IUdpSendOption UdpSendOption { get; set; }
 
+    public async Task Write(string ip, int port, byte[] buffer)
+    {
+        if (string.IsNullOrEmpty(ip) || port == 0)
+        {
+            return;
+        }
+
+        await Write(ip + ":" + port, buffer);
+    }
+
+    public async Task Write(string address, byte[] buffer)
+    {
+        if (!IsConnect || _client == null)
+        {
+            Notify.Warning("Udp Not Open");
+            return;
+        }
+
+        var ipAddress = IPEndPoint.Parse(address);
+        await _client.SendAsync(buffer, ipAddress);
+    }
+
     #endregion
 
     #region 字段
@@ -33,21 +55,9 @@ public class UdpAdapter : AbstractCommunication<UdpMessage>, IUdp
 
     #endregion
 
-    public override void Write(byte[] buffer, int offset, int count)
+    public override async void Write(byte[] buffer, int offset, int count)
     {
-        if (!IsConnect || _client == null)
-        {
-            Notify.Warning("Udp Not Open");
-            return;
-        }
-
-        if (string.IsNullOrEmpty(UdpSendOption.SendIp) || UdpSendOption.SendPort == 0)
-        {
-            return;
-        }
-
-        var ipEndPoint = new IPEndPoint(IPAddress.Parse(UdpSendOption.SendIp), UdpSendOption.SendPort);
-        _client.Send(buffer.AsSpan().Slice(offset, count), ipEndPoint);
+        await Write(UdpSendOption.SendIp!, UdpSendOption.SendPort, buffer.AsSpan().Slice(offset, count).ToArray());
     }
 
     public override void Close()

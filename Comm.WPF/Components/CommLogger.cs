@@ -32,7 +32,7 @@ public class CommLogger : TextEditor, IUiLogger
         ICSharpCode.AvalonEdit.Search.SearchPanel.Install(this);
         PreviewMouseWheel += HandlePreviewMouseWheel;
         Unloaded += (_, _) => { _cts.Dispose(); };
-
+        
         Task.Run(StartWriteMessageToUi, _cts.Token);
         this.Loaded += Loadedd;
     }
